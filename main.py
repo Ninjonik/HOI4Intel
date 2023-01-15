@@ -34,24 +34,12 @@ global connection
 async def on_start(server_name, server_description, guild_id, guild_count):
     # Establish database connection
     cursor, connection = config.setup()
-    cursor.execute("SELECT guildId FROM settings WHERE guildId='%s'" % guild_id)
+    cursor.execute("SELECT guild_id FROM settings WHERE guild_id='%s'" % guild_id)
     settings = cursor.fetchall()
     current_time = datetime.datetime.now()
     current_date = datetime.datetime.now().date()
-    if not settings:
-        print(f"{presets.prefix()} Guild was not in database - {server_name}")
-        cursor.execute("INSERT INTO settings (created_at, updated_at, verify, serverName, "
-                       "serverDescription, guildId) VALUES ('%s', "
-                       "'%s', %s, '%s', '%s', %s)" % (current_time,
-                                                      current_time, 0, server_name,
-                                                      server_description, guild_id))
-        cursor.execute(
-            "INSERT INTO statistics (guildId, created_at, updated_at, count) VALUES (%s, '%s', '%s', %s) " % (
-                guild_id, current_time, current_time, guild_count))
-        connection.commit()
-
-    else:
-        cursor.execute("SELECT updated_at FROM statistics WHERE guildId='%s' ORDER BY id DESC LIMIT 1" % guild_id)
+    if settings:
+        cursor.execute("SELECT updated_at FROM statistics WHERE guild_id='%s' ORDER BY id DESC LIMIT 1" % guild_id)
         row = cursor.fetchall()
         # Extract the date from the datetime object stored in the database
         db_datetime = row[0][0]
@@ -59,11 +47,11 @@ async def on_start(server_name, server_description, guild_id, guild_count):
         print(f" {presets.prefix()} Current date is: {current_date} meanwhile DB date is: {db_date}")
         if current_date != db_date:
             print(f"{presets.prefix()} Date is different, updating statistics for {server_name}")
-            cursor.execute("UPDATE settings SET serverName='%s', serverDescription='%s', updated_at='%s'"
-                           " WHERE guildId='%s'" % (server_name, server_description,
+            cursor.execute("UPDATE settings SET guild_name='%s', guild_desc='%s', updated_at='%s'"
+                           " WHERE guild_id='%s'" % (server_name, server_description,
                                                     current_time, guild_id))
             cursor.execute(
-                "INSERT INTO statistics (guildId, created_at, updated_at, count) VALUES (%s, '%s', '%s', %s) " % (
+                "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, '%s', '%s', %s) " % (
                     guild_id, current_time, current_time, guild_count))
             connection.commit()
 
@@ -81,7 +69,7 @@ async def guildLoop():
     # Establish database connection
     cursor, connection = config.setup()
     guildCount = len(client.guilds)
-    cursor.execute("SELECT count(guildId) as Counter FROM settings")
+    cursor.execute("SELECT count(guild_id) as Counter FROM settings")
     dbCount = cursor.fetchone()
     if guildCount != int(dbCount[0]):
         print(presets.prefix() + " New guild was detected, restarting loop.")
@@ -114,8 +102,8 @@ class Client(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=commands.when_mentioned_or('.'), intents=discord.Intents().all())
         self.cursor, self.connection = config.setup()
-        self.cogsList = ["cogs.roles", "cogs.calculate", "cogs.whois", "cogs.dice", "cogs.randomcog", "cogs.guessgame",
-                         "cogs.assembly", "cogs.verify", "cogs.clear"]
+        self.cogsList = ["cogs.calculate", "cogs.whois", "cogs.dice", "cogs.randomcog", "cogs.guessgame",
+                         "cogs.clear", "cogs.setup", "cogs.add_record"]
 
     async def setup_hook(self):
         for ext in self.cogsList:
