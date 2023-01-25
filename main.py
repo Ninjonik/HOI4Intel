@@ -103,7 +103,8 @@ class Client(commands.Bot):
         super().__init__(command_prefix=commands.when_mentioned_or('.'), intents=discord.Intents().all())
         self.cursor, self.connection = config.setup()
         self.cogsList = ["cogs.calculate", "cogs.whois", "cogs.dice", "cogs.randomcog", "cogs.guessgame",
-                         "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.add_steam"]
+                         "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.add_steam", "cogs.setupann",
+                         "cogs.announce"]
 
     async def setup_hook(self):
         for ext in self.cogsList:
@@ -128,12 +129,6 @@ class Client(commands.Bot):
             guildLoop.start(),
         if not update_guild_data.is_running():
             update_guild_data.start(self.guilds)
-
-    async def on_message(self, message):
-        await self.check_toxicity(message)
-
-    async def on_message_edit(self, before, after):
-        await self.check_toxicity(after)
 
 
 client = Client()

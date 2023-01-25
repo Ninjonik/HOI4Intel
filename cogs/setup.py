@@ -18,12 +18,11 @@ class setupCommand(commands.Cog):
                            log_channel: discord.TextChannel,
                            verify_role: discord.Role = None):
         if interaction.user.guild_permissions.administrator:
-            await interaction.response.send_message((steam_verification, log_channel.id, verify_role.id))
             guild_id = interaction.guild.id
             guild_name = interaction.guild.name
             guild_count = interaction.guild.member_count
             # Establish database connection
-            self.cursor.execute("SELECT guild_id FROM settings WHERE guild_id='%s'" % guild_id)
+            self.cursor.execute("SELECT guild_id FROM settings WHERE guild_id=%s" % guild_id)
             settings = self.cursor.fetchall()
             current_time = datetime.datetime.now()
             if not settings:
@@ -37,6 +36,16 @@ class setupCommand(commands.Cog):
                     "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, '%s', '%s', %s) " % (
                         guild_id, current_time, current_time, guild_count))
                 self.connection.commit()
+            else:
+                self.cursor.execute("UPDATE settings SET updated_at='%s', steam_verification=%s, guild_name='%s', "
+                                    "log_channel=%s, verify_role=%s WHERE guild_id=%s" % (current_time,
+                                                                                          steam_verification,
+                                                                                          guild_name,
+                                                                                          log_channel.id,
+                                                                                          verify_role.id,
+                                                                                          guild_id,))
+                self.connection.commit()
+            await interaction.response.send_message("Success!", ephemeral=True)
 
 
 async def setup(client: commands.Bot) -> None:
