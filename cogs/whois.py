@@ -16,6 +16,7 @@ class whois(commands.Cog):
 
         self.cursor.execute("SELECT * FROM players WHERE discord_id=%s" % member.id)
         player = self.cursor.fetchall()
+        print(player)
 
         roles = [role for role in member.roles]
         embed = discord.Embed(title="User info", description=f"{member.mention}'s information",

@@ -44,7 +44,8 @@ class add_record(commands.Cog):
                 self.connection.commit()
 
                 await interaction.response.send_message(
-                    f"Player Record for user {player.name} has been successfully created. New rating: {total_rating}")
+                    f"Player Record for user {player.name} has been successfully created. New rating: "
+                    f"{total_rating * 100}%")
             else:
                 await interaction.response.send_message("Please only enter values in this interval: <0;100>",
                                                         ephemeral=True)
