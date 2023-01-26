@@ -36,13 +36,12 @@ admins = {
     "no idea#8824"
 }
 
-
 perspective = discovery.build(
-  "commentanalyzer",
-  "v1alpha1",
-  developerKey=config.API_KEY,
-  discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
-  static_discovery=False,
+    "commentanalyzer",
+    "v1alpha1",
+    developerKey=config.API_KEY,
+    discoveryServiceUrl="https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1",
+    static_discovery=False,
 )
 
 
@@ -63,6 +62,18 @@ def check_perm(member):
 
 def log(content):
     print(prefix() + content)
+
+
+async def _add_player(player_id, rating_percentage, current_time):
+    cursor, connection = config.setup()
+    try:
+        cursor.execute(
+            "INSERT INTO players (discord_id, rating, created_at, updated_at) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE rating = %s, updated_at = %s",
+            (player_id, rating_percentage, current_time, current_time, rating_percentage, current_time))
+        connection.commit()
+    except Exception as e:
+        connection.rollback()
+        raise e
 
 
 class UpdateRoles(discord.ui.View):

@@ -19,6 +19,7 @@ from PIL import Image, ImageDraw, ImageFont
 import mysql.connector
 import time
 import presets
+from presets import _add_player
 
 intents = discord.Intents.all()
 intents.typing = True
@@ -49,7 +50,7 @@ async def on_start(server_name, server_description, guild_id, guild_count):
             print(f"{presets.prefix()} Date is different, updating statistics for {server_name}")
             cursor.execute("UPDATE settings SET guild_name='%s', guild_desc='%s', updated_at='%s'"
                            " WHERE guild_id='%s'" % (server_name, server_description,
-                                                    current_time, guild_id))
+                                                     current_time, guild_id))
             cursor.execute(
                 "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, '%s', '%s', %s) " % (
                     guild_id, current_time, current_time, guild_count))
@@ -116,8 +117,8 @@ class Client(commands.Bot):
             print(presets.prefix() + " Connected to MySQL Server version ", db_Info)
         print(presets.prefix() + " Logged in as " + Fore.YELLOW + self.user.name)
         print(presets.prefix() + " Bot ID " + Fore.YELLOW + str(self.user.id))
-        print(presets.prefix() + " Discord Version " + Fore.YELLOW + self.user.name)
-        print(presets.prefix() + " Python version " + Fore.YELLOW + discord.__version__)
+        print(presets.prefix() + " Discord Version " + Fore.YELLOW + discord.__version__)
+        print(presets.prefix() + " Python version " + Fore.YELLOW + platform.python_version())
         print(presets.prefix() + " Syncing slash commands...")
         synced = await self.tree.sync()
         print(presets.prefix() + " Slash commands synced " + Fore.YELLOW + str(len(synced)) + " Commands")
@@ -129,6 +130,40 @@ class Client(commands.Bot):
             guildLoop.start(),
         if not update_guild_data.is_running():
             update_guild_data.start(self.guilds)
+
+    async def on_raw_reaction_add(self, payload):
+        current_time = datetime.datetime.now()
+        await _add_player(payload.user_id, 0.5, current_time)
+        member = await client.fetch_user(payload.user_id)
+        if payload.emoji.name == "🏷️":
+            try:
+                self.cursor.execute("INSERT INTO player_ann_blacklist (player_id) VALUES (%s)" % payload.user_id)
+                self.connection.commit()
+            except Exception as e:
+                self.connection.rollback()
+                raise e
+            try:
+                channel = await member.create_dm()
+                embed = discord.Embed(title=f"Unsubscribed from HOI4Intel's Announcements")
+                embed.set_footer(text=f"You have successfully unsubscribed from HOI4Intel's Announcements. "
+                                      f"This includes announcements from all servers that are using HOI4Intel. "
+                                      f"If you want to get subscribe again then click on the reaction:")
+                message = await channel.send(embed=embed)
+                await message.add_reaction("👌")
+            except Exception as e:
+                raise e
+
+        elif payload.emoji.name == "👌":
+            self.cursor.execute("DELETE FROM player_ann_blacklist WHERE player_id=%s" % payload.user_id)
+            self.connection.commit()
+            try:
+                channel = await member.create_dm()
+                embed = discord.Embed(title=f"Subscribed to HOI4Intel's Announcements")
+                embed.set_footer(text=f"You have successfully subscribed to HOI4Intel's Announcements. "
+                                      f"This includes announcements from all servers that are using HOI4Intel. ")
+                await channel.send(embed=embed)
+            except Exception as e:
+                raise e
 
 
 client = Client()
