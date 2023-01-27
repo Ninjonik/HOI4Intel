@@ -105,7 +105,7 @@ class Client(commands.Bot):
         self.cursor, self.connection = config.setup()
         self.cogsList = ["cogs.calculate", "cogs.whois", "cogs.dice", "cogs.randomcog", "cogs.guessgame",
                          "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.add_steam", "cogs.setupann",
-                         "cogs.announce"]
+                         "cogs.announce", "cogs.assign_roles_to_all"]
 
     async def setup_hook(self):
         for ext in self.cogsList:
