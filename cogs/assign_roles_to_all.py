@@ -15,6 +15,7 @@ class assign_roles_to_all(commands.Cog):
     async def assign_roles_to_all(self, interaction: discord.Interaction, role: discord.Role):
         if interaction.user.guild_permissions.administrator:
             for member in interaction.guild.members:
+                print(role)
                 hasRole = False
                 print("giving roles")
                 for r in member.roles:
