@@ -13,20 +13,20 @@ class assign_roles_to_all(commands.Cog):
 
     @app_commands.command(name="roles-all", description="Adds selected role to everybody.")
     async def assign_roles_to_all(self, interaction: discord.Interaction, role: discord.Role):
-        member = interaction.user
-        userName = f"{member.name}#{member.discriminator}"
         if interaction.user.guild_permissions.administrator:
             for member in interaction.guild.members:
                 hasRole = False
+                print("giving roles")
                 for r in member.roles:
-                    if r.id == 959859791646322718:
+                    if r.id == role.id:
+                        print("Has role = true")
                         hasRole = True
                 if not hasRole:
+                    print(f"Giving role to {member}")
                     await member.add_roles(role)
             await interaction.response.send_message(content="Command successfully executed!", ephemeral=True)
         else:
             await interaction.response.send_message(content="Not enough permissions for this command!", ephemeral=True)
-
 
 
 async def setup(client: commands.Bot) -> None:
