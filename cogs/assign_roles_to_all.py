@@ -23,7 +23,10 @@ class assign_roles_to_all(commands.Cog):
                         hasRole = True
                 if not hasRole:
                     print(f"Giving role to {member}")
-                    await member.add_roles(role)
+                    try:
+                        await member.add_roles(role)
+                    except Exception as e:
+                        print(e)
             await interaction.response.send_message(content="Command successfully executed!", ephemeral=True)
         else:
             await interaction.response.send_message(content="Not enough permissions for this command!", ephemeral=True)
