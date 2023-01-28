@@ -138,6 +138,7 @@ class Client(commands.Bot):
         if payload.emoji.name == "🏷️":
             try:
                 self.cursor.execute("INSERT INTO player_ann_blacklist (player_id) VALUES (%s)" % payload.user_id)
+                print(f"Adding {payload.user_id} to the blacklist")
                 self.connection.commit()
             except Exception as e:
                 self.connection.rollback()
