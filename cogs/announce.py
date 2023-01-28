@@ -23,12 +23,12 @@ class announce(commands.Cog):
             self.cursor.execute("SELECT ann_role FROM settings WHERE guild_id=%s" % interaction.guild.id)
             pre_role = self.cursor.fetchone()[0]
             role = discord.utils.get(interaction.guild.roles, id=pre_role)
+            current_time = datetime.now()
+            await _add_player(interaction.user.id, 1, current_time)
             i = 0
             for member in interaction.guild.members:
                 i += 1
                 print(i)
-                current_time = datetime.now()
-                await _add_player(interaction.user.id, 1, current_time)
                 self.cursor.execute("SELECT player_id FROM player_ann_blacklist WHERE player_id=%s" % member.id)
                 blacklist = self.cursor.fetchone()
                 if role in member.roles and blacklist is None:
@@ -45,7 +45,7 @@ class announce(commands.Cog):
                         print("Message sent!")
 
                     except Exception as e:
-                        print(presets.prefix() + e)
+                        print(e)
 
 
 async def setup(client: commands.Bot) -> None:
