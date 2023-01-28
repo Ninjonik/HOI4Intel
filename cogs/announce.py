@@ -27,7 +27,7 @@ class announce(commands.Cog):
             await _add_player(interaction.user.id, 1, current_time)
             i = 0
             for member in interaction.guild.members:
-                if not member.dm_channel:
+                if not member.bot and not member.dm_channel:
                     i += 1
                     print(i)
                     self.cursor.execute("SELECT player_id FROM player_ann_blacklist WHERE player_id=%s" % member.id)
@@ -38,8 +38,9 @@ class announce(commands.Cog):
                                                   description=f"By: {interaction.user}", color=0xff0000)
                             embed.add_field(name="Message:", value=message_content, inline=False)
                             embed.set_footer(text=f"You were DMed because you have a {role} role on server "
-                                                  f"{interaction.guild.name}. If you wish to unsubscribe to these DM announ"
-                                                  f"cements then you should remove the role by reacting on this message.")
+                                                  f"{interaction.guild.name}. If you wish to unsubscribe to these DM "
+                                                  f"announcements then you should remove the "
+                                                  f"role by reacting on this message.")
                             channel = await member.create_dm()
                             message = await channel.send(embed=embed)
                             await message.add_reaction('🏷️')
