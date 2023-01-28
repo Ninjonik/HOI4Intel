@@ -27,7 +27,7 @@ class announce(commands.Cog):
             await _add_player(interaction.user.id, 1, current_time)
             i = 0
             for member in interaction.guild.members:
-                if not member.bot:
+                if not member.dm_channel:
                     i += 1
                     print(i)
                     self.cursor.execute("SELECT player_id FROM player_ann_blacklist WHERE player_id=%s" % member.id)
