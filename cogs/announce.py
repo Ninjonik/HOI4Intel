@@ -27,25 +27,26 @@ class announce(commands.Cog):
             await _add_player(interaction.user.id, 1, current_time)
             i = 0
             for member in interaction.guild.members:
-                i += 1
-                print(i)
-                self.cursor.execute("SELECT player_id FROM player_ann_blacklist WHERE player_id=%s" % member.id)
-                blacklist = self.cursor.fetchone()
-                if role in member.roles and blacklist is None:
-                    try:
-                        embed = discord.Embed(title=f"📢 {interaction.guild.name} Announcement!",
-                                              description=f"By: {interaction.user}", color=0xff0000)
-                        embed.add_field(name="Message:", value=message_content, inline=False)
-                        embed.set_footer(text=f"You were DMed because you have a {role} role on server "
-                                              f"{interaction.guild.name}. If you wish to unsubscribe to these DM announ"
-                                              f"cements then you should remove the role by reacting on this message.")
-                        channel = await member.create_dm()
-                        message = await channel.send(embed=embed)
-                        await message.add_reaction('🏷️')
-                        print("Message sent!")
+                if not member.bot:
+                    i += 1
+                    print(i)
+                    self.cursor.execute("SELECT player_id FROM player_ann_blacklist WHERE player_id=%s" % member.id)
+                    blacklist = self.cursor.fetchone()
+                    if role in member.roles and blacklist is None:
+                        try:
+                            embed = discord.Embed(title=f"📢 {interaction.guild.name} Announcement!",
+                                                  description=f"By: {interaction.user}", color=0xff0000)
+                            embed.add_field(name="Message:", value=message_content, inline=False)
+                            embed.set_footer(text=f"You were DMed because you have a {role} role on server "
+                                                  f"{interaction.guild.name}. If you wish to unsubscribe to these DM announ"
+                                                  f"cements then you should remove the role by reacting on this message.")
+                            channel = await member.create_dm()
+                            message = await channel.send(embed=embed)
+                            await message.add_reaction('🏷️')
+                            print("Message sent!")
 
-                    except Exception as e:
-                        print(e)
+                        except Exception as e:
+                            print(e)
 
 
 async def setup(client: commands.Bot) -> None:
