@@ -13,8 +13,11 @@ class add_record(commands.Cog):
 
     @app_commands.command(name="add_record")
     async def add_record(self, interaction: discord.Interaction, player: discord.User, rating: int):
+        print("sevas")
         if interaction.user.guild_permissions.administrator:
+            print("neseavas")
             if 0 <= rating <= 100:
+                print("helloa alta")
                 host = interaction.user
                 current_time = datetime.now()
                 guild = interaction.guild
