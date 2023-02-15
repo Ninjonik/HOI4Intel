@@ -19,11 +19,13 @@ class add_record(commands.Cog):
                 current_time = datetime.now()
                 guild = interaction.guild
                 rating_percentage = rating / 100
+                await interaction.response.send_message("Working on it...", ephemeral=True)
                 await _add_player(host.id, 0.5, current_time)
                 await _add_player(player.id, rating_percentage, current_time)
                 cursor = self.connection.cursor()
                 cursor.execute(
-                    "INSERT INTO player_records (player_id, guild_id, host_id, rating, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s)",
+                    "INSERT INTO player_records (player_id, guild_id, host_id, rating, created_at, updated_at) "
+                    "VALUES (%s, %s, %s, %s, %s, %s)",
                     (player.id, guild.id, host.id, rating_percentage, current_time, current_time))
                 self.connection.commit()
 
@@ -34,12 +36,12 @@ class add_record(commands.Cog):
                 self.cursor.execute("UPDATE players SET rating=%s WHERE discord_id=%s" % (total_rating, player.id))
                 self.connection.commit()
 
-                await interaction.response.send_message(
+                await interaction.channel.send(
                     f"Player Record for user {player.name} has been successfully created. New rating: "
                     f"{total_rating * 100}%")
             else:
-                await interaction.response.send_message("Please only enter values in this interval: <0;100>",
-                                                        ephemeral=True)
+                await interaction.channel.send("Please only enter values in this interval: <0;100>",
+                                               ephemeral=True)
 
 
 async def setup(client: commands.Bot) -> None:
