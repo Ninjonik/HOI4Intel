@@ -101,20 +101,26 @@ async def statusLoop():
 
 class Client(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix=commands.when_mentioned_or('.'), intents=discord.Intents().all())
+        super().__init__(command_prefix=commands.when_mentioned_or('*'), intents=discord.Intents().all())
         self.cursor, self.connection = config.setup()
         self.cogsList = ["cogs.calculate", "cogs.whois", "cogs.dice", "cogs.randomcog", "cogs.guessgame",
-                         "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.add_steam", "cogs.setupann",
-                         "cogs.announce"]
+                         "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.add_steam",
+                         "cogs.setup_custom_channels"]
+
+    @tasks.loop(seconds=1400)
+    async def refreshConnection(self):
+        print(presets.prefix() + " Refreshing DB Connection")
+        self.cursor, self.connection = config.setup()
+        if self.connection.is_connected():
+            db_Info = self.connection.get_server_info()
+            print(presets.prefix() + " Connected to MySQL Server version ", db_Info)
 
     async def setup_hook(self):
         for ext in self.cogsList:
             await self.load_extension(ext)
 
     async def on_ready(self):
-        if self.connection.is_connected():
-            db_Info = self.connection.get_server_info()
-            print(presets.prefix() + " Connected to MySQL Server version ", db_Info)
+        await self.refreshConnection()
         print(presets.prefix() + " Logged in as " + Fore.YELLOW + self.user.name)
         print(presets.prefix() + " Bot ID " + Fore.YELLOW + str(self.user.id))
         print(presets.prefix() + " Discord Version " + Fore.YELLOW + discord.__version__)
@@ -130,6 +136,11 @@ class Client(commands.Bot):
             guildLoop.start(),
         if not update_guild_data.is_running():
             update_guild_data.start(self.guilds)
+        print(presets.prefix() + " Removing non-deleted Custom Channels.")
+        for guild in self.guilds:
+            for voice_channel in guild.voice_channels:
+                if voice_channel.name.startswith("CC"):
+                    await voice_channel.delete()
 
     async def on_raw_reaction_add(self, payload):
         member = await client.fetch_user(payload.user_id)
@@ -167,7 +178,38 @@ class Client(commands.Bot):
                 except Exception as e:
                     raise e
 
+    async def on_voice_state_update(self, member, before, after):
+
+        if before.channel is not None and before.channel.name.startswith("CC") and \
+                before.channel.name.endswith(member.display_name):
+            await before.channel.delete(reason="Owner left the channel.")
+
+        if after.channel is not None:
+            channel = after.channel
+            guild = channel.guild
+            self.cursor.execute("SELECT custom_channel FROM settings WHERE guild_id='%s'" % channel.guild.id)
+            db_custom_channel = self.cursor.fetchone()
+            if channel.id == db_custom_channel[0]:
+                custom_channel = await guild.create_voice_channel(f"CC | {member.display_name}",
+                                                                  category=channel.category)
+                overwrite = discord.PermissionOverwrite()
+                overwrite.manage_messages = True
+                overwrite.manage_events = True
+                overwrite.manage_channels = True
+                overwrite.read_message_history = True
+                overwrite.mention_everyone = True
+                overwrite.use_external_emojis = True
+                overwrite.use_external_stickers = True
+                overwrite.move_members = True
+                overwrite.mute_members = True
+                overwrite.use_voice_activation = True
+                overwrite.use_embedded_activities = True
+                overwrite.connect = True
+                overwrite.speak = True
+                await custom_channel.set_permissions(member, overwrite=overwrite,
+                                                     reason="Owner of Custom Channel.")
+                await member.move_to(custom_channel)
+
 
 client = Client()
-
 client.run(presets.token)
