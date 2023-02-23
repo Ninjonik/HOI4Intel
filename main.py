@@ -159,6 +159,7 @@ class Client(commands.Bot):
 
             overwrite = discord.PermissionOverwrite()
             overwrite.manage_messages = True
+            overwrite.manage_permissions = True
             overwrite.manage_events = True
             overwrite.manage_channels = True
             overwrite.read_message_history = True
