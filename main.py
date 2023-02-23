@@ -139,73 +139,51 @@ class Client(commands.Bot):
         print(presets.prefix() + " Removing non-deleted Custom Channels.")
         for guild in self.guilds:
             for voice_channel in guild.voice_channels:
-                if voice_channel.name.startswith("CC"):
+                if voice_channel.name.startswith("TC"):
                     await voice_channel.delete()
-
-    async def on_raw_reaction_add(self, payload):
-        member = await client.fetch_user(payload.user_id)
-        if not member.bot:
-            current_time = datetime.datetime.now()
-            await _add_player(payload.user_id, 0.5, current_time)
-            if payload.emoji.name == "🏷️":
-                try:
-                    self.cursor.execute("INSERT INTO player_ann_blacklist (player_id) VALUES (%s)" % payload.user_id)
-                    print(f"Adding {payload.user_id} to the blacklist")
-                    self.connection.commit()
-                except Exception as e:
-                    self.connection.rollback()
-                    raise e
-                try:
-                    channel = await member.create_dm()
-                    embed = discord.Embed(title=f"Unsubscribed from HOI4Intel's Announcements")
-                    embed.set_footer(text=f"You have successfully unsubscribed from HOI4Intel's Announcements. "
-                                          f"This includes announcements from all servers that are using HOI4Intel. "
-                                          f"If you want to get subscribe again then click on the reaction:")
-                    message = await channel.send(embed=embed)
-                    await message.add_reaction("👌")
-                except Exception as e:
-                    raise e
-
-            elif payload.emoji.name == "👌":
-                self.cursor.execute("DELETE FROM player_ann_blacklist WHERE player_id=%s" % payload.user_id)
-                self.connection.commit()
-                try:
-                    channel = await member.create_dm()
-                    embed = discord.Embed(title=f"Subscribed to HOI4Intel's Announcements")
-                    embed.set_footer(text=f"You have successfully subscribed to HOI4Intel's Announcements. "
-                                          f"This includes announcements from all servers that are using HOI4Intel. ")
-                    await channel.send(embed=embed)
-                except Exception as e:
-                    raise e
 
     async def on_voice_state_update(self, member, before, after):
 
-        if before.channel is not None and before.channel.name.startswith("CC") and \
-                before.channel.name.endswith(member.display_name):
+        if before.channel is not None and before.channel.name.endswith(member.display_name) \
+                and before.channel.name.startswith("TC"):
             await before.channel.delete(reason="Owner left the channel.")
 
         if after.channel is not None:
             channel = after.channel
             guild = channel.guild
-            self.cursor.execute("SELECT custom_channel FROM settings WHERE guild_id='%s'" % channel.guild.id)
+
+            self.cursor.execute("SELECT custom_channel, custom_channel_2 FROM settings "
+                                "WHERE guild_id='%s'" % channel.guild.id)
             db_custom_channel = self.cursor.fetchone()
+            print(db_custom_channel)
+
+            overwrite = discord.PermissionOverwrite()
+            overwrite.manage_messages = True
+            overwrite.manage_events = True
+            overwrite.manage_channels = True
+            overwrite.read_message_history = True
+            overwrite.mention_everyone = True
+            overwrite.use_external_emojis = True
+            overwrite.use_external_stickers = True
+            overwrite.move_members = True
+            overwrite.mute_members = True
+            overwrite.use_voice_activation = True
+            overwrite.use_embedded_activities = True
+            overwrite.connect = True
+            overwrite.speak = True
+
             if channel.id == db_custom_channel[0]:
-                custom_channel = await guild.create_voice_channel(f"CC | {member.display_name}",
+                custom_channel = await guild.create_voice_channel(f"TC | {member.display_name}",
                                                                   category=channel.category)
-                overwrite = discord.PermissionOverwrite()
-                overwrite.manage_messages = True
-                overwrite.manage_events = True
-                overwrite.manage_channels = True
-                overwrite.read_message_history = True
-                overwrite.mention_everyone = True
-                overwrite.use_external_emojis = True
-                overwrite.use_external_stickers = True
-                overwrite.move_members = True
-                overwrite.mute_members = True
-                overwrite.use_voice_activation = True
-                overwrite.use_embedded_activities = True
-                overwrite.connect = True
-                overwrite.speak = True
+                await custom_channel.set_permissions(member, overwrite=overwrite,
+                                                     reason="Owner of Custom Channel.")
+                await member.move_to(custom_channel)
+            elif channel.id == db_custom_channel[1]:
+                for voice_channel in guild.voice_channels:
+                    if voice_channel.name.startswith("PC") and voice_channel.name.endswith(member.display_name):
+                        await voice_channel.delete()
+                custom_channel = await guild.create_voice_channel(f"PC | {member.display_name}",
+                                                                  category=channel.category)
                 await custom_channel.set_permissions(member, overwrite=overwrite,
                                                      reason="Owner of Custom Channel.")
                 await member.move_to(custom_channel)
