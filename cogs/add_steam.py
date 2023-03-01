@@ -11,7 +11,7 @@ class add_steam(commands.Cog):
 
     @app_commands.command(name='add-steam', description="Verify using your steam account.")
     async def add_steam(self, interaction: discord.Interaction):
-
+        self.cursor, self.connection = config.setup()
         member = interaction.user
         roles = [role for role in member.roles]
         embed = discord.Embed(title="Steam Verification", description=f"Click on the link below in order to "

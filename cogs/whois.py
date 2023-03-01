@@ -4,6 +4,7 @@ from discord import app_commands
 import datetime
 import config
 
+
 class whois(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
@@ -13,6 +14,8 @@ class whois(commands.Cog):
     async def whois(self, interaction: discord.Interaction, member: discord.Member = None):
         if member is None:
             member = interaction.user
+
+        self.cursor, self.connection = config.setup()
 
         self.cursor.execute("SELECT * FROM players WHERE discord_id=%s" % member.id)
         player = self.cursor.fetchall()
@@ -30,7 +33,7 @@ class whois(commands.Cog):
         embed.add_field(name="Joined At", value=member.joined_at.strftime("%#d. %B %Y %H:%M:%S UTC "))
         embed.add_field(name=f"Roles [{len(roles)}]", value=" ".join([role.mention for role in roles]))
         embed.add_field(name="Main Role", value=member.top_role.mention)
-        embed.add_field(name="Rating", value=f"{player[0][3]*100}%")
+        embed.add_field(name="Rating", value=f"{player[0][3] * 100}%")
         embed.add_field(name="Steam Profile", value=f"https://steamcommunity.com/id/{player[0][1]}")
         await interaction.response.send_message(embed=embed)
 

@@ -15,6 +15,7 @@ class setupann(commands.Cog):
 
     @app_commands.command(name="setupann")
     async def setupann(self, interaction: discord.Interaction, announcement_role: discord.Role):
+        self.cursor, self.connection = config.setup()
         if interaction.user.guild_permissions.administrator:
             guild_id = interaction.guild.id
             guild_name = interaction.guild.name

@@ -13,6 +13,7 @@ class add_record(commands.Cog):
 
     @app_commands.command(name="add_record")
     async def add_record(self, interaction: discord.Interaction, player: discord.User, rating: int):
+        self.cursor, self.connection = config.setup()
         if interaction.user.guild_permissions.administrator:
             if 0 <= rating <= 100:
                 host = interaction.user

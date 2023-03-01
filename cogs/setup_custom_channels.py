@@ -17,6 +17,7 @@ class setup_custom_channels(commands.Cog):
     async def setup_custom_channels(self, interaction: discord.Interaction,
                                     temporary_voice_channel: discord.VoiceChannel,
                                     pernament_voice_chanel: discord.VoiceChannel):
+        self.cursor, self.connection = config.setup()
         if interaction.user.guild_permissions.administrator:
             guild_id = interaction.guild.id
             guild_name = interaction.guild.name

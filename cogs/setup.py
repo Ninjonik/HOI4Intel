@@ -17,6 +17,7 @@ class setupCommand(commands.Cog):
     async def setupCommand(self, interaction: discord.Interaction, steam_verification: bool,
                            log_channel: discord.TextChannel,
                            verify_role: discord.Role = None):
+        self.cursor, self.connection = config.setup()
         if interaction.user.guild_permissions.administrator:
             if verify_role is None:
                 verify_role = discord.utils.get(interaction.guild.roles, name="@everyone").id

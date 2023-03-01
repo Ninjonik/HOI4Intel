@@ -18,6 +18,7 @@ class announce(commands.Cog):
 
     @app_commands.command(name="announce")
     async def announce(self, interaction: discord.Interaction, message_content: str):
+        self.cursor, self.connection = config.setup()
         if interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("Working on it..., it may take a while", ephemeral=True)
             self.cursor.execute("SELECT ann_role FROM settings WHERE guild_id=%s" % interaction.guild.id)
