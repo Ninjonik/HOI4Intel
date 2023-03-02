@@ -142,6 +142,24 @@ class Client(commands.Bot):
                 if voice_channel.name.startswith("TC"):
                     await voice_channel.delete()
 
+    async def on_guild_join(self, guild):
+        # TODO: This method might not be working
+        general = discord.utils.find(lambda x: x.name == 'general', guild.text_channels)
+        if general and general.permissions_for(guild.me).send_messages:
+            embed = discord.Embed(title="How to setup the bot?",
+                                  description="To setup the bot you need to run the following commands",
+                                  color=discord.Colour.green(), timestamp=datetime.datetime.utcnow())
+            embed.set_thumbnail(url=guild.icon_url)
+            embed.add_field(name="2.) /setup_custom_channels",
+                            value="Using this command you can set up voice channels for a) "
+                                  "creating custom temporary channels and b) creating custom permanent channels.",
+                            inline=False)
+            embed.set_footer(
+                text="If you have any questions regarding the bot you can always seek help at WWC's Discord by "
+                     "contacting the Staff Team. WWC's Discord: "
+                     "https://discord.gg/world-war-community-820918304176340992")
+            await general.send(embed=embed)
+
     async def on_voice_state_update(self, member, before, after):
 
         if before.channel is not None and before.channel.name.endswith(member.display_name) \
