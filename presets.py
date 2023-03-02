@@ -44,6 +44,45 @@ perspective = discovery.build(
     static_discovery=False,
 )
 
+time_formats = [
+    '%Y-%m-%d %H:%M:%S.%f',
+    '%Y-%m-%d %H:%M:%S',
+    '%Y-%m-%d %H:%M',
+    '%Y/%m/%d %H:%M:%S.%f',
+    '%Y/%m/%d %H:%M:%S',
+    '%Y/%m/%d %H:%M',
+    '%Y.%m.%d %H:%M:%S.%f',
+    '%Y.%m.%d %H:%M:%S',
+    '%Y.%m.%d %H:%M',
+    '%Y,%m,%d %H:%M:%S.%f',
+    '%Y,%m,%d %H:%M:%S',
+    '%Y,%m,%d %H:%M',
+    '%d.%m.%Y %H:%M:%S.%f',
+    '%d.%m.%Y %H:%M:%S',
+    '%d.%m.%Y %H:%M',
+    '%d/%m/%Y %H:%M:%S.%f',
+    '%d/%m/%Y %H:%M:%S',
+    '%d/%m/%Y %H:%M',
+    '%m/%d/%Y %H:%M:%S.%f',
+    '%m/%d/%Y %H:%M:%S',
+    '%m/%d/%Y %H:%M',
+    '%d-%m-%Y %H:%M:%S.%f',
+    '%d-%m-%Y %H:%M:%S',
+    '%d-%m-%Y %H:%M',
+    '%m-%d-%Y %H:%M:%S.%f',
+    '%m-%d-%Y %H:%M:%S',
+    '%m-%d-%Y %H:%M',
+    '%d.%m.%y %H:%M:%S.%f',
+    '%d.%m.%y %H:%M:%S',
+    '%d.%m.%y %H:%M',
+    '%d/%m/%y %H:%M:%S.%f',
+    '%d/%m/%y %H:%M:%S',
+    '%d/%m/%y %H:%M',
+    '%m/%d/%y %H:%M:%S.%f',
+    '%m/%d/%y %H:%M:%S',
+    '%m/%d/%y %H:%M',
+]
+
 
 async def ban(member, reason):
     await member.ban(reason=reason)
@@ -223,3 +262,159 @@ class EntryDialog(discord.ui.View):
                     log(f" User {member.name}#{member.discriminator} "
                         f"has been kicked from the server for not completing the captcha.")
                     await kick(member)
+
+
+class test_modal(discord.ui.Modal, title='Questionnaire Response'):
+    name = discord.ui.TextInput(label='Name')
+    answer = discord.ui.TextInput(label='Answer', style=discord.TextStyle.paragraph)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.send_message(f'Thanks for your response, {self.name}!', ephemeral=True)
+
+    async def on_error(self, interaction: discord.Interaction):
+        await interaction.response.send_message('There was an error while processing the request.')
+
+
+class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
+    country = discord.ui.TextInput(label='Country Name')
+
+    async def on_submit(self, interaction: discord.Interaction):
+
+        self.cursor, self.connection = config.setup()
+
+        country = self.country.value
+
+        # Already Reserved Check
+
+        self.cursor.execute("SELECT country FROM event_reservations WHERE player_id=%s AND event_message_id=%s"
+                            % (interaction.user.id, interaction.message.id))
+        exists = self.cursor.fetchone()
+
+        if exists is not None:
+            await interaction.response.send_message(f"You have already reserved {exists[0]} in this game!",
+                                                    ephemeral=True)
+            return
+
+        # End
+
+        # Country Already Reserved Check
+
+        self.cursor.execute("SELECT country FROM event_reservations WHERE country='%s' AND event_message_id=%s"
+                            % (country, interaction.message.id))
+        reserved = self.cursor.fetchone()
+
+        if reserved is not None:
+            await interaction.response.send_message(f"{reserved[0]} is already reserved in this game!",
+                                                    ephemeral=True)
+            return
+
+        # End
+
+        # Enough Rating Check
+
+        self.cursor.execute("SELECT profile_link, rating FROM players WHERE discord_id=%s" % interaction.user.id)
+        profile_link = self.cursor.fetchone()
+
+        self.cursor.execute("SELECT * FROM events WHERE message_id=%s" % interaction.message.id)
+        event_data = self.cursor.fetchone()
+
+        await _add_player(interaction.user.id, 0.5, datetime.datetime.now())
+
+        if event_data[9] == 0:
+            self.cursor.execute(
+                "SELECT SUM(rating) as SUM, COUNT(rating) AS CNT FROM player_records WHERE player_id=%s AND"
+                " guild_id=%s" % (interaction.user.id, interaction.guild.id))
+            total = self.cursor.fetchall()
+            player_rating = total[0][0] / total[0][1]
+        else:
+            player_rating = profile_link[1]
+
+        if player_rating < event_data[7]:
+            await interaction.response.send_message(f"You don't have enough rating to reserve for this game!",
+                                                    ephemeral=True)
+            return
+
+        # End
+
+        # Steam Verification Check
+
+        print(profile_link, event_data)
+        if profile_link[0] is None and event_data[8] == 1:
+            await interaction.response.send_message(f"You don't have steam verified which is required for this game.\n"
+                                                    f"You can fix it here:"
+                                                    f"https://hoi.theorganization.eu/steam/{interaction.user.id}",
+                                                    ephemeral=True)
+            return
+
+        # End
+
+        # Insert into DB
+        query = "INSERT INTO event_reservations (event_message_id, player_id, country, created_at, updated_at) VALUES " \
+                "(%s, %s, %s, NOW(), NOW())"
+        values = (interaction.message.id, interaction.user.id, country)
+        self.cursor.execute(query, values)
+        self.connection.commit()
+
+        await interaction.response.send_message(f'You have reserved a {country} in the upcoming game.\n'
+                                                f'Please note that Admins of {interaction.guild.name} '
+                                                f'can remove your reservation if they decide to.\n'
+                                                f'If you wish to remove your reservation, click on the '
+                                                f'"Cancel Reservation" button.', ephemeral=True)
+
+        embed = discord.Embed(
+            title=f"**New event: {event_data[10]}**",
+            description=event_data[11],
+            colour=discord.Colour.green()
+        )
+        embed.set_thumbnail(url=interaction.guild.icon)
+        embed.add_field(
+            name="**Date & Time:**",
+            value=f'<t:{int(datetime.datetime.timestamp(event_data[5]))}>',
+            inline=False,
+        )
+        embed.add_field(
+            name="Reserve a nation!",
+            value='Click on the "Reserve" button to reserve a nation!',
+            inline=True,
+        )
+        embed.add_field(
+            name="Minimal rating:",
+            value=f'{event_data[7] * 100}%',
+            inline=True,
+        )
+        if event_data[8] == 1:
+            steam_required = True
+        else:
+            steam_required = False
+        embed.add_field(
+            name="Steam verification required:",
+            value=steam_required,
+            inline=True,
+        )
+        self.cursor.execute("SELECT country, player_id FROM event_reservations WHERE event_message_id=%s"
+                            % interaction.message.id)
+        reserved_all = self.cursor.fetchall()
+        reserved_list = []
+        for player in reserved_all:
+            val = f"{interaction.guild.get_member(player[1]).mention} - {player[0]}"
+            reserved_list.append(val)
+        embed.add_field(
+            name="Currently Reserved:",
+            value="\n".join(reserved_list),
+            inline=False,
+        )
+        await interaction.message.edit(embed=embed)
+
+    async def on_error(self, interaction: discord.Interaction):
+        await interaction.response.send_message('There was an error while processing the request.', ephemeral=True)
+
+
+class ReserveDialog(discord.ui.View):
+    def __init__(self, client):
+        super().__init__(timeout=None)
+        self.cursor, self.connection = config.setup()
+
+    @discord.ui.button(label="Reserve", style=discord.ButtonStyle.danger, custom_id="rd_reserve", emoji="🔒")
+    async def rd_reserve(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_modal(ReserveNation())
+        print(interaction.message.id)
