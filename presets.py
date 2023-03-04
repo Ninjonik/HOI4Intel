@@ -338,13 +338,20 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
 
         # Steam Verification Check
 
-        print(profile_link, event_data)
         if profile_link[0] is None and event_data[8] == 1:
             await interaction.response.send_message(f"You don't have steam verified which is required for this game.\n"
                                                     f"You can fix it here:"
                                                     f"https://hoi.theorganization.eu/steam/{interaction.user.id}",
                                                     ephemeral=True)
             return
+
+        # End
+
+        # Time Check
+
+        if event_data[5] < datetime.datetime.now():
+            await interaction.response.send_message(f"This event has already started, reservations are now closed.",
+                                                    ephemeral=True)
 
         # End
 
@@ -360,6 +367,8 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
                                                 f'can remove your reservation if they decide to.\n'
                                                 f'If you wish to remove your reservation, click on the '
                                                 f'"Cancel Reservation" button.', ephemeral=True)
+
+        # Create new embed
 
         embed = discord.Embed(
             title=f"**New event: {event_data[10]}**",
@@ -391,6 +400,9 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
             value=steam_required,
             inline=True,
         )
+
+        # Get reserved players & nations list
+
         self.cursor.execute("SELECT country, player_id FROM event_reservations WHERE event_message_id=%s"
                             % interaction.message.id)
         reserved_all = self.cursor.fetchall()
@@ -414,7 +426,18 @@ class ReserveDialog(discord.ui.View):
         super().__init__(timeout=None)
         self.cursor, self.connection = config.setup()
 
-    @discord.ui.button(label="Reserve", style=discord.ButtonStyle.danger, custom_id="rd_reserve", emoji="🔒")
-    async def rd_reserve(self, interaction: discord.Interaction, button: discord.ui.Button):
+    @discord.ui.button(label="Reserve", style=discord.ButtonStyle.success, custom_id="rd_reserve", emoji="🔒")
+    async def rd_reserve(self, interaction: discord.Interaction):
         await interaction.response.send_modal(ReserveNation())
-        print(interaction.message.id)
+
+    @discord.ui.button(label="Cancel Reservation", style=discord.ButtonStyle.danger, custom_id="rd_un_reserve",
+                       emoji="🔓")
+    async def rd_un_reserve(self, interaction: discord.Interaction):
+        try:
+            self.cursor.execute("DELETE FROM event_reservations WHERE event_message_id=%s AND player_id=%s"
+                                % (interaction.message.id, interaction.user.id))
+        except Exception as e:
+            await interaction.response.send_message("There has been an error while cancelling the reservation.",
+                                                    ephemeral=True)
+            print(prefix() + e)
+        await interaction.response.send_message("You have successfully canceled the reservation.", ephemeral=True)
