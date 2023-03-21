@@ -20,6 +20,8 @@ import mysql.connector
 import time
 import presets
 from presets import _add_player
+import git
+import uuid
 
 intents = discord.Intents.all()
 intents.typing = True
@@ -34,27 +36,28 @@ global connection
 
 async def on_start(server_name, server_description, guild_id, guild_count):
     # Establish database connection
-    cursor, connection = config.setup()
-    cursor.execute("SELECT guild_id FROM settings WHERE guild_id='%s'" % guild_id)
-    settings = cursor.fetchall()
+    local_cursor, local_connection = config.setup()
+    local_cursor.execute("SELECT guild_id FROM settings WHERE guild_id='%s'" % guild_id)
+    settings = local_cursor.fetchall()
     current_time = datetime.datetime.now()
     current_date = datetime.datetime.now().date()
     if settings:
-        cursor.execute("SELECT updated_at FROM statistics WHERE guild_id='%s' ORDER BY id DESC LIMIT 1" % guild_id)
-        row = cursor.fetchall()
+        local_cursor.execute("SELECT updated_at FROM statistics WHERE guild_id='%s' ORDER BY id DESC LIMIT 1" % guild_id)
+        row = local_cursor.fetchall()
         # Extract the date from the datetime object stored in the database
         db_datetime = row[0][0]
         db_date = db_datetime.date()
         print(f" {presets.prefix()} Current date is: {current_date} meanwhile DB date is: {db_date}")
         if current_date != db_date:
             print(f"{presets.prefix()} Date is different, updating statistics for {server_name}")
-            cursor.execute("UPDATE settings SET guild_name='%s', guild_desc='%s', updated_at='%s'"
+            local_cursor.execute("UPDATE settings SET guild_name='%s', guild_desc='%s', updated_at='%s'"
                            " WHERE guild_id='%s'" % (server_name, server_description,
                                                      current_time, guild_id))
-            cursor.execute(
+            local_cursor.execute(
                 "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, '%s', '%s', %s) " % (
                     guild_id, current_time, current_time, guild_count))
-            connection.commit()
+            local_connection.commit()
+    local_connection.close()
 
 
 @tasks.loop(hours=24)
@@ -68,13 +71,14 @@ async def update_guild_data(guilds):
 @tasks.loop(seconds=60)
 async def guildLoop():
     # Establish database connection
-    cursor, connection = config.setup()
+    local_cursor, local_connection = config.setup()
     guildCount = len(client.guilds)
-    cursor.execute("SELECT count(guild_id) as Counter FROM settings")
-    dbCount = cursor.fetchone()
+    local_cursor.execute("SELECT count(guild_id) as Counter FROM settings")
+    dbCount = local_cursor.fetchone()
     if guildCount != int(dbCount[0]):
         print(presets.prefix() + " New guild was detected, restarting loop.")
         await update_guild_data(client.guilds)
+    local_connection.close()
 
 
 @tasks.loop(seconds=30)
@@ -104,7 +108,7 @@ class Client(commands.Bot):
         super().__init__(command_prefix=commands.when_mentioned_or('*'), intents=discord.Intents().all())
         self.cursor, self.connection = config.setup()
         self.cogsList = ["cogs.calculate", "cogs.whois", "cogs.dice", "cogs.randomcog", "cogs.guessgame",
-                         "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.add_steam",
+                         "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.verify",
                          "cogs.setup_custom_channels", "cogs.test", "cogs.add_hoi_game"]
 
     @tasks.loop(seconds=1400)
@@ -141,6 +145,19 @@ class Client(commands.Bot):
             for voice_channel in guild.voice_channels:
                 if voice_channel.name.startswith("TC"):
                     await voice_channel.delete()
+        # Inform guild owners that the bot has been restarted
+        self.cursor.execute('SELECT log_channel FROM settings')
+        guilds_db = self.cursor.fetchall()
+        if uuid.getnode() == 345048613385:
+            for guild_db in guilds_db:
+                channel = client.get_channel(guild_db[0])
+                repo = git.Repo(search_parent_directories=True)
+                checksum = repo.head.object.hexsha
+                await channel.send(f"The bot has been restarted. Any old interactions that have been created before and "
+                                   f"require buttons to work will not work anymore. We apologize for the inconvenience."
+                                   f"\nVersion checksum: {checksum}"
+                                   f"\nIf you have any problems regarding the bot, seek support at: "
+                                   f"https://discord.gg/world-war-community-820918304176340992")
 
     async def on_guild_join(self, guild):
         # TODO: This method might not be working

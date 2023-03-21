@@ -11,6 +11,8 @@ database = 'wwcbot'
 user = 'wwcbot'
 password = 'vErYsEcUrE'
 hoi = False
+# UUID Of the computer running the bot primarily (for production)
+host_uuid = 495081613286  # Example UUID, get it by running uuid.getnode() in the python CLI
 
 def setup():
     connection = mysql.connector.connect(host=host,
