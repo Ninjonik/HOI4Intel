@@ -150,14 +150,17 @@ class Client(commands.Bot):
         guilds_db = self.cursor.fetchall()
         if uuid.getnode() == 345048613385:
             for guild_db in guilds_db:
-                channel = client.get_channel(guild_db[0])
-                repo = git.Repo(search_parent_directories=True)
-                checksum = repo.head.object.hexsha
-                await channel.send(f"The bot has been restarted. Any old interactions that have been created before and "
-                                   f"require buttons to work will not work anymore. We apologize for the inconvenience."
-                                   f"\nVersion checksum: {checksum}"
-                                   f"\nIf you have any problems regarding the bot, seek support at: "
-                                   f"https://discord.gg/world-war-community-820918304176340992")
+                if guild_db[0]:
+                    channel = client.get_channel(guild_db[0])
+                    repo = git.Repo(search_parent_directories=True)
+                    checksum = repo.head.object.hexsha
+                    await channel.send(f"The bot has been restarted. Any old interactions that have been created "
+                                       f"before and"
+                                       f"require buttons to work will not work anymore. We apologize for the "
+                                       f"inconvenience."
+                                       f"\nVersion checksum: {checksum}"
+                                       f"\nIf you have any problems regarding the bot, seek support at: "
+                                       f"https://discord.gg/world-war-community-820918304176340992")
 
     async def on_guild_join(self, guild):
         # TODO: This method might not be working
