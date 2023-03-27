@@ -20,13 +20,14 @@ class add_blog(commands.Cog):
     async def add_blog(self, interaction: discord.Interaction, title: str, description: str):
         if interaction.user.guild_permissions.administrator and title and description:
             self.cursor, self.connection = config.setup()
-            await interaction.response.send_message("Blog added successfully!", ephemeral=True)
+            await _add_player(interaction.user.id, 50, datetime.datetime.now())
             # Store datetime and timezone in MySQL database
-            sql = "INSERT INTO events (author_id, title, description, approved, created_at, updated_at) " \
+            sql = "INSERT INTO blogs (author_id, title, description, approved, created_at, updated_at) " \
                   "VALUES (%s, %s, %s, 0, NOW(), NOW())"
             values = (interaction.user.id, title, description)
             self.cursor.execute(sql, values)
             self.connection.commit()
+            await interaction.response.send_message("Blog has been added successfully!", ephemeral=True)
         else:
             await interaction.response.send_message("There has been an error while handling your request.")
 
