@@ -449,52 +449,52 @@ class ReserveDialog(discord.ui.View):
 
         self.cursor.execute("SELECT * FROM events WHERE message_id=%s" % interaction.message.id)
         event_data = self.cursor.fetchone()
+        if event_data:
+            embed = discord.Embed(
+                title=f"**New event: {event_data[10]}**",
+                description=event_data[11],
+                colour=discord.Colour.green()
+            )
+            embed.set_thumbnail(url=interaction.guild.icon)
+            embed.add_field(
+                name="**Date & Time:**",
+                value=f'<t:{int(datetime.datetime.timestamp(event_data[5]))}>',
+                inline=False,
+            )
+            embed.add_field(
+                name="Reserve a nation!",
+                value='Click on the "Reserve" button to reserve a nation!',
+                inline=True,
+            )
+            embed.add_field(
+                name="Minimal rating:",
+                value=f'{event_data[7] * 100}%',
+                inline=True,
+            )
+            if event_data[8] == 1:
+                steam_required = True
+            else:
+                steam_required = False
+            embed.add_field(
+                name="Steam verification required:",
+                value=steam_required,
+                inline=True,
+            )
 
-        embed = discord.Embed(
-            title=f"**New event: {event_data[10]}**",
-            description=event_data[11],
-            colour=discord.Colour.green()
-        )
-        embed.set_thumbnail(url=interaction.guild.icon)
-        embed.add_field(
-            name="**Date & Time:**",
-            value=f'<t:{int(datetime.datetime.timestamp(event_data[5]))}>',
-            inline=False,
-        )
-        embed.add_field(
-            name="Reserve a nation!",
-            value='Click on the "Reserve" button to reserve a nation!',
-            inline=True,
-        )
-        embed.add_field(
-            name="Minimal rating:",
-            value=f'{event_data[7] * 100}%',
-            inline=True,
-        )
-        if event_data[8] == 1:
-            steam_required = True
-        else:
-            steam_required = False
-        embed.add_field(
-            name="Steam verification required:",
-            value=steam_required,
-            inline=True,
-        )
+            # Get reserved players & nations list
 
-        # Get reserved players & nations list
+            self.cursor.execute("SELECT country, player_id FROM event_reservations WHERE event_message_id=%s"
+                                % interaction.message.id)
+            reserved_all = self.cursor.fetchall()
+            reserved_list = []
+            for player in reserved_all:
+                val = f"{interaction.guild.get_member(player[1]).mention} - {player[0]}"
+                reserved_list.append(val)
+            embed.add_field(
+                name="Currently Reserved:",
+                value="\n".join(reserved_list),
+                inline=False,
+            )
+            await interaction.message.edit(embed=embed)
 
-        self.cursor.execute("SELECT country, player_id FROM event_reservations WHERE event_message_id=%s"
-                            % interaction.message.id)
-        reserved_all = self.cursor.fetchall()
-        reserved_list = []
-        for player in reserved_all:
-            val = f"{interaction.guild.get_member(player[1]).mention} - {player[0]}"
-            reserved_list.append(val)
-        embed.add_field(
-            name="Currently Reserved:",
-            value="\n".join(reserved_list),
-            inline=False,
-        )
-        await interaction.message.edit(embed=embed)
-
-        await interaction.response.send_message("You have successfully canceled the reservation.", ephemeral=True)
+            await interaction.response.send_message("You have successfully canceled the reservation.", ephemeral=True)
