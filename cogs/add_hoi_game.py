@@ -80,9 +80,6 @@ class add_hoi_game(commands.Cog):
 
             message = await announcement_channel.send(embed=embed, view=presets.ReserveDialog(self.client))
 
-            await interaction.response.send_message("Event added successfully!",
-                                                    ephemeral=True)
-
             # Store datetime and timezone in MySQL database
             sql = "INSERT INTO events (guild_id, host_id, channel_id, event_start, timezone, rating_required, " \
                   "steam_required, message_id, global_database, title, description, created_at, updated_at) " \
@@ -93,6 +90,9 @@ class add_hoi_game(commands.Cog):
                 message.id, global_database, title, description)
             self.cursor.execute(sql, values)
             self.connection.commit()
+
+            await interaction.response.send_message("Event added successfully!",
+                                                    ephemeral=True)
 
 
 async def setup(client: commands.Bot) -> None:
