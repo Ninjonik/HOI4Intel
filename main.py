@@ -109,7 +109,7 @@ class Client(commands.Bot):
         self.cursor, self.connection = config.setup()
         self.cogsList = ["cogs.calculate", "cogs.whois", "cogs.dice", "cogs.randomcog", "cogs.guessgame",
                          "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.verify",
-                         "cogs.setup_custom_channels", "cogs.test", "cogs.add_hoi_game", "cogs.add_blog.py"]
+                         "cogs.setup_custom_channels", "cogs.test", "cogs.add_hoi_game", "cogs.add_blog"]
 
     @tasks.loop(seconds=1400)
     async def refreshConnection(self):
