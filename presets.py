@@ -430,12 +430,14 @@ class ReserveDialog(discord.ui.View):
 
     @discord.ui.button(label="Reserve", style=discord.ButtonStyle.success, custom_id="rd_reserve", emoji="🔒")
     async def rd_reserve(self, interaction: discord.Interaction, button: discord.Button):
+        self.cursor, self.connection = config.setup()
         await interaction.response.send_modal(ReserveNation())
 
     @discord.ui.button(label="Cancel Reservation", style=discord.ButtonStyle.danger, custom_id="rd_un_reserve",
                        emoji="🔓")
     async def rd_un_reserve(self, interaction: discord.Interaction, button: discord.Button):
         try:
+            self.cursor, self.connection = config.setup()
             self.cursor.execute("DELETE FROM event_reservations WHERE event_message_id=%s AND player_id=%s",
                                 (interaction.message.id, interaction.user.id))
             self.connection.commit()
