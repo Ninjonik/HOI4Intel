@@ -20,6 +20,7 @@ from PIL import Image, ImageDraw, ImageFont
 import mysql.connector
 import time
 from googleapiclient import discovery
+from slugify import slugify
 
 
 def prefix():
@@ -500,3 +501,29 @@ class ReserveDialog(discord.ui.View):
             await interaction.message.edit(embed=embed)
 
             await interaction.response.send_message("You have successfully canceled the reservation.", ephemeral=True)
+
+
+class Select(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(GuideMenu())
+
+
+class GuideMenu(discord.ui.Select):
+    def __init__(self):
+        self.cursor, self.connection = config.dictionary_setup()
+        self.cursor.execute("SELECT * FROM wiki_articles WHERE category_id=12")
+        self.articles = self.cursor.fetchall()
+        self.article_dict = {article['title']: article['id'] for article in self.articles}
+        options = [discord.SelectOption(label=article['title'], emoji=article['emoji'])
+                   for article in self.articles]
+
+        super().__init__(placeholder="Please select the guide you want:", options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        selected_title = self.values[0]
+        selected_id = self.article_dict[selected_title]
+        slug_title = slugify(selected_title)
+        link = f"https://hoi.theorganization.eu/wiki/article/{selected_id}/{slug_title}"
+
+        await interaction.response.send_message(f"Guide for **{selected_title}** at: {link}", ephemeral=True)
