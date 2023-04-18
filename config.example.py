@@ -23,3 +23,14 @@ def setup():
 
     cursor = connection.cursor()
     return cursor, connection
+
+
+def dictionary_setup():
+    connection = mysql.connector.connect(host=host,
+                                         database=database,
+                                         user=user,
+                                         password=password,
+                                         autocommit=False,
+                                         charset='utf8mb4')
+    cursor = connection.cursor(dictionary=True)
+    return cursor, connection
