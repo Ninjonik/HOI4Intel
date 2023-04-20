@@ -117,6 +117,23 @@ async def _add_player(player_id, rating_percentage, current_time):
         raise e
 
 
+async def _add_player_name(player_id, player_name, rating_percentage):
+    cursor, connection = config.setup()
+    try:
+        cursor.execute(
+            "INSERT INTO players (discord_id, discord_name, rating, created_at, updated_at) "
+            "VALUES (%s, %s, %s, NOW(), NOW()) "
+            "ON DUPLICATE KEY UPDATE rating = %s, updated_at = NOW()",
+            (player_id, player_name, rating_percentage, rating_percentage,))
+        connection.commit()
+    except Exception as e:
+        connection.rollback()
+        cursor.execute(
+            "UPDATE players SET discord_name=%s, updated_at=NOW() WHERE discord_id=%s",
+            (player_name, player_id))
+        connection.commit()
+
+
 class UpdateRoles(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -320,7 +337,7 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
         self.cursor.execute("SELECT * FROM events WHERE message_id=%s" % interaction.message.id)
         event_data = self.cursor.fetchone()
 
-        await _add_player(interaction.user.id, 0.5, datetime.datetime.now())
+        await _add_player_name(interaction.user.id, interaction.user.name, 0.5)
 
         if event_data[9] == 0:
             self.cursor.execute(

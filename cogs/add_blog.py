@@ -1,12 +1,7 @@
-import datetime
 import discord
 from discord.ext import commands
 from discord import app_commands
 import config
-import presets
-from presets import _add_player
-import pytz
-
 
 class add_blog(commands.Cog):
     def __init__(self, client: commands.Bot):

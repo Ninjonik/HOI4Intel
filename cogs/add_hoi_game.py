@@ -4,7 +4,6 @@ from discord.ext import commands
 from discord import app_commands
 import config
 import presets
-from presets import _add_player
 import pytz
 
 

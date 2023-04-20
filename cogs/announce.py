@@ -7,8 +7,7 @@ from discord import app_commands
 from datetime import datetime
 
 import config
-import presets
-from presets import _add_player
+from presets import _add_player_name
 
 
 class announce(commands.Cog):
@@ -25,7 +24,7 @@ class announce(commands.Cog):
             pre_role = self.cursor.fetchone()[0]
             role = discord.utils.get(interaction.guild.roles, id=pre_role)
             current_time = datetime.now()
-            await _add_player(interaction.user.id, 1, current_time)
+            await _add_player_name(interaction.user.id, interaction.user.name, 0.5)
             i = 0
             for member in interaction.guild.members:
                 if not member.bot and not member.dm_channel:

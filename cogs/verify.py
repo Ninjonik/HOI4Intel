@@ -3,7 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 import datetime
 import config
-from presets import _add_player
+from presets import _add_player_name
 
 class verify(commands.Cog):
     def __init__(self, client: commands.Bot):
@@ -13,7 +13,7 @@ class verify(commands.Cog):
     @app_commands.command(name='verify', description="Verify using your steam account.")
     async def verify(self, interaction: discord.Interaction):
 
-        await _add_player(interaction.user.id, 0.5, datetime.datetime.now())
+        await _add_player_name(interaction.user.id, interaction.user.name, 0.5)
 
         self.cursor.execute('SELECT * FROM players WHERE discord_id=%s' % interaction.user.id)
         player_db = self.cursor.fetchone()

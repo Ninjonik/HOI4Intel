@@ -19,7 +19,6 @@ from PIL import Image, ImageDraw, ImageFont
 import mysql.connector
 import time
 import presets
-from presets import _add_player
 import git
 import uuid
 
@@ -145,7 +144,8 @@ class Client(commands.Bot):
             for voice_channel in guild.voice_channels:
                 if voice_channel.name.startswith("TC"):
                     await voice_channel.delete()
-        # Inform guild owners that the bot has been restarted
+
+        # Inform guild admins that the bot has been restarted
         self.cursor.execute('SELECT log_channel FROM settings')
         guilds_db = self.cursor.fetchall()
         if uuid.getnode() == 345048613385:
