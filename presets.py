@@ -123,15 +123,12 @@ async def _add_player_name(player_id, player_name, rating_percentage):
         cursor.execute(
             "INSERT INTO players (discord_id, discord_name, rating, created_at, updated_at) "
             "VALUES (%s, %s, %s, NOW(), NOW()) "
-            "ON DUPLICATE KEY UPDATE rating = %s, updated_at = NOW()",
-            (player_id, player_name, rating_percentage, rating_percentage,))
+            "ON DUPLICATE KEY UPDATE rating = %s, discord_name = %s, updated_at = NOW()",
+            (player_id, player_name, rating_percentage, rating_percentage, player_name))
         connection.commit()
     except Exception as e:
         connection.rollback()
-        cursor.execute(
-            "UPDATE players SET discord_name=%s, updated_at=NOW() WHERE discord_id=%s",
-            (player_name, player_id))
-        connection.commit()
+        print(e)
 
 
 class UpdateRoles(discord.ui.View):
