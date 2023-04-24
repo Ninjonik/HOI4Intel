@@ -55,6 +55,12 @@ class add_hoi_game(commands.Cog):
                 description=description,
                 colour=discord.Colour.green()
             )
+            message = await announcement_channel.send(embed=embed, view=presets.ReserveDialog(self.client))
+            embed = discord.Embed(
+                title=f"**New event: {title}**",
+                description=description,
+                colour=discord.Colour.green()
+            )
             embed.set_thumbnail(url=interaction.guild.icon)
             embed.add_field(
                 name="**Date & Time:**",
@@ -76,8 +82,8 @@ class add_hoi_game(commands.Cog):
                 value=steam_required,
                 inline=True,
             )
-
-            message = await announcement_channel.send(embed=embed, view=presets.ReserveDialog(self.client))
+            embed.set_footer(text=f"Event ID:{message.id}")
+            await message.edit(embed=embed)
 
             # Store datetime and timezone in MySQL database
             sql = "INSERT INTO events (guild_id, host_id, channel_id, event_start, timezone, rating_required, " \

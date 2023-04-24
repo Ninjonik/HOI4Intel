@@ -432,6 +432,7 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
             value="\n".join(reserved_list),
             inline=False,
         )
+        embed.set_footer(text=f"Event ID:{interaction.message.id}")
         await interaction.message.edit(embed=embed)
 
     async def on_error(self, interaction: discord.Interaction):
@@ -512,6 +513,7 @@ class ReserveDialog(discord.ui.View):
                 value="\n".join(reserved_list),
                 inline=False,
             )
+            embed.set_footer(text=f"Event ID:{interaction.message.id}")
             await interaction.message.edit(embed=embed)
 
             await interaction.response.send_message("You have successfully canceled the reservation.", ephemeral=True)
