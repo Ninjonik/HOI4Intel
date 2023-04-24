@@ -336,6 +336,11 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
 
         await _add_player_name(interaction.user.id, interaction.user.name, 0.5)
 
+        # Already started check
+        if event_data[15] == 1:
+            await interaction.response.send_message("This event has already been started!")
+            return
+
         if event_data[9] == 0:
             self.cursor.execute(
                 "SELECT SUM(rating) as SUM, COUNT(rating) AS CNT FROM player_records WHERE player_id=%s AND"
