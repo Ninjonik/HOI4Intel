@@ -75,7 +75,7 @@ class EndHoiGame(commands.Cog):
                                     "UPDATE players SET rating=%s WHERE discord_id=%s" % (total_rating, player.id))
                                 self.connection.commit()
                                 await interaction.channel.send(f"✅ Successfully updated rating for {player.name}, "
-                                                               f"new rating: {total_rating}%")
+                                                               f"new rating: {total_rating * 100}%")
                                 player_ratings[player.id] = rating
                             except Exception as e:
                                 # TODO: It loops for like 3 times for some reason, gotta fix it
@@ -89,7 +89,7 @@ class EndHoiGame(commands.Cog):
                     await interaction.channel.send(f"✅ All ratings have been set!")
 
                 embed = discord.Embed(
-                    title=f"**{event['title']} event has ended!**",
+                    title=f"**{event['title']} event just ended!**",
                     description=event['description'],
                     colour=discord.Colour.green()
                 )
