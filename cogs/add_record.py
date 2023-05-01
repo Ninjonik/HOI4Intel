@@ -26,7 +26,7 @@ class add_record(commands.Cog):
                 cursor = self.connection.cursor()
                 cursor.execute(
                     "INSERT INTO player_records (player_id, guild_id, host_id, rating, created_at, updated_at) "
-                    "VALUES (%s, %s, %s, %s, %s, %s)",
+                    "VALUES (%s, %s, %s, %s, NOW(), NOW())",
                     (player.id, guild.id, host.id, rating_percentage, current_time, current_time))
                 self.connection.commit()
 

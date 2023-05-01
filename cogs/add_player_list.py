@@ -30,11 +30,12 @@ class add_player_list(commands.Cog):
                                                         "player playing this country."
                                                         "\nFormat: @Ninjonik USSR"
                                                         "\nSend 'stop' message when finished.")
+
+                def check(m):
+                    return m.channel == interaction.channel, m.author == interaction.user
                 player_list = {}
                 while True:
                     # .split(" - ")
-                    def check(m):
-                        return m.channel == interaction.channel, m.author == interaction.user
 
                     msg = await self.client.wait_for('message', check=check, timeout=60)
                     if msg.content == 'stop' or not msg.content:
