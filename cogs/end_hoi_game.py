@@ -39,7 +39,7 @@ class EndHoiGame(commands.Cog):
                                                             "(/add_player_list command)")
 
                     def check(m):
-                        return m.channel == interaction.channel, m.author == interaction.user
+                        return m.channel == interaction.channel, m.author == interaction.user, m.content
 
                     for player, country in countries.items():
                         i = 5
