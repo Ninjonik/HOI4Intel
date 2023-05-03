@@ -10,8 +10,7 @@ class StartHOIGame(commands.Cog):
         self.cursor, self.connection = config.setup()
 
     @app_commands.command(name="start_hoi_game")
-    async def start_hoi_game(self, interaction: discord.Interaction, event_id: str, instructions: str,
-                             lobby_channel: discord.VoiceChannel):
+    async def start_hoi_game(self, interaction: discord.Interaction, event_id: str, instructions: str):
         self.cursor, self.connection = config.dictionary_setup()
         try:
             event_id = int(event_id)
@@ -26,7 +25,7 @@ class StartHOIGame(commands.Cog):
                     and (event["guild_id"] == interaction.guild.id or event["host_id"] == interaction.user.id):
                 self.cursor.execute("SELECT * FROM event_reservations WHERE event_message_id=%s", (event_id,))
                 players = self.cursor.fetchall()
-
+                lobby_channel = interaction.guild.get_channel(event["voice_channel_id"])
                 for player in players:
                     try:
                         player_discord = interaction.guild.get_member(player["player_id"])
@@ -43,6 +42,11 @@ class StartHOIGame(commands.Cog):
                             inline=False
                         )
                         embed.add_field(
+                            name="Lobby VC:",
+                            value=lobby_channel.mention,
+                            inline=False
+                        )
+                        embed.add_field(
                             name="Host's instructions:",
                             value=instructions,
                             inline=False
@@ -55,13 +59,13 @@ class StartHOIGame(commands.Cog):
 
                         channel = await player_discord.create_dm()
                         await channel.send(embed=embed)
-                        await channel.send(content=f"Voice channel for the game: {lobby_channel.mention}")
-                        await interaction.response.send_message("✅ Event successfully started!")
+                        event = interaction.guild.get_scheduled_event(event["guild_event_id"])
+                        await event.start(reason=f"Event has been started by {interaction.user.name}")
                         self.cursor.execute("UPDATE events SET started=1, updated_at=NOW() WHERE message_id=%s",
                                             (event_id,))
                         self.connection.commit()
                         self.connection.close()
-
+                        await interaction.channel.send(f"✅ Event has been started successfully!")
                     except Exception as e:
                         await interaction.response.send_message("❌ An error occurred while processing your request.",
                                                                 ephemeral=True)
@@ -69,7 +73,8 @@ class StartHOIGame(commands.Cog):
 
             else:
                 await interaction.response.send_message(
-                    "❌ The event with this ID does not exist, or you do not have permission to start this event.",
+                    "❌ The event with this ID does not exist, or you do not have permission to start this event, "
+                    "or the event already started.",
                     ephemeral=True)
 
 

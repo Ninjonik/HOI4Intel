@@ -53,7 +53,6 @@ class EndHoiGame(commands.Cog):
                                 rating = int(msg.content)
                                 if not 0 <= rating <= 100:
                                     raise ValueError(f"Invalid rating")
-                                print(rating)
                                 i = 0
                                 await _add_player_name(interaction.user.id, interaction.user.name, 0.5)
                                 player = interaction.guild.get_member(int(player))
@@ -109,6 +108,9 @@ class EndHoiGame(commands.Cog):
                     )
                 embed.set_footer(text=f"Event ID:{event['message_id']}")
                 await interaction.guild.get_channel(event["channel_id"]).send(embed=embed)
+                event = interaction.guild.get_scheduled_event(event["guild_event_id"])
+                await event.end(reason=f"Event has been ended by {interaction.user.name}")
+                await interaction.channel.send(f"✅ Event has been ended successfully!")
 
             else:
                 await interaction.response.send_message(

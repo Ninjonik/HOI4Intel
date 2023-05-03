@@ -24,7 +24,7 @@ class add_player_list(commands.Cog):
         if interaction.user.guild_permissions.administrator:
             self.cursor.execute("SELECT * FROM events WHERE message_id=%s", (event_id,))
             event = self.cursor.fetchone()
-            if event and (event["guild_id"] == interaction.guild.id or event["host_id"] == interaction.user.id):
+            if event and event["host_id"] == interaction.user.id:
 
                 await interaction.response.send_message("ℹ️ Please enter a country name, ping "
                                                         "player playing this country."
@@ -60,6 +60,7 @@ class add_player_list(commands.Cog):
                 await interaction.channel.send("✅ Player List has been successfully saved!")
 
             else:
+                print(event, event_id)
                 await interaction.response.send_message(
                     "❌ The event with this ID does not exist, or you do not have permission to start this event.",
                     ephemeral=True)
