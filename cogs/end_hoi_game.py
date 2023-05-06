@@ -68,28 +68,31 @@ class EndHoiGame(commands.Cog):
                                 if not 0 <= rating <= 100:
                                     raise ValueError(f"Invalid rating")
                                 i = 0
-                                await _add_player_name(interaction.user.id, interaction.user.name, 0.5)
-                                player = interaction.guild.get_member(int(player))
-                                await _add_player_name(player.id, player.name, 0.5)
-                                cursor = self.connection.cursor()
-                                cursor.execute(
-                                    "INSERT INTO player_records (player_id, guild_id, host_id, "
-                                    "rating, created_at, updated_at) "
-                                    "VALUES (%s, %s, %s, %s, NOW(), NOW())",
-                                    (player.id, interaction.guild.id, interaction.user.id, rating / 100))
-                                self.connection.commit()
+                                try:
+                                    await _add_player_name(interaction.user.id, interaction.user.name, 0.5)
+                                    player = interaction.guild.get_member(int(player))
+                                    await _add_player_name(player.id, player.name, 0.5)
+                                    cursor = self.connection.cursor()
+                                    cursor.execute(
+                                        "INSERT INTO player_records (player_id, guild_id, host_id, "
+                                        "rating, created_at, updated_at) "
+                                        "VALUES (%s, %s, %s, %s, NOW(), NOW())",
+                                        (player.id, interaction.guild.id, interaction.user.id, rating / 100))
+                                    self.connection.commit()
 
-                                self.cursor.execute(
-                                    "SELECT SUM(rating) as SUM, COUNT(rating) AS CNT FROM player_records WHERE player_id=%s"
-                                    % player.id)
-                                total = self.cursor.fetchall()
-                                total_rating = total[0]["SUM"] / total[0]["CNT"]
-                                self.cursor.execute(
-                                    "UPDATE players SET rating=%s WHERE discord_id=%s" % (total_rating, player.id))
-                                self.connection.commit()
-                                await interaction.channel.send(f"✅ Successfully updated rating for {player.name}, "
-                                                               f"new rating: {total_rating * 100}%")
-                                player_ratings[player.id] = rating
+                                    self.cursor.execute(
+                                        "SELECT SUM(rating) as SUM, COUNT(rating) AS CNT FROM player_records WHERE player_id=%s"
+                                        % player.id)
+                                    total = self.cursor.fetchall()
+                                    total_rating = total[0]["SUM"] / total[0]["CNT"]
+                                    self.cursor.execute(
+                                        "UPDATE players SET rating=%s WHERE discord_id=%s" % (total_rating, player.id))
+                                    self.connection.commit()
+                                    await interaction.channel.send(f"✅ Successfully updated rating for {player.name}, "
+                                                                   f"new rating: {total_rating * 100}%")
+                                    player_ratings[player.id] = rating
+                                except Exception as e:
+                                    print(e)
 
                     await interaction.channel.send(f"✅ All ratings have been set!")
 
