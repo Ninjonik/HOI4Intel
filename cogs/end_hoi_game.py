@@ -61,7 +61,10 @@ class EndHoiGame(commands.Cog):
                                     rating = 50
                                 return
                             else:
-                                rating = int(msg.content)
+                                try:
+                                    rating = int(msg.content)
+                                except Exception as e:
+                                    raise ValueError(f"Invalid rating")
                                 if not 0 <= rating <= 100:
                                     raise ValueError(f"Invalid rating")
                                 i = 0
