@@ -39,7 +39,9 @@ class EndHoiGame(commands.Cog):
                                                             "(/add_player_list command)")
 
                     def check(m):
+                        print("hello")
                         return m.channel == interaction.channel, m.author == interaction.user
+                        print("world")
 
                     for player, country in countries.items():
                         i = 5
@@ -48,7 +50,10 @@ class EndHoiGame(commands.Cog):
                             await interaction.channel.send(f'💹 What is your rating for <@{player}> playing '
                                                            f'{country}? 0-100 (%)')
 
+                            print("gonna wait")
                             msg = await self.client.wait_for('message', check=check, timeout=60)
+                            print("message")
+                            print(msg)
                             try:
                                 rating = int(msg.content)
                                 if not 0 <= rating <= 100:
