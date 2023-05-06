@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import json
 
@@ -45,12 +46,21 @@ class EndHoiGame(commands.Cog):
                             await interaction.channel.send(f'💹 What is your rating for <@{player}> playing '
                                                            f'{country}? 0-100 (%)')
 
-                            def check(m):
-                                return m.channel == interaction.channel, m.author == interaction.user
+                            def check(m: discord.Message):
+                                return m.author.id == interaction.user.id and m.channel.id == interaction.channel.id
 
-                            msg = await self.client.wait_for('message', check=check, timeout=60)
-                            print(msg)
                             try:
+                                msg = await self.client.wait_for('message', check=check, timeout=60.0)
+                            except Exception as e:
+                                # TODO: It loops for like 3 times for some reason, gotta fix it
+                                if not msg.content:
+                                    return
+                                print(e)
+                                await interaction.channel.send("❌ Please only enter values in this interval: <0;100>")
+                                if i == 0:
+                                    rating = 50
+                                return
+                            else:
                                 rating = int(msg.content)
                                 if not 0 <= rating <= 100:
                                     raise ValueError(f"Invalid rating")
@@ -77,14 +87,6 @@ class EndHoiGame(commands.Cog):
                                 await interaction.channel.send(f"✅ Successfully updated rating for {player.name}, "
                                                                f"new rating: {total_rating * 100}%")
                                 player_ratings[player.id] = rating
-                            except Exception as e:
-                                # TODO: It loops for like 3 times for some reason, gotta fix it
-                                if not msg.content:
-                                    return
-                                print(e)
-                                await interaction.channel.send("❌ Please only enter values in this interval: <0;100>")
-                                if i == 0:
-                                    rating = 50
 
                     await interaction.channel.send(f"✅ All ratings have been set!")
 
