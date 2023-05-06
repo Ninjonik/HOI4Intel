@@ -78,7 +78,7 @@ class EndHoiGame(commands.Cog):
                                 player_ratings[player.id] = rating
                             except Exception as e:
                                 # TODO: It loops for like 3 times for some reason, gotta fix it
-                                if not msg.conntent:
+                                if not msg.content:
                                     return
                                 print(e)
                                 await interaction.channel.send("❌ Please only enter values in this interval: <0;100>")
