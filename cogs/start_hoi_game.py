@@ -13,7 +13,7 @@ class StartHOIGame(commands.Cog):
     @app_commands.command(name="start_hoi_game")
     async def start_hoi_game(self, interaction: discord.Interaction, event_id: str, instructions: str):
         self.cursor, self.connection = config.dictionary_setup()
-        interaction.response.send_message("Working on it...", ephemeral=True)
+        await interaction.response.send_message("Working on it...", ephemeral=True)
         try:
             event_id = int(event_id)
         except ValueError:
