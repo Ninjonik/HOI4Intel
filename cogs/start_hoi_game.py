@@ -4,6 +4,7 @@ from discord import app_commands
 
 import config
 
+
 class StartHOIGame(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
@@ -12,11 +13,11 @@ class StartHOIGame(commands.Cog):
     @app_commands.command(name="start_hoi_game")
     async def start_hoi_game(self, interaction: discord.Interaction, event_id: str, instructions: str):
         self.cursor, self.connection = config.dictionary_setup()
+        interaction.response.send_message("Working on it...", ephemeral=True)
         try:
             event_id = int(event_id)
         except ValueError:
-            await interaction.response.send_message("🔟 Invalid event ID format. Please provide a valid ID.",
-                                                    ephemeral=True)
+            await interaction.channel.send("🔟 Invalid event ID format. Please provide a valid ID.")
             return
         if interaction.user.guild_permissions.administrator:
             self.cursor.execute("SELECT * FROM events WHERE message_id=%s", (event_id,))
@@ -61,23 +62,19 @@ class StartHOIGame(commands.Cog):
                             channel = await player_discord.create_dm()
                             await channel.send(embed=embed)
                         except Exception as e:
-                            await interaction.response.send_message("❌ An error occurred while processing your request.",
-                                                                    ephemeral=True)
+                            await interaction.channel.send("❌ An error occurred while processing your request.")
                             print(e)
-                            return
                 event = interaction.guild.get_scheduled_event(event["guild_event_id"])
                 await event.start(reason=f"Event has been started by {interaction.user.name}")
                 self.cursor.execute("UPDATE events SET started=1, updated_at=NOW() WHERE message_id=%s",
                                     (event_id,))
                 self.connection.commit()
-                self.connection.close()
                 await interaction.channel.send(f"✅ Event has been started successfully!")
 
             else:
-                await interaction.response.send_message(
+                await interaction.channel.send(
                     "❌ The event with this ID does not exist, or you do not have permission to start this event, "
-                    "or the event already started.",
-                    ephemeral=True)
+                    "or the event already started.")
 
 
 async def setup(client: commands.Bot) -> None:
