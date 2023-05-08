@@ -156,7 +156,7 @@ class Client(commands.Bot):
                     repo = git.Repo(search_parent_directories=True)
                     checksum = repo.head.object.hexsha
                     await channel.send(f"The bot has been restarted. Any old interactions that have been created "
-                                       f"before and"
+                                       f"before and "
                                        f"require buttons to work will not work anymore. We apologize for the "
                                        f"inconvenience."
                                        f"\nVersion checksum: {checksum}"
