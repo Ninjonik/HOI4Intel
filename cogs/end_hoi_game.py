@@ -96,6 +96,13 @@ class EndHoiGame(commands.Cog):
 
                     await interaction.channel.send(f"✅ All ratings have been set!")
 
+                else:
+                    await interaction.response.send_message(
+                        "❌ The event with this ID does not have any players."
+                        "\nAssign them using the /add_player_list command.",
+                        ephemeral=True)
+                    return
+
                 embed = discord.Embed(
                     title=f"**{event['title']} event just ended!**",
                     description=event['description'],
