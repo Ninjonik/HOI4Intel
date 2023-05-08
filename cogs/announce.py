@@ -34,8 +34,7 @@ class announce(commands.Cog):
                 if data and data["started"] != 2 and data["countries"]:
                     countries = json.loads(data["countries"])
                     for member, country in countries.items():
-                        member = interaction.guild.get_member(member)
-                        self.cursor.execute("SELECT player_id FROM player_ann_blacklist WHERE player_id=%s" % member.id)
+                        member = interaction.guild.get_member(int(member))
                         try:
                             embed = discord.Embed(title=f"📢 {interaction.guild.name} Announcement!",
                                                   description=f"By: {interaction.user}", color=0xff0000)
