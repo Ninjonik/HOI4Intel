@@ -26,7 +26,7 @@ class RequestSteam(commands.Cog):
                                       description=f"By: {interaction.user.mention}", color=0xff0000)
                 embed.add_field(name="Steam Verification", value=f"You were DMed because {interaction.guild.name}'s Host"
                                       f" {interaction.user.mention} is requesting you to verify your steam account."
-                                      f"\nYou can do so by going on HOI4Intel's secure website:"
+                                      f"\nYou can do so by going on HOI4Intel's secure website: "
                                       f"https://hoi.theorganization.eu/steam/{player.id}", inline=False)
                 channel = await player.create_dm()
                 message = await channel.send(embed=embed)
