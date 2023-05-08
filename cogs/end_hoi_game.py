@@ -126,6 +126,8 @@ class EndHoiGame(commands.Cog):
                 await interaction.guild.get_channel(event["channel_id"]).send(embed=embed)
                 event = interaction.guild.get_scheduled_event(event["guild_event_id"])
                 await interaction.channel.send(f"✅ Event has been ended successfully!")
+                self.cursor.execute("UPDATE events SET started=2 WHERE message_id=%s", (event['message_id'],))
+                self.connection.commit()
                 await event.end(reason=f"Event has been ended by {interaction.user.name}")
 
             else:
