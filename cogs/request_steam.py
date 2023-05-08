@@ -17,20 +17,22 @@ class RequestSteam(commands.Cog):
             profile_link = self.cursor.fetchone()
             if profile_link[0] is not None:
                 await interaction.response.send_message(
-                    f"This user is already verified."
+                    f"ℹ️ This user is already verified."
                     f"\nHis profile link: {profile_link[0]}",
                     ephemeral=True)
                 return
             try:
                 embed = discord.Embed(title=f"📢 {interaction.guild.name} Announcement!",
                                       description=f"By: {interaction.user.mention}", color=0xff0000)
-                embed.add_field(name="Steam Verification", value="You were DMed because {interaction.guild.name}'s Host"
+                embed.add_field(name="Steam Verification", value=f"You were DMed because {interaction.guild.name}'s Host"
                                       f" {interaction.user.mention} is requesting you to verify your steam account."
                                       f"\nYou can do so by going on HOI4Intel's secure website:"
                                       f"https://hoi.theorganization.eu/steam/{player.id}", inline=False)
                 channel = await player.create_dm()
                 message = await channel.send(embed=embed)
+                interaction.response.send_message("✔️ Message sent successfully!")
             except Exception as e:
+                interaction.response.send_message("❌ Unable to send DM to this user.")
                 print(e)
 
 
