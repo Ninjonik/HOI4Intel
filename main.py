@@ -161,7 +161,8 @@ class Client(commands.Bot):
                                        f"inconvenience."
                                        f"\nVersion checksum: {checksum}"
                                        f"\nIf you have any problems regarding the bot, seek support at: "
-                                       f"https://discord.gg/world-war-community-820918304176340992")
+                                       f"https://discord.gg/world-war-community-820918304176340992"
+                                       f"\nOr at our wiki: https://hoi.theorganization.eu/wiki")
 
     async def on_guild_join(self, guild):
         # TODO: This method might not be working
