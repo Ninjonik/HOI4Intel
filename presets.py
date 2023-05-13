@@ -350,7 +350,10 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
                 "SELECT SUM(rating) as SUM, COUNT(rating) AS CNT FROM player_records WHERE player_id=%s AND"
                 " guild_id=%s" % (interaction.user.id, interaction.guild.id))
             total = self.cursor.fetchall()
-            player_rating = total[0][0] / total[0][1]
+            if total[0]:
+                player_rating = total[0][0] / total[0][1]
+            else:
+                player_rating = 0.5
         else:
             player_rating = profile_link[1]
 
