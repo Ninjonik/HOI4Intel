@@ -64,12 +64,12 @@ class StartHOIGame(commands.Cog):
                         except Exception as e:
                             await interaction.channel.send("❌ An error occurred while processing your request.")
                             print(e)
-                event = interaction.guild.get_scheduled_event(event["guild_event_id"])
-                await event.start(reason=f"Event has been started by {interaction.user.name}")
                 self.cursor.execute("UPDATE events SET started=1, updated_at=NOW() WHERE message_id=%s",
                                     (event_id,))
                 self.connection.commit()
                 await interaction.channel.send(f"✅ Event has been started successfully!")
+                event = interaction.guild.get_scheduled_event(event["guild_event_id"])
+                await event.start(reason=f"Event has been started by {interaction.user.name}")
 
             else:
                 await interaction.channel.send(
