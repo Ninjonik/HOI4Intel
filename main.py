@@ -32,6 +32,21 @@ intents.guilds = True
 global cursor
 global connection
 
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+
+class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'working')
+
+
+try:
+    httpd = HTTPServer(('hoi.theorganization.eu', 8089), SimpleHTTPRequestHandler)
+except:
+    httpd = HTTPServer(('localhost', 8089), SimpleHTTPRequestHandler)
+httpd.serve_forever()
 
 async def on_start(server_name, server_description, guild_id, guild_count):
     # Establish database connection
@@ -41,7 +56,8 @@ async def on_start(server_name, server_description, guild_id, guild_count):
     current_time = datetime.datetime.now()
     current_date = datetime.datetime.now().date()
     if settings:
-        local_cursor.execute("SELECT updated_at FROM statistics WHERE guild_id='%s' ORDER BY id DESC LIMIT 1" % guild_id)
+        local_cursor.execute(
+            "SELECT updated_at FROM statistics WHERE guild_id='%s' ORDER BY id DESC LIMIT 1" % guild_id)
         row = local_cursor.fetchall()
         # Extract the date from the datetime object stored in the database
         db_datetime = row[0][0]
@@ -50,8 +66,8 @@ async def on_start(server_name, server_description, guild_id, guild_count):
         if current_date != db_date:
             print(f"{presets.prefix()} Date is different, updating statistics for {server_name}")
             local_cursor.execute("UPDATE settings SET guild_name='%s', guild_desc='%s', updated_at='%s'"
-                           " WHERE guild_id='%s'" % (server_name, server_description,
-                                                     current_time, guild_id))
+                                 " WHERE guild_id='%s'" % (server_name, server_description,
+                                                           current_time, guild_id))
             local_cursor.execute(
                 "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, '%s', '%s', %s) " % (
                     guild_id, current_time, current_time, guild_count))
@@ -132,6 +148,7 @@ class Client(commands.Bot):
         print(presets.prefix() + " Syncing slash commands...")
         synced = await self.tree.sync()
         print(presets.prefix() + " Slash commands synced " + Fore.YELLOW + str(len(synced)) + " Commands")
+        print(presets.prefix() + " Running the web server")
         print(presets.prefix() + " Initializing guilds....")
         print(presets.prefix() + " Initializing status....")
         if not statusLoop.is_running():
