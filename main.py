@@ -1,3 +1,4 @@
+import threading
 from asyncio import tasks
 from time import sleep
 
@@ -37,16 +38,26 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b'working')
+        if self.path == '/':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b'working')
+        else:
+            self.send_response(404)
+            self.end_headers()
 
 
+# Create an HTTP server
 try:
     httpd = HTTPServer(('hoi.theorganization.eu', 8089), SimpleHTTPRequestHandler)
 except:
     httpd = HTTPServer(('localhost', 8089), SimpleHTTPRequestHandler)
-httpd.serve_forever()
+
+# Start the HTTP server in a separate thread
+http_thread = threading.Thread(target=httpd.serve_forever)
+http_thread.start()
+
 
 async def on_start(server_name, server_description, guild_id, guild_count):
     # Establish database connection
@@ -249,3 +260,4 @@ class Client(commands.Bot):
 
 client = Client()
 client.run(presets.token)
+http_thread.join()
