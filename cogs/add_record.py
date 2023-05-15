@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import config
-from presets import _add_player
+from presets import _add_player_name
 
 
 class add_record(commands.Cog):
@@ -21,12 +21,12 @@ class add_record(commands.Cog):
                 guild = interaction.guild
                 rating_percentage = rating / 100
                 await interaction.response.send_message("Working on it...", ephemeral=True)
-                await _add_player(host.id, 0.5, current_time)
-                await _add_player(player.id, rating_percentage, current_time)
+                await _add_player_name(host.id, host.name, 0.5)
+                await _add_player_name(player.id, player.name, 0.5)
                 cursor = self.connection.cursor()
                 cursor.execute(
                     "INSERT INTO player_records (player_id, guild_id, host_id, rating, created_at, updated_at) "
-                    "VALUES (%s, %s, %s, %s, %s, %s)",
+                    "VALUES (%s, %s, %s, %s, NOW(), NOW())",
                     (player.id, guild.id, host.id, rating_percentage, current_time, current_time))
                 self.connection.commit()
 

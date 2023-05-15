@@ -19,7 +19,6 @@ from PIL import Image, ImageDraw, ImageFont
 import mysql.connector
 import time
 import presets
-from presets import _add_player
 import git
 import uuid
 
@@ -108,8 +107,9 @@ class Client(commands.Bot):
         super().__init__(command_prefix=commands.when_mentioned_or('*'), intents=discord.Intents().all())
         self.cursor, self.connection = config.setup()
         self.cogsList = ["cogs.calculate", "cogs.whois", "cogs.dice", "cogs.randomcog", "cogs.guessgame",
-                         "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.verify",
-                         "cogs.setup_custom_channels", "cogs.test", "cogs.add_hoi_game", "cogs.add_blog"]
+                         "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.verify", "cogs.announce",
+                         "cogs.setup_custom_channels", "cogs.test", "cogs.add_hoi_game", "cogs.add_blog", "cogs.guides",
+                         "cogs.start_hoi_game", "cogs.add_player_list", "cogs.end_hoi_game", "cogs.request_steam"]
 
     @tasks.loop(seconds=1400)
     async def refreshConnection(self):
@@ -145,7 +145,8 @@ class Client(commands.Bot):
             for voice_channel in guild.voice_channels:
                 if voice_channel.name.startswith("TC"):
                     await voice_channel.delete()
-        # Inform guild owners that the bot has been restarted
+
+        # Inform guild admins that the bot has been restarted
         self.cursor.execute('SELECT log_channel FROM settings')
         guilds_db = self.cursor.fetchall()
         if uuid.getnode() == 345048613385:
@@ -155,12 +156,13 @@ class Client(commands.Bot):
                     repo = git.Repo(search_parent_directories=True)
                     checksum = repo.head.object.hexsha
                     await channel.send(f"The bot has been restarted. Any old interactions that have been created "
-                                       f"before and"
+                                       f"before and "
                                        f"require buttons to work will not work anymore. We apologize for the "
                                        f"inconvenience."
                                        f"\nVersion checksum: {checksum}"
                                        f"\nIf you have any problems regarding the bot, seek support at: "
-                                       f"https://discord.gg/world-war-community-820918304176340992")
+                                       f"https://discord.gg/world-war-community-820918304176340992"
+                                       f"\nOr at our wiki: https://hoi.theorganization.eu/wiki")
 
     async def on_guild_join(self, guild):
         # TODO: This method might not be working

@@ -20,6 +20,7 @@ from PIL import Image, ImageDraw, ImageFont
 import mysql.connector
 import time
 from googleapiclient import discovery
+from slugify import slugify
 
 
 def prefix():
@@ -114,6 +115,20 @@ async def _add_player(player_id, rating_percentage, current_time):
     except Exception as e:
         connection.rollback()
         raise e
+
+
+async def _add_player_name(player_id, player_name, rating_percentage):
+    cursor, connection = config.setup()
+    try:
+        cursor.execute(
+            "INSERT INTO players (discord_id, discord_name, rating, created_at, updated_at) "
+            "VALUES (%s, %s, %s, NOW(), NOW()) "
+            "ON DUPLICATE KEY UPDATE rating = %s, discord_name = %s, updated_at = NOW()",
+            (player_id, player_name, rating_percentage, rating_percentage, player_name))
+        connection.commit()
+    except Exception as e:
+        connection.rollback()
+        print(e)
 
 
 class UpdateRoles(discord.ui.View):
@@ -319,14 +334,26 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
         self.cursor.execute("SELECT * FROM events WHERE message_id=%s" % interaction.message.id)
         event_data = self.cursor.fetchone()
 
-        await _add_player(interaction.user.id, 0.5, datetime.datetime.now())
+        await _add_player_name(interaction.user.id, interaction.user.name, 0.5)
+
+        # Already started check
+        # TODO
+        """
+        if event_data:
+            if event_data[15] == 1:
+                await interaction.response.send_message("This event has already been started!")
+                return
+        """
 
         if event_data[9] == 0:
             self.cursor.execute(
                 "SELECT SUM(rating) as SUM, COUNT(rating) AS CNT FROM player_records WHERE player_id=%s AND"
                 " guild_id=%s" % (interaction.user.id, interaction.guild.id))
             total = self.cursor.fetchall()
-            player_rating = total[0][0] / total[0][1]
+            if total[0][0]:
+                player_rating = total[0][0] / total[0][1]
+            else:
+                player_rating = 0.5
         else:
             player_rating = profile_link[1]
 
@@ -417,6 +444,7 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
             value="\n".join(reserved_list),
             inline=False,
         )
+        embed.set_footer(text=f"Event ID:{interaction.message.id}")
         await interaction.message.edit(embed=embed)
 
     async def on_error(self, interaction: discord.Interaction):
@@ -430,12 +458,14 @@ class ReserveDialog(discord.ui.View):
 
     @discord.ui.button(label="Reserve", style=discord.ButtonStyle.success, custom_id="rd_reserve", emoji="🔒")
     async def rd_reserve(self, interaction: discord.Interaction, button: discord.Button):
+        self.cursor, self.connection = config.setup()
         await interaction.response.send_modal(ReserveNation())
 
     @discord.ui.button(label="Cancel Reservation", style=discord.ButtonStyle.danger, custom_id="rd_un_reserve",
                        emoji="🔓")
     async def rd_un_reserve(self, interaction: discord.Interaction, button: discord.Button):
         try:
+            self.cursor, self.connection = config.setup()
             self.cursor.execute("DELETE FROM event_reservations WHERE event_message_id=%s AND player_id=%s",
                                 (interaction.message.id, interaction.user.id))
             self.connection.commit()
@@ -449,52 +479,79 @@ class ReserveDialog(discord.ui.View):
 
         self.cursor.execute("SELECT * FROM events WHERE message_id=%s" % interaction.message.id)
         event_data = self.cursor.fetchone()
+        if event_data:
+            embed = discord.Embed(
+                title=f"**New event: {event_data[10]}**",
+                description=event_data[11],
+                colour=discord.Colour.green()
+            )
+            embed.set_thumbnail(url=interaction.guild.icon)
+            embed.add_field(
+                name="**Date & Time:**",
+                value=f'<t:{int(datetime.datetime.timestamp(event_data[5]))}>',
+                inline=False,
+            )
+            embed.add_field(
+                name="Reserve a nation!",
+                value='Click on the "Reserve" button to reserve a nation!',
+                inline=True,
+            )
+            embed.add_field(
+                name="Minimal rating:",
+                value=f'{event_data[7] * 100}%',
+                inline=True,
+            )
+            if event_data[8] == 1:
+                steam_required = True
+            else:
+                steam_required = False
+            embed.add_field(
+                name="Steam verification required:",
+                value=steam_required,
+                inline=True,
+            )
 
-        embed = discord.Embed(
-            title=f"**New event: {event_data[10]}**",
-            description=event_data[11],
-            colour=discord.Colour.green()
-        )
-        embed.set_thumbnail(url=interaction.guild.icon)
-        embed.add_field(
-            name="**Date & Time:**",
-            value=f'<t:{int(datetime.datetime.timestamp(event_data[5]))}>',
-            inline=False,
-        )
-        embed.add_field(
-            name="Reserve a nation!",
-            value='Click on the "Reserve" button to reserve a nation!',
-            inline=True,
-        )
-        embed.add_field(
-            name="Minimal rating:",
-            value=f'{event_data[7] * 100}%',
-            inline=True,
-        )
-        if event_data[8] == 1:
-            steam_required = True
-        else:
-            steam_required = False
-        embed.add_field(
-            name="Steam verification required:",
-            value=steam_required,
-            inline=True,
-        )
+            # Get reserved players & nations list
 
-        # Get reserved players & nations list
+            self.cursor.execute("SELECT country, player_id FROM event_reservations WHERE event_message_id=%s"
+                                % interaction.message.id)
+            reserved_all = self.cursor.fetchall()
+            reserved_list = []
+            for player in reserved_all:
+                val = f"{interaction.guild.get_member(player[1]).mention} - {player[0]}"
+                reserved_list.append(val)
+            embed.add_field(
+                name="Currently Reserved:",
+                value="\n".join(reserved_list),
+                inline=False,
+            )
+            embed.set_footer(text=f"Event ID:{interaction.message.id}")
+            await interaction.message.edit(embed=embed)
 
-        self.cursor.execute("SELECT country, player_id FROM event_reservations WHERE event_message_id=%s"
-                            % interaction.message.id)
-        reserved_all = self.cursor.fetchall()
-        reserved_list = []
-        for player in reserved_all:
-            val = f"{interaction.guild.get_member(player[1]).mention} - {player[0]}"
-            reserved_list.append(val)
-        embed.add_field(
-            name="Currently Reserved:",
-            value="\n".join(reserved_list),
-            inline=False,
-        )
-        await interaction.message.edit(embed=embed)
+            await interaction.response.send_message("You have successfully canceled the reservation.", ephemeral=True)
 
-        await interaction.response.send_message("You have successfully canceled the reservation.", ephemeral=True)
+
+class Select(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(GuideMenu())
+
+
+class GuideMenu(discord.ui.Select):
+    def __init__(self):
+        self.cursor, self.connection = config.dictionary_setup()
+        self.cursor.execute("SELECT * FROM wiki_articles WHERE category_id=12")
+        self.articles = self.cursor.fetchall()
+        self.article_dict = {article['title']: article['id'] for article in self.articles}
+        options = [discord.SelectOption(label=article['title'], emoji=article['emoji'])
+                   for article in self.articles]
+
+        super().__init__(placeholder="Please select the guide you want:", options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        selected_title = self.values[0]
+        selected_id = self.article_dict[selected_title]
+        slug_title = slugify(selected_title)
+        link = f"https://hoi.theorganization.eu/wiki/article/{selected_id}/{slug_title}"
+
+        await interaction.response.send_message(f"Guide for **{selected_title}** at: {link}", ephemeral=True)
