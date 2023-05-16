@@ -33,13 +33,13 @@ class StartHOIGame(commands.Cog):
                             player_discord = interaction.guild.get_member(player["player_id"])
 
                             embed = discord.Embed(
-                                title=f"📢 {event['title']} has just been started on {interaction.guild.name}!",
+                                title=f"📢 {event['title']} was just started on {interaction.guild.name}!",
                                 description=f"Hosted by: {interaction.guild.get_member(event['host_id'])}",
                                 color=0x00ff00
                             )
                             embed.add_field(
-                                name="Game has been started!",
-                                value=f"Game {event['title']} has just been started by the host.\n"
+                                name="Game was started!",
+                                value=f"Game {event['title']} was just been started by the host.\n"
                                       f"You were DMed because you have reserved **{player['country']}** in this game.",
                                 inline=False
                             )
@@ -67,9 +67,9 @@ class StartHOIGame(commands.Cog):
                 self.cursor.execute("UPDATE events SET started=1, updated_at=NOW() WHERE message_id=%s",
                                     (event_id,))
                 self.connection.commit()
-                await interaction.channel.send(f"✅ Event has been started successfully!")
+                await interaction.channel.send(f"✅ Event was started successfully!")
                 event = interaction.guild.get_scheduled_event(event["guild_event_id"])
-                await event.start(reason=f"Event has been started by {interaction.user.name}")
+                await event.start(reason=f"Event was started by {interaction.user.name}")
 
             else:
                 await interaction.channel.send(

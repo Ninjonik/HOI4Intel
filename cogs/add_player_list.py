@@ -57,7 +57,7 @@ class add_player_list(commands.Cog):
                 self.cursor.execute("UPDATE events SET countries=%s WHERE message_id=%s", (json.dumps(player_list),
                                                                                            event_id,))
                 self.connection.commit()
-                await interaction.channel.send("✅ Player List has been successfully saved!")
+                await interaction.channel.send("✅ Player List was successfully saved!")
 
             else:
                 print(event, event_id)

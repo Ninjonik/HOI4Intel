@@ -27,7 +27,7 @@ class EndHoiGame(commands.Cog):
         if interaction.user.guild_permissions.administrator:
             self.cursor.execute("SELECT * FROM events WHERE message_id=%s", (event_id,))
             event = self.cursor.fetchone()
-            if event and (event["guild_id"] == interaction.guild.id or event["host_id"] == interaction.user.id):
+            if event and (event["guild_id"] == interaction.guild.id or event["host_id"] == interaction.user.id) and event["started"] != 2:
 
                 self.cursor.execute("SELECT countries FROM events WHERE message_id=%s", (event_id,))
                 data = self.cursor.fetchone()["countries"]
@@ -124,16 +124,20 @@ class EndHoiGame(commands.Cog):
                     )
                 embed.set_footer(text=f"Event ID:{event['message_id']}")
                 await interaction.guild.get_channel(event["channel_id"]).send(embed=embed)
-                await interaction.channel.send(f"✅ Event has been ended successfully!")
+                await interaction.channel.send(f"✅ Event was ended successfully!")
                 self.cursor.execute("UPDATE events SET started=2, updated_at=NOW() WHERE message_id=%s", 
                                     (event['message_id'],))
                 self.connection.commit()
                 event = interaction.guild.get_scheduled_event(event["guild_event_id"])
-                await event.end(reason=f"Event has been ended by {interaction.user.name}")
+                try:
+                    await event.end(reason=f"Event was ended by {interaction.user.name}")
+                except:
+                    print("Event had already been ended.")
 
             else:
                 await interaction.response.send_message(
-                    "❌ The event with this ID does not exist, or you do not have permission to start this event.",
+                    "❌ The event with this ID does not exist, or you do not have permission "
+                    "to start this event or this event had already been ended.",
                     ephemeral=True)
 
 
