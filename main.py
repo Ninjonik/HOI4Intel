@@ -156,10 +156,10 @@ class Client(commands.Bot):
         print(presets.prefix() + " Bot ID " + Fore.YELLOW + str(self.user.id))
         print(presets.prefix() + " Discord Version " + Fore.YELLOW + discord.__version__)
         print(presets.prefix() + " Python version " + Fore.YELLOW + platform.python_version())
-        print(presets.prefix() + " Syncing slash commands...")
+        print(presets.prefix() + " Syncing slash commands....")
         synced = await self.tree.sync()
         print(presets.prefix() + " Slash commands synced " + Fore.YELLOW + str(len(synced)) + " Commands")
-        print(presets.prefix() + " Running the web server")
+        print(presets.prefix() + " Running the web server....")
         print(presets.prefix() + " Initializing guilds....")
         print(presets.prefix() + " Initializing status....")
         if not statusLoop.is_running():
@@ -211,7 +211,7 @@ class Client(commands.Bot):
             await general.send(embed=embed)
 
     async def on_voice_state_update(self, member, before, after):
-
+        await self.refreshConnection()
         if before.channel is not None and before.channel.name.endswith(member.display_name) \
                 and before.channel.name.startswith("TC"):
             await before.channel.delete(reason="Owner left the channel.")
