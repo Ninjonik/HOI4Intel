@@ -111,7 +111,7 @@ class EndHoiGame(commands.Cog):
                 embed.set_thumbnail(url=interaction.guild.icon)
                 embed.add_field(
                     name="**Date & Time:**",
-                    value=f'<t:{int(datetime.datetime.timestamp(event["updated-at"]))}>',
+                    value=f'<t:{int(datetime.datetime.timestamp(event["updated_at"]))}>',
                     inline=False,
                 )
                 if player_ratings:
