@@ -22,6 +22,35 @@ import time
 import presets
 import git
 import uuid
+import logging
+
+
+def get_logger(name, filename):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+
+    handler = logging.FileHandler(filename, mode='w')
+    handler.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+
+    logger.addHandler(handler)
+
+    return logger
+
+
+logger = get_logger('discord-bot', 'bot.log')
+
+
+def custom_print(*args, **kwargs):
+    message = ' '.join(str(arg) for arg in args)
+    logger.debug(message)
+    __builtins__.print(*args, **kwargs)
+
+
+# Replace the default print function with our custom print function
+print = custom_print
 
 intents = discord.Intents.all()
 intents.typing = True
