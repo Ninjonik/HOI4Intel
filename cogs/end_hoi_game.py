@@ -27,7 +27,7 @@ class EndHoiGame(commands.Cog):
         if interaction.user.guild_permissions.administrator:
             self.cursor.execute("SELECT * FROM events WHERE message_id=%s", (event_id,))
             event = self.cursor.fetchone()
-            if event and (event["guild_id"] == interaction.guild.id or event["host_id"] == interaction.user.id):
+            if event and (event["guild_id"] == interaction.guild.id or event["host_id"] == interaction.user.id) and event["started"] != 2:
 
                 self.cursor.execute("SELECT countries FROM events WHERE message_id=%s", (event_id,))
                 data = self.cursor.fetchone()["countries"]
@@ -98,10 +98,10 @@ class EndHoiGame(commands.Cog):
 
                 else:
                     await interaction.response.send_message(
-                        "❌ The event with this ID does not have any players."
-                        "\nAssign them using the /add_player_list command.",
+                        "✅ But the event with this ID does not have any players."
+                        "\nAssign them using the /add_player_list command. if you want "
+                        "to set specific ratings for players.",
                         ephemeral=True)
-                    return
 
                 embed = discord.Embed(
                     title=f"**{event['title']} event just ended!**",
@@ -111,28 +111,33 @@ class EndHoiGame(commands.Cog):
                 embed.set_thumbnail(url=interaction.guild.icon)
                 embed.add_field(
                     name="**Date & Time:**",
-                    value=f'<t:{int(datetime.datetime.timestamp(event["created_at"]))}>',
+                    value=f'<t:{int(datetime.datetime.timestamp(event["updated_at"]))}>',
                     inline=False,
                 )
                 if player_ratings:
                     player_info = [f"<@{user_id}> - {rating}%" for user_id, rating in player_ratings.items()]
                     player_ratings_formatted = "\n".join(player_info)
                     embed.add_field(
-                        name="Ratings:",
-                        value=player_ratings_formatted, # this is just an example
+                        name="Final ratings:",
+                        value=player_ratings_formatted,
                         inline=False,
                     )
                 embed.set_footer(text=f"Event ID:{event['message_id']}")
                 await interaction.guild.get_channel(event["channel_id"]).send(embed=embed)
-                event = interaction.guild.get_scheduled_event(event["guild_event_id"])
-                await interaction.channel.send(f"✅ Event has been ended successfully!")
-                self.cursor.execute("UPDATE events SET started=2 WHERE message_id=%s", (event['message_id'],))
+                await interaction.channel.send(f"✅ Event was ended successfully!")
+                self.cursor.execute("UPDATE events SET started=2, updated_at=NOW() WHERE message_id=%s", 
+                                    (event['message_id'],))
                 self.connection.commit()
-                await event.end(reason=f"Event has been ended by {interaction.user.name}")
+                event = interaction.guild.get_scheduled_event(event["guild_event_id"])
+                try:
+                    await event.end(reason=f"Event was ended by {interaction.user.name}")
+                except:
+                    print("Event had already been ended.")
 
             else:
                 await interaction.response.send_message(
-                    "❌ The event with this ID does not exist, or you do not have permission to start this event.",
+                    "❌ The event with this ID does not exist, or you do not have permission "
+                    "to start this event or this event had already been ended.",
                     ephemeral=True)
 
 
