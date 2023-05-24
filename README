@@ -1,0 +1,39 @@
+# HOI4Intel
+
+The Revolutionary HOI4 Discord Bot
+
+## About
+
+HOI4Intel is the ultimate Discord bot made by and for the HOI4 community. We work hard on making your HOI4 experience flawless. We are in close contact with many Discord server owners to ensure that important features of the bot are maintained well and requested ones are added.
+
+## Features
+
+- Bunch of services to rock your HOI4 session
+- Rating System
+- Steam Verification
+- Event System
+
+## Usage
+
+To use HOI4Intel, simply invite it to your Discord server and follow the instructions.
+
+## Contributing
+
+If you would like to contribute to HOI4Intel, please follow these steps:
+
+1. Fork this repository.
+2. Create a new branch.
+3. Make your changes and commit them.
+4. Push to the new branch.
+5. Create a pull request.
+
+## Credits
+
+We would like to thank the following people for their contributions to this project:
+
+- Ninjonik
+- DragonMan
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
