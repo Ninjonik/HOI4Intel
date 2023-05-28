@@ -22,10 +22,11 @@ class RequestSteam(commands.Cog):
                 return
             try:
                 channel = await player.create_dm()
-                await channel.send(name="Steam Verification",
-                             value=f"You were DMed because {interaction.guild.name}'s Host"
+                await channel.send(
+                             f"**HOI4Intel Steam Verification**\n"
+                             f"You were DMed because {interaction.guild.name}'s Host"
                              f" {interaction.user.mention} is requesting you to verify your steam account."
-                             f"\nYou can do so by going on HOI4Intel's secure website: "
+                             f"\nYou can do so by going on HOI4Intel's website: "
                              f"https://hoi.theorganization.eu/steam/{player.id}")
                 await interaction.response.send_message("✔️ Message sent successfully!")
             except Exception as e:
