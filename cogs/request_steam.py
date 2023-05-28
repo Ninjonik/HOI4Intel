@@ -15,7 +15,7 @@ class RequestSteam(commands.Cog):
         if interaction.user.guild_permissions.administrator:
             self.cursor.execute("SELECT profile_link FROM players WHERE discord_id=%s", (player.id,))
             profile_link = self.cursor.fetchone()
-            if profile_link[0] is not None:
+            if profile_link[0]:
                 await interaction.response.send_message(
                     f"ℹ️ This user is already verified."
                     f"\nHis profile link: {profile_link[0]}")
