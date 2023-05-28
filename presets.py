@@ -126,6 +126,11 @@ async def _add_player_name(player_id, player_name, rating_percentage):
             "ON DUPLICATE KEY UPDATE rating = %s, discord_name = %s, updated_at = NOW()",
             (player_id, player_name, rating_percentage, rating_percentage, player_name))
         connection.commit()
+        cursor.execute(
+            "INSERT INTO player_records (player_id, guild_id, host_id, rating, created_at, updated_at) "
+            "VALUES (%s, %s, %s, %s, NOW(), NOW())",
+            (player_id, 0, 0, rating_percentage))
+        connection.commit()
     except Exception as e:
         connection.rollback()
         print(e)
