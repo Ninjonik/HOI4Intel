@@ -350,7 +350,7 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
                 return
         """
 
-        if event_data[9] == 0:
+        if event_data and event_data[9] == 0:
             self.cursor.execute(
                 "SELECT SUM(rating) as SUM, COUNT(rating) AS CNT FROM player_records WHERE player_id=%s AND"
                 " guild_id=%s" % (interaction.user.id, interaction.guild.id))
