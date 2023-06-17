@@ -196,6 +196,19 @@ class Client(commands.Bot):
         self.cursor.execute('SELECT log_channel FROM settings')
         guilds_db = self.cursor.fetchall()
 
+        @self.tree.error
+        async def on_app_command_error(interaction: discord.Interaction,
+                                       error: discord.app_commands.AppCommandError) -> None:
+            print(interaction)
+            print(error)
+            """
+            if isinstance(error, discord.app_commands.errors.No):
+                await interaction.response.send_message(
+                    f'Command "{interaction.command.name}" is on cooldown, you can use it in '
+                    f'{round(error.retry_after, 2)} seconds.',
+                    ephemeral=True)
+            """
+
     async def on_guild_join(self, guild):
         general = await guild.create_text_channel("📢hoi4intel-bot-info")
         await general.edit(position=0)

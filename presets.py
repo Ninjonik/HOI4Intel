@@ -104,19 +104,6 @@ def log(content):
     print(prefix() + content)
 
 
-async def _add_player(player_id, rating_percentage, current_time):
-    cursor, connection = config.setup()
-    try:
-        cursor.execute(
-            "INSERT INTO players (discord_id, rating, created_at, updated_at) VALUES (%s, %s, %s, %s) "
-            "ON DUPLICATE KEY UPDATE rating = %s, updated_at = %s",
-            (player_id, rating_percentage, current_time, current_time, rating_percentage, current_time))
-        connection.commit()
-    except Exception as e:
-        connection.rollback()
-        raise e
-
-
 async def _add_player_name(player_id, player_name, rating_percentage):
     cursor, connection = config.setup()
     try:
@@ -129,7 +116,8 @@ async def _add_player_name(player_id, player_name, rating_percentage):
         cursor.execute(
             "INSERT INTO player_records (player_id, guild_id, host_id, rating, created_at, updated_at) "
             "VALUES (%s, %s, %s, %s, NOW(), NOW())",
-            (player_id, 0, 0, rating_percentage))
+            (player_id, 820918304176340992, 1063766598197981215, rating_percentage))
+        # TODO: Hardcoded for now
         connection.commit()
     except Exception as e:
         connection.rollback()
