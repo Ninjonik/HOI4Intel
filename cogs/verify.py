@@ -12,9 +12,8 @@ class verify(commands.Cog):
 
     @app_commands.command(name='verify', description="Verify using your steam account.")
     async def verify(self, interaction: discord.Interaction):
-
+        self.cursor, self.connection = config.setup()
         await _add_player_name(interaction.user.id, interaction.user.name, 0.5)
-
         self.cursor.execute('SELECT * FROM players WHERE discord_id=%s' % interaction.user.id)
         player_db = self.cursor.fetchone()
         if player_db:

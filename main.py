@@ -194,25 +194,32 @@ class Client(commands.Bot):
         # Inform guild admins that the bot has been restarted
         self.cursor.execute('SELECT log_channel FROM settings')
         guilds_db = self.cursor.fetchall()
-        
 
     async def on_guild_join(self, guild):
-        # TODO: This method might not be working
-        general = discord.utils.find(lambda x: x.name == 'general', guild.text_channels)
+        general = await guild.create_text_channel("📢hoi4intel-bot-info")
+        await general.edit(position=0)
         if general and general.permissions_for(guild.me).send_messages:
             embed = discord.Embed(title="How to setup the bot?",
                                   description="To setup the bot you need to run the following commands",
                                   color=discord.Colour.green(), timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=guild.icon_url)
-            embed.add_field(name="2.) /setup_custom_channels",
+            embed.set_thumbnail(url=client.user.avatar.url)
+            embed.add_field(name="1.) /setup",
+                            value="Using this command you setup the basic server information so that the bot can "
+                                  "function properly.",
+                            inline=False)
+            embed.add_field(name="2.) /setup_custom_channels (Optional)",
                             value="Using this command you can set up voice channels for a) "
                                   "creating custom temporary channels and b) creating custom permanent channels.",
+                            inline=False)
+            embed.add_field(name="Need help with anything?",
+                            value="Check out our wiki: https://hoi.theorganization.eu/wiki\n"
+                                  "Setup guide: https://hoi.theorganization.eu/wiki/article/9/how-to-setup-the-bot",
                             inline=False)
             embed.set_footer(
                 text="If you have any questions regarding the bot you can always seek help at WWC's Discord by "
                      "contacting the Staff Team. WWC's Discord: "
                      "https://discord.gg/world-war-community-820918304176340992")
-            await general.send(embed=embed)
+            await general.send("You may delete this channel now.", embed=embed)
 
     async def on_voice_state_update(self, member, before, after):
         await self.refreshConnection()
