@@ -218,8 +218,8 @@ class Client(commands.Bot):
                             inline=False)
             embed.set_footer(
                 text="If you have any questions regarding the bot you can always seek help at WWC's Discord by "
-                     "contacting the Staff Team. WWC's Discord: "
-                     "https://discord.gg/world-war-community-820918304176340992")
+                     "contacting the Staff Team.\n"
+                     "WWC's Discord: https://discord.gg/world-war-community-820918304176340992")
             await general.send("You may delete this channel now.", embed=embed)
 
     async def on_voice_state_update(self, member, before, after):
