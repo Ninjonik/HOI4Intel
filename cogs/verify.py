@@ -20,7 +20,7 @@ class verify(commands.Cog):
             self.cursor.execute('SELECT verify_role FROM settings WHERE guild_id=%s'
                                 % interaction.guild.id)
             guild_db = self.cursor.fetchone()
-            if guild_db:
+            if guild_db and guild_db[0]:
                 role = interaction.guild.get_role(guild_db[0])
                 await interaction.user.add_roles(role, reason="User verified successfully.")
             await interaction.response.send_message("You have been successfully verified!", ephemeral=True)

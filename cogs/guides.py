@@ -13,7 +13,8 @@ class guides(commands.Cog):
 
     @app_commands.command(name="guides")
     async def roll(self, interaction: discord.Interaction):
-        await interaction.response.send_message(content="Please select the guide you want:", view=presets.Select())
+        await interaction.response.send_message(content="Please select the guide you want:", view=presets.Select(),
+                                                ephemeral=True)
 
 
 async def setup(client: commands.Bot) -> None:

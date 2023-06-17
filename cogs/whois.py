@@ -65,6 +65,5 @@ class whois(commands.Cog):
             await interaction.response.send_message("Records for user with these parameters have not been found.")
 
 
-
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(whois(client))
