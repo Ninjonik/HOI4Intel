@@ -23,7 +23,7 @@ class whois(commands.Cog):
                               color=discord.Colour.green(), timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=member.avatar)
         embed.add_field(name="ID", value=member.id)
-        embed.add_field(name="Name", value=f'{member.name}#{member.discriminator}')
+        embed.add_field(name="Name", value=f'{member.name}')
         embed.add_field(name="Nickname", value=member.display_name)
         embed.add_field(name="Status", value=member.status)
         embed.add_field(name="Created At", value=member.created_at.strftime("%#d. %B %Y %H:%M:%S UTC "))
@@ -39,11 +39,11 @@ class whois(commands.Cog):
             if global_records is True:
                 query += "AND host_id=%s"
                 values = (member.id, host.id)
-                embed.add_field(name="Host", value=f"{host.name}#{host.discriminator}")
+                embed.add_field(name="Host", value=f"{host.name}")
             else:
                 query += "AND guild_id=%s AND host_id=%s"
                 values = (member.id, interaction.guild.id, host.id)
-                embed.add_field(name="Host", value=f"{host.name}#{host.discriminator}")
+                embed.add_field(name="Host", value=f"{host.name}")
                 embed.add_field(name="Server", value=interaction.guild.name)
         else:
             if global_records is False:
@@ -62,19 +62,21 @@ class whois(commands.Cog):
             embed.add_field(name="Steam Profile", value=player[4], inline=False)
 
             # Retrieve last ratings
-            query = "SELECT rating, host_id, guild_id, created_at FROM player_records WHERE player_id=%s " \
+            query = "SELECT rating, host_id, guild_id, created_at, country FROM player_records WHERE player_id=%s " \
                     "ORDER BY id DESC LIMIT 10"
             self.cursor.execute(query, (member.id,))
             ratings = self.cursor.fetchall()
-            table = "Last 10 Ratings\n"
+            table = f"Last 10 Ratings for {interaction.user.name}\n"
             table += "```\n"
-            table += "{:<4} {:<9} {:<16} {:<30} {:<20}\n".format("#", "Rating", "Host", "Server", "Date")
+            table += "{:<4} {:<9} {:<16} {:<30} {:<20}\n".format("#", "Rating", "Country", "Host", "Server", "Date")
             for index, record in enumerate(ratings, start=1):
                 rating_percent = "{:.2f}%".format(record[0] * 100)
+                country = (record[4] if rating[4] else "-").ljust(16)
                 host_name = (self.client.get_user(record[1]).name[:16]).ljust(16)
                 guild_name = (self.client.get_guild(record[2]).name[:30]).ljust(30)
                 date = record[3].strftime("%Y-%m-%d %H:%M:%S UTC")
-                table += "{:<4} {:<9} {:<16} {:<30} {:<20}\n".format(index, rating_percent, host_name, guild_name, date)
+                table += "{:<4} {:<9} {:<16} {:<30} {:<20}\n".format(index, rating_percent, country, host_name,
+                                                                     guild_name, date)
             table += "```"
             table += "Complete list of ratings for this player available for hosts at: " \
                      "https://hoi.theorganization.eu/players"

@@ -75,9 +75,9 @@ class EndHoiGame(commands.Cog):
                                     cursor = self.connection.cursor()
                                     cursor.execute(
                                         "INSERT INTO player_records (player_id, guild_id, host_id, "
-                                        "rating, created_at, updated_at) "
-                                        "VALUES (%s, %s, %s, %s, NOW(), NOW())",
-                                        (player.id, interaction.guild.id, interaction.user.id, rating / 100))
+                                        "rating, country, created_at, updated_at) "
+                                        "VALUES (%s, %s, %s, %s, %s, NOW(), NOW())",
+                                        (player.id, interaction.guild.id, interaction.user.id, rating / 100, country))
                                     self.connection.commit()
 
                                     self.cursor.execute(
