@@ -71,7 +71,6 @@ class whois(commands.Cog):
             table += "{:<4} {:<9} {:<16} {:<30} {:<20}\n".format("#", "Rating", "Country", "Host", "Server", "Date")
             for index, record in enumerate(ratings, start=1):
                 rating_percent = "{:.2f}%".format(record[0] * 100)
-                print(record, record[4], type(record[4]))
                 country = (str(record[4]) if record[4] is not None else "-").ljust(16)
                 host_name = (self.client.get_user(record[1]).name[:16]).ljust(16)
                 guild_name = (self.client.get_guild(record[2]).name[:30]).ljust(30)
@@ -81,6 +80,7 @@ class whois(commands.Cog):
             table += "```"
             table += "Complete list of ratings for this player available for hosts at: " \
                      "https://hoi.theorganization.eu/players"
+            print(table)
 
             await interaction.response.send_message(table, embed=embed)
 
