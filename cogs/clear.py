@@ -10,9 +10,7 @@ class clear(commands.Cog):
 
     @app_commands.command(name="clear", description="Clears last x messages in a channel")
     async def clear(self, interaction: discord.Interaction, amount: int):
-        member = interaction.user
-        userName = f"{member.name}#{member.discriminator}"
-        if presets.check_perm(userName):
+        if interaction.user.guild_permissions.administrator:
             await interaction.response.send_message(content=f"{amount} messages have been removed.")
             await interaction.channel.purge(limit=amount+1)
         else:

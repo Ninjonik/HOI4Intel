@@ -201,6 +201,7 @@ class Client(commands.Bot):
                                        error: discord.app_commands.AppCommandError) -> None:
             print(interaction)
             print(error)
+            # Output: <discord.interactions.Interaction object at 0x000001EC1F1AD6C0>
             """
             if isinstance(error, discord.app_commands.errors.No):
                 await interaction.response.send_message(
