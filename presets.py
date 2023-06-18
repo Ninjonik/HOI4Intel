@@ -192,7 +192,7 @@ class EntryDialog(discord.ui.View):
             await interaction.channel.send("Please enter the following code: (you have 3 tries left)")
 
             if "Verified" not in [y.name.lower() for y in interaction.user.roles]:
-                log(f" User {interaction.user.name}#{interaction.user.discriminator} has started a verification process.")
+                log(f" User {interaction.user.name} has started a verification process.")
 
                 def check(m):
                     return m.author == interaction.user and m.channel == interaction.channel
@@ -218,7 +218,7 @@ class EntryDialog(discord.ui.View):
                 while tries > 0:
                     user_key = await self.client.wait_for('message', check=check)
                     if user_key.content == key:
-                        log(f" User {member.name}#{member.discriminator} "
+                        log(f" User {member.name}"
                             f"has successfully solved the captcha with {tries} tries left.")
                         embed = discord.Embed(
                             title=f"Customization - **Get  Roles**",
@@ -263,12 +263,12 @@ class EntryDialog(discord.ui.View):
                     else:
                         tries = tries - 1
                         await interaction.channel.send(f"Incorrect, you have {tries} tries left.")
-                        log(f" User {member.name}#{member.discriminator} has failed captcha with "
+                        log(f" User {member.name} has failed captcha with "
                             f"{tries} left, generated key was {key} and they entered {user_key.content}")
                         continue
                 if tries == 0:
                     os.remove(filename)
-                    log(f" User {member.name}#{member.discriminator} "
+                    log(f" User {member.name} "
                         f"has been kicked from the server for not completing the captcha.")
                     await kick(member)
 
