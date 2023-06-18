@@ -32,7 +32,7 @@ class whois(commands.Cog):
         embed.add_field(name="Main Role", value=member.top_role.mention, inline=False)
 
         self.cursor.execute("SELECT * FROM players WHERE discord_id=%s" % member.id)
-        player = self.cursor.fetchall()
+        player = self.cursor.fetchone()
 
         query = "SELECT SUM(rating) as SUM, COUNT(rating) AS CNT FROM player_records WHERE player_id=%s "
         if host is not None:
@@ -55,12 +55,37 @@ class whois(commands.Cog):
                 embed.add_field(name="Server", value=interaction.guild.name)
 
         self.cursor.execute(query % values)
-        total = self.cursor.fetchall()
-        if total[0][0] is not None and total[0][1] is not None:
-            rating = total[0][0] / total[0][1]
+        total = self.cursor.fetchone()
+        if total[0] is not None and total[1] is not None:
+            rating = total[0] / total[1]
             embed.add_field(name="Rating", value=f"{rating * 100}%")
-            embed.add_field(name="Steam Profile", value=player[0][4], inline=False)
-            await interaction.response.send_message(embed=embed)
+            embed.add_field(name="Steam Profile", value=player[4], inline=False)
+
+            # Retrieve last ratings
+            query = "SELECT rating, host_id, guild_id, created_at FROM player_records WHERE player_id=%s " \
+                    "ORDER BY id DESC LIMIT 10"
+            self.cursor.execute(query, (member.id,))
+            ratings = self.cursor.fetchall()
+            table = "Last 10 Ratings\n"
+            table += "```\n"
+            table += "{:<4} {:<9} {:<16} {:<30} {:<20}\n".format("#", "Rating", "Host", "Server", "Date")
+            for index, record in enumerate(ratings, start=1):
+                rating_percent = "{:.2f}%".format(record[0] * 100)
+                host_name = (self.client.get_user(record[1]).name[:16]).ljust(16)
+                guild_name = (self.client.get_guild(record[2]).name[:30]).ljust(30)
+                date = record[3].strftime("%Y-%m-%d %H:%M:%S UTC")
+                table += "{:<4} {:<9} {:<16} {:<30} {:<20}\n".format(index, rating_percent, host_name, guild_name, date)
+            table += "```"
+            table += "Complete list of ratings for this player available for hosts at: " \
+                     "https://hoi.theorganization.eu/players"
+
+            await interaction.response.send_message(table, embed=embed)
+
+
+
+
+
+
         else:
             await interaction.response.send_message("Records for user with these parameters have not been found.")
 
