@@ -100,6 +100,19 @@ def check_perm(member):
         return False
 
 
+def check_host(user_id):
+    cursor, connection = config.setup()
+    cursor.execute("SELECT r.role_id FROM users AS u "
+                   "INNER JOIN assigned_roles AS r ON u.id=r.entity_id "
+                   "WHERE u.discord_id=%s", (user_id,))
+    data = cursor.fetchone()
+    print(data)
+    if data and data[0] < 4:
+        return True
+    else:
+        return False
+
+
 def log(content):
     print(prefix() + content)
 

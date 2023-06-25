@@ -154,7 +154,7 @@ class Client(commands.Bot):
                          "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.verify", "cogs.announce",
                          "cogs.setup_custom_channels", "cogs.test", "cogs.add_hoi_game", "cogs.add_blog", "cogs.guides",
                          "cogs.start_hoi_game", "cogs.add_player_list", "cogs.end_hoi_game", "cogs.request_steam",
-                         "cogs.help"]
+                         "cogs.help", "cogs.ban", "cogs.unban"]
 
     @tasks.loop(seconds=1400)
     async def refreshConnection(self):
