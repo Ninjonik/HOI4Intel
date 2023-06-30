@@ -14,9 +14,9 @@ class verify(commands.Cog):
     async def verify(self, interaction: discord.Interaction):
         self.cursor, self.connection = config.setup()
         await _add_player_name(interaction.user.id, interaction.user.name, 0.5)
-        self.cursor.execute('SELECT * FROM players WHERE discord_id=%s' % interaction.user.id)
+        self.cursor.execute('SELECT steam_id FROM players WHERE discord_id=%s' % interaction.user.id)
         player_db = self.cursor.fetchone()
-        if player_db:
+        if player_db and player_db[0]:
             self.cursor.execute('SELECT verify_role FROM settings WHERE guild_id=%s'
                                 % interaction.guild.id)
             guild_db = self.cursor.fetchone()
@@ -27,7 +27,6 @@ class verify(commands.Cog):
         else:
             self.cursor, self.connection = config.setup()
             member = interaction.user
-            roles = [role for role in member.roles]
             embed = discord.Embed(title="Steam Verification", description=f"Click on the link below in order to "
                                                                           f"start verification process.",
                                   color=discord.Colour.green(), timestamp=datetime.datetime.utcnow())
