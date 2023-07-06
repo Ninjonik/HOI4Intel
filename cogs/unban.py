@@ -1,9 +1,8 @@
-from datetime import datetime
 import discord
 from discord.ext import commands
 from discord import app_commands
 import config
-from presets import _add_player_name, check_host
+from presets import check_host
 
 
 class unban(commands.Cog):
