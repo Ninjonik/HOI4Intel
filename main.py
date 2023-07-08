@@ -68,8 +68,10 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 # Create an HTTP server
 try:
     httpd = HTTPServer(('hoi.theorganization.eu', 8089), SimpleHTTPRequestHandler)
+    print("HTTP server serving normally")
 except:
     httpd = HTTPServer(('localhost', 8089), SimpleHTTPRequestHandler)
+    print("HTTP server serving on localhost")
 
 # Start the HTTP server in a separate thread
 http_thread = threading.Thread(target=httpd.serve_forever)
