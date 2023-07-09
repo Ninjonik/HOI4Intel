@@ -50,31 +50,6 @@ intents.guilds = True
 global cursor
 global connection
 
-from http.server import HTTPServer, BaseHTTPRequestHandler
-
-
-class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/plain')
-            self.end_headers()
-            self.wfile.write(b'working')
-        else:
-            self.send_response(404)
-            self.end_headers()
-
-
-# Create an HTTP server
-try:
-    httpd = HTTPServer(('hoi.theorganization.eu', 8089), SimpleHTTPRequestHandler)
-except:
-    httpd = HTTPServer(('localhost', 8089), SimpleHTTPRequestHandler)
-
-# Start the HTTP server in a separate thread
-http_thread = threading.Thread(target=httpd.serve_forever)
-http_thread.start()
-
 
 async def on_start(server_name, server_description, guild_id, guild_count):
     # Establish database connection
@@ -154,7 +129,7 @@ class Client(commands.Bot):
                          "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.verify", "cogs.announce",
                          "cogs.setup_custom_channels", "cogs.test", "cogs.add_hoi_game", "cogs.add_blog", "cogs.guides",
                          "cogs.start_hoi_game", "cogs.add_player_list", "cogs.end_hoi_game", "cogs.request_steam",
-                         "cogs.help", "cogs.ban", "cogs.unban"]
+                         "cogs.help", "cogs.ban", "cogs.unban", "cogs.server"]
 
     @tasks.loop(seconds=1400)
     async def refreshConnection(self):
@@ -286,4 +261,3 @@ class Client(commands.Bot):
 
 client = Client()
 client.run(presets.token)
-http_thread.join()
