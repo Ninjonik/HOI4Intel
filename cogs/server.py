@@ -1,6 +1,8 @@
+import config
 import server
 from aiohttp import web
 from discord.ext import commands
+import discord
 
 
 class ServerCog(commands.Cog):
@@ -34,17 +36,42 @@ class ServerCog(commands.Cog):
             return web.json_response(data=user_data, status=200)
         else:
             return web.json_response(data={"error": "User not found"}, status=404)
-"""
+
     @server.add_route(path="/edit/guild", method="PATCH", cog="ServerCog")
     async def edit_guild(self, request):
         payload = await request.json()
-        guild_id = int(payload["id"])
-        guild_name = payload["name"]
-        guild = self.bot.get_guild(guild_id)
-        await guild.edit(name=guild_name)
+        token = payload["token"] if "token" in payload else ''
+        if token == config.comms_token:
+            guild_id = int(payload["guild_id"])
+            guild_name = payload["guild_name"]
+            guild_desc = payload["guild_desc"]
+            guild = self.bot.get_guild(guild_id)
+            try:
+                await guild.edit(name=guild_name, description=guild_desc)
+                return web.json_response(data={"success": "success"}, status=200)
+            except Exception as e:
+                return web.json_response(data={"error": e})
+        else:
+            return web.json_response(data={"error": "not authorized"}, status=403)
 
-        return web.json_response(data={"success": "success"}, status=200)
-"""
+    @server.add_route(path="/get/guild/channels", method="GET", cog="ServerCog")
+    async def get_guild_channels(self, request):
+        payload = await request.json()
+        token = payload.get("token", "")
+        if token == config.comms_token:
+            guild_id = int(payload["guild_id"])
+            guild = self.bot.get_guild(guild_id)
+
+            channels = sorted(guild.text_channels, key=lambda c: c.position)
+            channel_data = [
+                {"channel_name": channel.name, "channel_id": channel.id}
+                for channel in channels
+            ]
+
+            return web.json_response(data=channel_data, status=200)
+        else:
+            return web.json_response(data={"error": "not authorized"}, status=403)
+
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(ServerCog(client))
