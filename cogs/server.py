@@ -74,6 +74,24 @@ class ServerCog(commands.Cog):
         else:
             return web.json_response(data={"error": "not authorized"}, status=403)
 
+    @server.add_route(path="/get/guild/roles", method="GET", cog="ServerCog")
+    async def get_guild_channels(self, request):
+        payload = await request.json()
+        token = payload.get("token", "")
+        if token == config.comms_token:
+            guild_id = int(payload["guild_id"])
+            guild = self.bot.get_guild(guild_id)
+            roles = sorted(guild.roles, key=lambda r: r.position)
+            role_data = [
+                {"role_name": role.name, "role_id": role.id}
+                for role in roles
+            ]
+
+            return web.json_response(data=role_data, status=200)
+
+        else:
+            return web.json_response(data={"error": "not authorized"}, status=403)
+
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(ServerCog(client))
