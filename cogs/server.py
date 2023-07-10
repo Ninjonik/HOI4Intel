@@ -61,8 +61,10 @@ class ServerCog(commands.Cog):
         if token == config.comms_token:
             guild_id = int(payload["guild_id"])
             guild = self.bot.get_guild(guild_id)
-
-            channels = sorted(guild.text_channels, key=lambda c: c.position)
+            if payload["voice"]:
+                channels = sorted(guild.voice_channels, key=lambda c: c.position)
+            else:
+                channels = sorted(guild.text_channels, key=lambda c: c.position)
             channel_data = [
                 {"channel_name": channel.name, "channel_id": channel.id}
                 for channel in channels
