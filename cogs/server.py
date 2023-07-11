@@ -67,6 +67,7 @@ class ServerCog(commands.Cog):
                         f"{prefix()} Not enough permissions for banning / User banned | {player_name} on {guild.name}, "
                         f"Host: {host_id}"
                     )
+            self.connection.commit()
             return web.json_response(data={"success": "User banned"}, status=200)
         else:
             return web.json_response(data={"error": "not authorized"}, status=403)
@@ -88,6 +89,7 @@ class ServerCog(commands.Cog):
                         f"{prefix()} Not enough permissions for unbanning / User not banned | {player_id} on "
                         f"{guild.name}, Host: -"
                     )
+            self.connection.commit()
             return web.json_response(data={"success": "User unbanned"}, status=200)
         else:
             return web.json_response(data={"error": "not authorized"}, status=403)
