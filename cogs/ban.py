@@ -18,7 +18,7 @@ class ban(commands.Cog):
             if player_data:
                 try:
                     await interaction.guild.ban(player, reason=reason)
-                    await interaction.response.send_message("✔️ User has been locally.")
+                    await interaction.response.send_message("✔️ User has been banned locally.")
                 except Exception as e:
                     await interaction.response.send_message("❌ User is already banned.")
             else:
@@ -26,8 +26,10 @@ class ban(commands.Cog):
                 self.cursor.execute("INSERT INTO bans (player_id, guild_id, host_id, reason, created_at, updated_at) "
                                     "VALUES(%s, %s, %s, %s, NOW(), NOW())",
                                     (player.id, interaction.guild.id, interaction.user.id, reason))
-                await interaction.guild.ban(player, reason=reason)
-                await interaction.response.send_message("✔️ User has been banned!")
+                for guild in self.client.guilds:
+                    await guild.ban(discord.Object(id=player.id), reason=reason)
+                    message = await interaction.response.send_message("ℹ️ Banning user...")
+                await message.edit("✔️ User has been banned!")
             self.connection.commit()
         else:
             interaction.response.send_message("❌ You don't have enough permissions for this command. (Verified Host+)")
