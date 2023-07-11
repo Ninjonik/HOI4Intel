@@ -23,14 +23,14 @@ class unban(commands.Cog):
             player_data = self.cursor.fetchone()
             if player_data:
                 self.cursor.execute("DELETE FROM bans WHERE player_id=%s", (player_discord_id,))
-                message = await interaction.response.send_message("ℹ️ Unbanning user...")
+                await interaction.response.send_message("ℹ️ Unbanning user...")
                 for guild in self.client.guilds:
                     try:
                         await guild.unban(discord.Object(id=player_discord_id), reason=reason)
                     except Exception as e:
                         print(f"Not enough permissions for unbanning / User not banned | {user.name} on {guild.name}, "
                               f"Host: {interaction.user.name}")
-                await message.edit("✔️ User has been unbanned!")
+                await interaction.channel.send("✔️ User has been unbanned!")
             else:
                 try:
                     await interaction.guild.unban(user, reason=reason)
