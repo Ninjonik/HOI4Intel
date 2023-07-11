@@ -28,7 +28,11 @@ class ban(commands.Cog):
                                     (player.id, interaction.guild.id, interaction.user.id, reason))
                 message = await interaction.response.send_message("ℹ️ Banning user...")
                 for guild in self.client.guilds:
-                    await guild.ban(discord.Object(id=player.id), reason=reason)
+                    try:
+                        await guild.ban(discord.Object(id=player.id), reason=reason)
+                    except Exception as e:
+                        print(f"Not enough permissions for banning / User banned | {player.name} on {guild.name}, "
+                              f"Host: {interaction.user.name}")
                 await message.edit("✔️ User has been banned!")
             self.connection.commit()
         else:
