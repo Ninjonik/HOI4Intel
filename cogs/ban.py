@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import config
-from presets import _add_player_name, check_host
+from presets import _add_player_name, check_host, prefix
 
 
 class ban(commands.Cog):
@@ -10,7 +10,7 @@ class ban(commands.Cog):
         self.client = client
         self.cursor, self.connection = config.setup()
 
-    @app_commands.command(name="ban", description="Bans user.")
+    @app_commands.command(name="ban", description="Globally bans user.")
     async def add_record(self, interaction: discord.Interaction, player: discord.User, reason: str):
         if check_host(interaction.user.id):
             self.cursor.execute("SELECT id FROM bans WHERE player_id=%s", (player.id,))
@@ -31,7 +31,7 @@ class ban(commands.Cog):
                     try:
                         await guild.ban(discord.Object(id=player.id), reason=reason)
                     except Exception as e:
-                        print(f"Not enough permissions for banning / User banned | {player.name} on {guild.name}, "
+                        print(f"{prefix()} Not enough permissions for banning / User banned | {player.name} on {guild.name}, "
                               f"Host: {interaction.user.name}")
                 await interaction.channel.send("✔️ User has been banned!")
             self.connection.commit()

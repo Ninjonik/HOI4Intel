@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import config
-from presets import check_host
+from presets import check_host, prefix
 
 
 class unban(commands.Cog):
@@ -10,7 +10,7 @@ class unban(commands.Cog):
         self.client = client
         self.cursor, self.connection = config.setup()
 
-    @app_commands.command(name="unban", description="Unbans user.")
+    @app_commands.command(name="unban", description="Globally unbans user.")
     async def add_record(self, interaction: discord.Interaction, player_discord_id: str, reason: str):
         if check_host(interaction.user.id):
             try:
@@ -28,7 +28,7 @@ class unban(commands.Cog):
                     try:
                         await guild.unban(discord.Object(id=player_discord_id), reason=reason)
                     except Exception as e:
-                        print(f"Not enough permissions for unbanning / User not banned | {user.name} on {guild.name}, "
+                        print(f"{prefix()} Not enough permissions for unbanning / User not banned | {user.name} on {guild.name}, "
                               f"Host: {interaction.user.name}")
                 await interaction.channel.send("✔️ User has been unbanned!")
             else:
