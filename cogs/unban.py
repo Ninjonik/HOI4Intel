@@ -23,9 +23,9 @@ class unban(commands.Cog):
             player_data = self.cursor.fetchone()
             if player_data:
                 self.cursor.execute("DELETE FROM bans WHERE player_id=%s", (player_discord_id,))
+                message = await interaction.response.send_message("ℹ️ Unbanning user...")
                 for guild in self.client.guilds:
                     await guild.unban(discord.Object(id=player_discord_id), reason=reason)
-                    message = await interaction.response.send_message("ℹ️ Unbanning user...")
                 await message.edit("✔️ User has been unbanned!")
             else:
                 try:

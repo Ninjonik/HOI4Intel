@@ -26,9 +26,9 @@ class ban(commands.Cog):
                 self.cursor.execute("INSERT INTO bans (player_id, guild_id, host_id, reason, created_at, updated_at) "
                                     "VALUES(%s, %s, %s, %s, NOW(), NOW())",
                                     (player.id, interaction.guild.id, interaction.user.id, reason))
+                message = await interaction.response.send_message("ℹ️ Banning user...")
                 for guild in self.client.guilds:
                     await guild.ban(discord.Object(id=player.id), reason=reason)
-                    message = await interaction.response.send_message("ℹ️ Banning user...")
                 await message.edit("✔️ User has been banned!")
             self.connection.commit()
         else:
