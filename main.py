@@ -11,7 +11,7 @@ import datetime
 import config
 import presets
 import logging
-
+import aiohttp
 
 def get_logger(name, filename):
     logger = logging.getLogger(name)
@@ -213,6 +213,23 @@ class Client(commands.Bot):
 
     async def on_voice_state_update(self, member, before, after):
         await self.refreshConnection()
+
+        # LOBBY
+
+        # Joining
+        if after.channel and after.channel.id == 1129077885223829537:
+            print(f"{member} has joined {after.channel.name}")
+            await self.send_join_request(member, after.channel.id)
+
+        # Leaving
+        if before.channel and before.channel.id == 1129077885223829537:
+            print(f"{member} has left {before.channel.name}")
+            await self.send_leave_request(member, before.channel.id)
+
+        # END OF LOBBY
+
+        # CUSTOM CHANNELS
+
         if before.channel is not None and before.channel.name.endswith(member.display_name) \
                 and before.channel.name.startswith("TC"):
             await before.channel.delete(reason="Owner left the channel.")
@@ -258,6 +275,39 @@ class Client(commands.Bot):
                                                      reason="Owner of Custom Channel.")
                 await member.move_to(custom_channel)
 
+        # END OF CUSTOM CHANNELS
+
+    async def send_join_request(self, player, lobby_id):
+        url = "http://localhost:8000/lobby/send"
+        payload = {
+            "user": {
+                "discord_id": f"{player.id}",
+                "discord_name": player.name,
+                "rating": 1,
+                "country": player.display_name,
+                "joined": 1689182629
+            },
+            "action": {
+                "none": "none"
+            },
+            "lobby_id": f"{lobby_id}",
+            "token": config.comms_token
+        }
+        response = await presets.send_http_request(url, payload)
+        print("Join request response:", response)
+
+    async def send_leave_request(self, player, lobby_id):
+        url = "http://localhost:8000/lobby/send"
+        payload = {
+            "user": {
+                "discord_id": f"{player.id}"
+            },
+            "action": "delete",
+            "lobby_id": f"{lobby_id}",
+            "token": config.comms_token
+        }
+        response = await presets.send_http_request(url, payload)
+        print("Leave request response:", response)
 
 client = Client()
 client.run(presets.token)

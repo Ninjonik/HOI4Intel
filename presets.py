@@ -21,6 +21,7 @@ import mysql.connector
 import time
 from googleapiclient import discovery
 from slugify import slugify
+import aiohttp
 
 
 def prefix():
@@ -83,6 +84,12 @@ time_formats = [
     '%m/%d/%y %H:%M:%S',
     '%m/%d/%y %H:%M',
 ]
+
+
+async def send_http_request(url, payload):
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=payload) as response:
+            return await response.text()
 
 
 async def ban(member, reason):

@@ -43,6 +43,24 @@ class ServerCog(commands.Cog):
         else:
             return web.json_response(data={"error": "not authorized"}, status=403)
 
+    @server.add_route(path="/edit/user", method="PATCH", cog="ServerCog")
+    async def edit_guild(self, request):
+        payload = await request.json()
+        token = payload["token"] if "token" in payload else ''
+        if token == config.comms_token:
+            guild_id = int(payload["guild_id"])
+            player_id = int(payload["player_id"])
+            player_new_name = payload["player_new_name"]
+            guild = self.bot.get_guild(guild_id)
+            player = guild.get_member(player_id)
+            try:
+                await player.edit(nick=player_new_name)
+                return web.json_response(data={"success": "success"}, status=200)
+            except Exception as e:
+                return web.json_response(data={"error": e})
+        else:
+            return web.json_response(data={"error": "not authorized"}, status=403)
+
     @server.add_route(path="/user/ban", method="POST", cog="ServerCog")
     async def ban_user(self, request):
         payload = await request.json()
