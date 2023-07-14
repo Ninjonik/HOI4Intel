@@ -217,12 +217,12 @@ class Client(commands.Bot):
         # LOBBY
 
         # Joining
-        if after.channel and after.channel.id == 1129077885223829537:
+        if after.channel and after.channel.name == "Lobby Simulator ⌚️":
             print(f"{member} has joined {after.channel.name}")
             await self.send_join_request(member, after.channel.id)
 
         # Leaving
-        if before.channel and before.channel.id == 1129077885223829537:
+        if before.channel and before.channel.name == "Lobby Simulator ⌚️":
             print(f"{member} has left {before.channel.name}")
             await self.send_leave_request(member, before.channel.id)
 
