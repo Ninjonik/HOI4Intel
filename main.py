@@ -214,17 +214,27 @@ class Client(commands.Bot):
     async def on_voice_state_update(self, member, before, after):
         await self.refreshConnection()
 
+        if after.channel:
+            channel = after.channel
+        else:
+            channel = before.channel
+        guild = channel.guild
+
         # LOBBY
 
         # Joining
-        if after.channel and after.channel.name == "Lobby Simulator ⌚️":
-            print(f"{member} has joined {after.channel.name}")
-            await self.send_join_request(member, after.channel.id)
+
+        print(guild.voice_client.is_connected())
+        print(guild.voice_client)
+
+        if guild.voice_client.is_connected() and after.channel:
+            print(f"{member} has joined {channel.name}")
+            await self.send_join_request(member, channel.id)
 
         # Leaving
-        if before.channel and before.channel.name == "Lobby Simulator ⌚️":
-            print(f"{member} has left {before.channel.name}")
-            await self.send_leave_request(member, before.channel.id)
+        if guild.voice_client.is_connected() and before.channel:
+            print(f"{member} has left {channel.name}")
+            await self.send_leave_request(member, channel.id)
 
         # END OF LOBBY
 
@@ -235,9 +245,6 @@ class Client(commands.Bot):
             await before.channel.delete(reason="Owner left the channel.")
 
         if after.channel is not None:
-            channel = after.channel
-            guild = channel.guild
-
             self.cursor.execute("SELECT custom_channel, custom_channel_2 FROM settings "
                                 "WHERE guild_id='%s'" % channel.guild.id)
             db_custom_channel = self.cursor.fetchone()

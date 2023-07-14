@@ -68,12 +68,9 @@ class StartHOIGame(commands.Cog):
                                     (event_id,))
                 self.connection.commit()
                 print(event["voice_channel_id"])
-                try:
-                    channel = interaction.guild.get_channel(event["voice_channel_id"])
-                    await channel.edit(name="Lobby Simulator ⌚️")
-                except:
-                    await interaction.channel.send(f"❌ Bot does not have permission to edit Lobby's chanel name.")
-                    return
+                channel = interaction.guild.get_channel(event["voice_channel_id"])
+                await channel.connect()
+                await self.client.user.edit(nick="🤖 HOI4 Intel")
                 await interaction.channel.send(f"✅ Event was started successfully!")
                 event = interaction.guild.get_scheduled_event(event["guild_event_id"])
                 await event.start(reason=f"Event was started by {interaction.user.name}")
