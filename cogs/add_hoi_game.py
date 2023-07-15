@@ -92,7 +92,7 @@ class add_hoi_game(commands.Cog):
 
             guild_event = await interaction.guild.create_scheduled_event(name=title, start_time=datetime_obj,
                                                                          description=description, channel=lobby_vc,
-                                                                         entity_type=discord.EntityType.voice)
+                                                                         entity_type=discord.EntityType.voice, privacy_level=discord.PrivacyLevel.guild_only)
 
             # Store datetime and timezone in MySQL database
             sql = "INSERT INTO events (guild_id, host_id, channel_id, event_start, rating_required, " \
