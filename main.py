@@ -224,17 +224,17 @@ class Client(commands.Bot):
 
         # Joining
 
-            print(guild.voice_client.is_connected())
-            print(guild.voice_client)
+        print(guild.voice_client.is_connected())
+        print(guild.voice_client)
 
-            if guild.voice_client.is_connected() and after.channel:
-                print(f"{member} has joined {channel.name}")
-                await self.send_join_request(member, channel.id)
+        if guild.voice_client.is_connected() and after.channel:
+            print(f"{member} has joined {channel.name}")
+            await self.send_join_request(member, channel.id)
 
-            # Leaving
-            if guild.voice_client.is_connected() and before.channel:
-                print(f"{member} has left {channel.name}")
-                await self.send_leave_request(member, channel.id)
+        # Leaving
+        if guild.voice_client.is_connected() and before.channel:
+            print(f"{member} has left {channel.name}")
+            await self.send_leave_request(member, channel.id)
 
         # END OF LOBBY
 
