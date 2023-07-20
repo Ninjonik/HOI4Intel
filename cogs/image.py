@@ -10,9 +10,9 @@ openai.api_key = config.openai_api_key
 openai.api_base = config.openai_api_base
 
 # Define the cooldown
-image_cooldown = commands.CooldownMapping.from_cooldown(1, 10, commands.BucketType.user)
+cooldown = commands.CooldownMapping.from_cooldown(1, 10, commands.BucketType.user)
 
-class Image(commands.Cog):
+class image(commands.Cog):
     def __init__(self, client):
         self.client = client
 
@@ -56,4 +56,4 @@ class Image(commands.Cog):
         return retry_after
 
 def setup(client: commands.Bot) -> None:
-    client.add_cog(Image(client))
+    client.add_cog(image(client))
