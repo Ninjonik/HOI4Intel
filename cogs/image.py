@@ -16,7 +16,7 @@ class image(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def image(self, interaction: discord.Interaction, prompt: str):
         if len(prompt) > 20:
-            interaction.response.send_message("❌ Too long prompt!")
+            await interaction.response.send_message("❌ Too long prompt!")
             return
         channel = interaction.channel
         await interaction.response.send_message("⏳ Generating...", ephemeral=True)
@@ -28,6 +28,7 @@ class image(commands.Cog):
         # Create a Discord embed
         embed = discord.Embed(title="AI Generated Image")
         embed.add_field(name="Prompt: ", value=prompt)
+        embed.add_field(name="Prompted by:", value=interaction.user.mention)
 
         # Add the images to the embed
         for image in response.data:
