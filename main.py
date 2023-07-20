@@ -15,6 +15,7 @@ import aiohttp
 import openai
 openai.api_key = config.openai_api_key
 openai.api_base = config.openai_api_base
+import time
 
 
 def get_logger(name, filename):
@@ -54,6 +55,7 @@ intents.guilds = True
 global cursor
 global connection
 
+user_cooldowns = {}
 
 async def on_start(server_name, server_description, guild_id, guild_count):
     # Establish database connection
@@ -191,6 +193,20 @@ class Client(commands.Bot):
 
     async def on_message(self, message):
         if client.user.mentioned_in(message):
+            user_id = message.author.id
+
+            # Check if the user has a cooldown record
+            if user_id in user_cooldowns:
+                last_message_time = user_cooldowns[user_id]
+                current_time = time.time()
+
+                # Check if the cooldown period (5 seconds) has passed
+                if current_time - last_message_time < 5:
+                    return  # Ignore the message as the cooldown hasn't expired yet
+
+            # Update the user's last message timestamp to the current time
+            user_cooldowns[user_id] = time.time()
+
             clear_message = message.content.replace(client.user.mention, '').strip()
             response = openai.ChatCompletion.create(
                 model='gpt-3.5-turbo',
