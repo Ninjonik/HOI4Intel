@@ -8,6 +8,10 @@ API_KEY = ''
 # TOKEN FOR COMMUNICATION BETWEEN DASHBOARD AND BOT
 comms_token = ''
 
+# AI Commands
+openai_api_key = ""
+openai_api_base = ""
+
 # MySQL credentials
 host = 'localhost'
 database = 'wwcbot'

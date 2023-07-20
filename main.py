@@ -12,6 +12,10 @@ import config
 import presets
 import logging
 import aiohttp
+import openai
+openai.api_key = config.openai_api_key
+openai.api_base = config.openai_api_base
+
 
 def get_logger(name, filename):
     logger = logging.getLogger(name)
@@ -129,7 +133,7 @@ class Client(commands.Bot):
                          "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.verify", "cogs.announce",
                          "cogs.setup_custom_channels", "cogs.test", "cogs.add_hoi_game", "cogs.add_blog", "cogs.guides",
                          "cogs.start_hoi_game", "cogs.add_player_list", "cogs.end_hoi_game", "cogs.request_steam",
-                         "cogs.help", "cogs.ban", "cogs.unban", "cogs.server"]
+                         "cogs.help", "cogs.ban", "cogs.unban", "cogs.server", "cogs.image"]
 
     @tasks.loop(seconds=1400)
     async def refreshConnection(self):
@@ -184,6 +188,17 @@ class Client(commands.Bot):
                     f'{round(error.retry_after, 2)} seconds.',
                     ephemeral=True)
             """
+
+    async def on_message(self, message):
+        if client.user.mentioned_in(message):
+            clear_message = message.content.replace(client.user.mention, '').strip()
+            response = openai.ChatCompletion.create(
+                model='gpt-3.5-turbo',
+                messages=[
+                    {'role': 'user', 'content': clear_message},
+                ]
+            )
+            await message.channel.send(response.choices[0].message.content)
 
     async def on_guild_join(self, guild):
         general = await guild.create_text_channel("📢hoi4intel-bot-info")
@@ -315,6 +330,7 @@ class Client(commands.Bot):
         }
         response = await presets.send_http_request(url, payload)
         print("Leave request response:", response)
+
 
 client = Client()
 client.run(presets.token)
