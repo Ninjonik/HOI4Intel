@@ -191,6 +191,7 @@ class Client(commands.Bot):
                     ephemeral=True)
             """
 
+"""
     async def on_message(self, message):
         if client.user.mentioned_in(message):
             user_id = message.author.id
@@ -215,6 +216,7 @@ class Client(commands.Bot):
                 ]
             )
             await message.channel.send(response.choices[0].message.content)
+            """
 
     async def on_guild_join(self, guild):
         general = await guild.create_text_channel("📢hoi4intel-bot-info")
