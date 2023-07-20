@@ -13,7 +13,7 @@ cooldown = commands.CooldownMapping.from_cooldown(1, 10, commands.BucketType.use
 
 class image(commands.Cog):
     @app_commands.command(name='image', description="Generates image based on the prompt.")
-    @commands.cooldown(1, 20, commands.BucketType.user)
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def image(self, interaction: discord.Interaction, prompt: str):
         if len(prompt) > 20:
             interaction.response.send_message("❌ Too long prompt!")
