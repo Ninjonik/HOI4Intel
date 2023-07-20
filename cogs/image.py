@@ -1,8 +1,6 @@
 import time
-
 from discord.ext import commands
 import discord
-import datetime
 import config
 import openai
 
@@ -11,6 +9,7 @@ openai.api_base = config.openai_api_base
 
 # Define the cooldown
 cooldown = commands.CooldownMapping.from_cooldown(1, 10, commands.BucketType.user)
+
 
 class image(commands.Cog):
     def __init__(self, client):
@@ -47,13 +46,6 @@ class image(commands.Cog):
             retry_after = round(error.retry_after)
             await ctx.send(f"❌ Command on cooldown. Please try again in {retry_after} second(s).")
 
-    # Override the get_cooldown_retry_after method to use a custom cooldown for the slash command
-    async def get_cooldown_retry_after(self, ctx):
-        bucket = image_cooldown.get_bucket(ctx.message)
-        current = time.time()
-        cooldown = bucket._cooldown.per
-        retry_after = cooldown - (current - bucket.update_rate_limit())
-        return retry_after
 
-def setup(client: commands.Bot) -> None:
-    client.add_cog(image(client))
+async def setup(client: commands.Bot) -> None:
+    await client.add_cog(image(client))
