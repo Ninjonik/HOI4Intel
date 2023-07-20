@@ -1,28 +1,25 @@
-import time
-from discord.ext import commands
 import discord
+from discord.ext import commands
+from discord import app_commands
+import datetime
 import config
 import openai
 
 openai.api_key = config.openai_api_key
 openai.api_base = config.openai_api_base
 
-# Define the cooldown
 cooldown = commands.CooldownMapping.from_cooldown(1, 10, commands.BucketType.user)
 
 
 class image(commands.Cog):
-    def __init__(self, client):
-        self.client = client
-
-    def get_ratelimit_key(self, ctx):
-        return ctx.author.id  # Use the user ID as the key for the cooldown bucket
-
-    @commands.command(name='image', description="Generates an image based on the prompt.")
-    @commands.cooldown(1, 10, commands.BucketType.user)
-    async def image(self, ctx: commands.Context, *, prompt: str):
-        channel = ctx.channel
-        await ctx.send("⏳ Generating...")
+    @app_commands.command(name='image', description="Generates image based on the prompt.")
+    @commands.cooldown(1, 20, commands.BucketType.user)
+    async def image(self, interaction: discord.Interaction, prompt: str):
+        if len(prompt) > 20:
+            interaction.response.send_message("❌ Too long prompt!")
+            return
+        channel = interaction.channel
+        await interaction.response.send_message("⏳ Generating...", ephemeral=True)
         response = openai.Image.create(
             prompt=prompt,
             n=1,
@@ -39,7 +36,6 @@ class image(commands.Cog):
         # Send the embed message with the images
         await channel.send(embed=embed)
 
-    # Define the error handling for the cooldown
     @image.error
     async def image_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
