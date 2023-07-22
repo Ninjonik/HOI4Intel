@@ -12,6 +12,9 @@ comms_token = ''
 openai_api_key = ""
 openai_api_base = ""
 
+# Dashboard Server URL
+ws_url = "http://localhost:8000"
+
 # MySQL credentials
 host = 'localhost'
 database = 'wwcbot'

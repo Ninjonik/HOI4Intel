@@ -317,7 +317,7 @@ class Client(commands.Bot):
         # END OF CUSTOM CHANNELS
 
     async def send_join_request(self, player, lobby_id):
-        url = "http://localhost:8000/lobby/send"
+        url = f"{config.ws_url}/lobby/send"
         payload = {
             "user": {
                 "discord_id": f"{player.id}",
@@ -336,7 +336,7 @@ class Client(commands.Bot):
         print("Join request response:", response)
 
     async def send_leave_request(self, player, lobby_id):
-        url = "http://localhost:8000/lobby/send"
+        url = f"{config.ws_url}/lobby/send"
         payload = {
             "user": {
                 "discord_id": f"{player.id}"

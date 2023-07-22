@@ -15,7 +15,7 @@ class image(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     @app_commands.command(name='image', description="Generates image based on the prompt.")
     async def image(self, interaction: discord.Interaction, prompt: str, count: app_commands.Range[int, 1, 5]):
-        if len(prompt) > 60:
+        if len(prompt) > 100:
             await interaction.response.send_message("❌ Too long prompt!")
             return
         channel = interaction.channel
