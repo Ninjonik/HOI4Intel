@@ -1,5 +1,3 @@
-import threading
-
 import discord
 import discord.utils
 from discord.ext import tasks, commands
@@ -11,7 +9,6 @@ import datetime
 import config
 import presets
 import logging
-import aiohttp
 import openai
 openai.api_key = config.openai_api_key
 openai.api_base = config.openai_api_base
