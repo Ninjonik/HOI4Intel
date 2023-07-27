@@ -12,7 +12,6 @@ class guessgame(commands.Cog):
     async def guess(self, interaction: discord.Interaction, maximum: int = 10):
         number = random.randint(1, maximum)
         tries = int(round(maximum / 2 + maximum / 3, 0))
-        tries_max = tries
 
         await interaction.response.send_message(
             f"Guessing game has started!\nPlease guess a number  **1-{maximum}**\nNumber of tries left: {tries}")
@@ -29,7 +28,7 @@ class guessgame(commands.Cog):
                 continue
             tries = tries - 1
             if int(guessnum.content) == number:
-                await interaction.channel.send(f"You have guessed correctly, it has taken you {tries_max} tries.")
+                await interaction.channel.send(f"You have guessed correctly, it has taken you {tries} tries.")
             elif int(guessnum.content) > number:
                 await interaction.channel.send(
                     f"Incorrect, number is too high, try again! Number of tries left: {tries}")
