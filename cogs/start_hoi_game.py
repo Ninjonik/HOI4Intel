@@ -1,8 +1,11 @@
+import asyncio
+
 import discord
 from discord.ext import commands
 from discord import app_commands
 
 import config
+import presets
 
 
 class StartHOIGame(commands.Cog):
@@ -64,16 +67,22 @@ class StartHOIGame(commands.Cog):
                         except Exception as e:
                             await interaction.channel.send("❌ An error occurred while processing your request.")
                             print(e)
-                self.cursor.execute("UPDATE events SET started=1, updated_at=NOW() WHERE message_id=%s",
+                self.cursor.execute("UPDATE events SET started=0, updated_at=NOW() WHERE message_id=%s",
                                     (event_id,))
                 self.connection.commit()
                 print(event["voice_channel_id"])
                 channel = interaction.guild.get_channel(event["voice_channel_id"])
-                await channel.connect()
-                await self.client.user.edit(nick="🤖 HOI4 Intel")
+                try:
+                    voice_client = await channel.connect()
+                except:
+                    pass
                 await interaction.channel.send(f"✅ Event was started successfully!")
                 event = interaction.guild.get_scheduled_event(event["guild_event_id"])
+                await asyncio.sleep(2)
+                await presets.playTTS(f"Welcome to the HOI4 Game hosted by {interaction.user.name}. Make sure to check out "
+               f"HOI4Intel's wiki if you need any help.", voice_client)
                 await event.start(reason=f"Event was started by {interaction.user.name}")
+
 
             else:
                 await interaction.channel.send(

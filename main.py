@@ -132,7 +132,8 @@ class Client(commands.Bot):
                          "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.verify", "cogs.announce",
                          "cogs.setup_custom_channels", "cogs.test", "cogs.add_hoi_game", "cogs.add_blog", "cogs.guides",
                          "cogs.start_hoi_game", "cogs.add_player_list", "cogs.end_hoi_game", "cogs.request_steam",
-                         "cogs.help", "cogs.ban", "cogs.unban", "cogs.server", "cogs.image"]
+                         "cogs.help", "cogs.ban", "cogs.unban", "cogs.server", "cogs.gamble",
+                         "cogs.crash"]
 
     @tasks.loop(seconds=1400)
     async def refreshConnection(self):
@@ -196,14 +197,18 @@ class Client(commands.Bot):
             if user_id in user_cooldowns:
                 last_message_time = user_cooldowns[user_id]
                 current_time = time.time()
+                print("# Check if the user has a cooldown record")
 
                 # Check if the cooldown period (5 seconds) has passed
                 if current_time - last_message_time < 5:
+                    print("# Ignore the message as the cooldown hasn't expired yet")
                     return  # Ignore the message as the cooldown hasn't expired yet
 
+            print("# Update the user's last message timestamp to the current time")
             # Update the user's last message timestamp to the current time
             user_cooldowns[user_id] = time.time()
 
+            await message.channel.typing()
             clear_message = message.content.replace(client.user.mention, '').strip()
             response = openai.ChatCompletion.create(
                 model='gpt-3.5-turbo',

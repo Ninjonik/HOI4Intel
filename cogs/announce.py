@@ -1,14 +1,11 @@
-import datetime
 import json
 
 import discord
 from discord.ext import commands
 from discord import app_commands
 
-from datetime import datetime
-
 import config
-from presets import _add_player_name
+import presets
 
 
 class announce(commands.Cog):
@@ -31,6 +28,8 @@ class announce(commands.Cog):
             if recipient is None:
                 self.cursor.execute("SELECT countries, started FROM events WHERE message_id=%s", (event_id,))
                 data = self.cursor.fetchone()
+                voice_client = interaction.guild.voice_client
+                await presets.playTTS(message_content, voice_client)
                 if data and data["started"] != 2 and data["countries"]:
                     countries = json.loads(data["countries"])
                     for member, country in countries.items():

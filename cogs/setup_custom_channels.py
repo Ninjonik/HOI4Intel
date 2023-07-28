@@ -1,12 +1,8 @@
-import datetime
-
 import discord
 from discord.ext import commands
 from discord import app_commands
 
 import config
-import presets
-
 
 class setup_custom_channels(commands.Cog):
     def __init__(self, client: commands.Bot):
@@ -21,10 +17,8 @@ class setup_custom_channels(commands.Cog):
         if interaction.user.guild_permissions.administrator:
             guild_id = interaction.guild.id
             guild_name = interaction.guild.name
-            current_time = datetime.datetime.now()
             self.cursor.execute(
-                "UPDATE settings SET updated_at='%s', custom_channel=%s, custom_channel_2=%s WHERE guild_id=%s" % (
-                    current_time,
+                "UPDATE settings SET updated_at=NOW(), custom_channel=%s, custom_channel_2=%s WHERE guild_id=%s" % (
                     temporary_voice_channel.id,
                     pernament_voice_chanel.id,
                     guild_id,))

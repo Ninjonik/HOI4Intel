@@ -17,7 +17,6 @@ class add_blog(commands.Cog):
         if interaction.user.guild_permissions.administrator and title and description:
             self.cursor, self.connection = config.setup()
             await _add_player_name(interaction.user.id, interaction.user.name, 0.5)
-            # Store datetime and timezone in MySQL database
             sql = "INSERT INTO blogs (author_id, title, description, approved, created_at, updated_at) " \
                   "VALUES (%s, %s, %s, 0, NOW(), NOW())"
             values = (interaction.user.id, title, description)

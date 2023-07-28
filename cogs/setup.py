@@ -1,5 +1,3 @@
-import datetime
-
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -29,21 +27,18 @@ class setupCommand(commands.Cog):
             # Establish database connection
             self.cursor.execute("SELECT guild_id FROM settings WHERE guild_id=%s" % guild_id)
             settings = self.cursor.fetchall()
-            current_time = datetime.datetime.now()
             if not settings:
                 print(f"{presets.prefix()} Guild was not in database - {guild_name}, adding it")
                 self.cursor.execute("INSERT INTO settings (created_at, updated_at, steam_verification, guild_name, "
-                                    "guild_id, log_channel, verify_role) VALUES ('%s', "
-                                    "'%s', %s, '%s', %s, %s, %s)" % (current_time,
-                                                                     current_time, steam_verification, guild_name,
+                                    "guild_id, log_channel, verify_role) VALUES (NOW(), NOW(), %s, '%s', %s, %s, %s)" % (steam_verification, guild_name,
                                                                      guild_id, log_channel.id, verify_role))
                 self.cursor.execute(
-                    "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, '%s', '%s', %s) " % (
-                        guild_id, current_time, current_time, guild_count))
+                    "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, NOW(), NOW(), %s) " % (
+                        guild_id, guild_count))
                 self.connection.commit()
             else:
-                self.cursor.execute("UPDATE settings SET updated_at='%s', steam_verification=%s, guild_name='%s', "
-                                    "log_channel=%s, verify_role=%s WHERE guild_id=%s" % (current_time,
+                self.cursor.execute("UPDATE settings SET updated_at=NOW(), steam_verification=%s, guild_name='%s', "
+                                    "log_channel=%s, verify_role=%s WHERE guild_id=%s" % (
                                                                                           steam_verification,
                                                                                           guild_name,
                                                                                           log_channel.id,

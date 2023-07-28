@@ -11,6 +11,9 @@ from PIL import Image, ImageDraw, ImageFont
 from googleapiclient import discovery
 from slugify import slugify
 import aiohttp
+from gtts import gTTS
+from discord import FFmpegPCMAudio
+import asyncio
 
 
 def prefix():
@@ -74,6 +77,27 @@ time_formats = [
     '%m/%d/%y %H:%M',
 ]
 
+async def playTTS(text, voice_client):
+    tts = gTTS(text)
+    audio_folder = "audio"
+    if not os.path.exists(audio_folder):
+        os.makedirs(audio_folder)
+
+    # Generate a unique filename based on timestamp and random number
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    random_number = random.randint(10, 99)
+    file_name = f"audio_{timestamp}_{random_number}.mp3"
+    file_path = os.path.join(audio_folder, file_name)
+
+    tts.save(file_path)
+    try:
+        voice_client.play(FFmpegPCMAudio(file_path))
+        while voice_client.is_playing():
+            await asyncio.sleep(1)
+    except Exception as e:
+        print(f"An error occurred while playing TTS: {e}")
+    finally:
+        os.remove(file_path)
 
 async def send_http_request(url, payload):
     async with aiohttp.ClientSession() as session:

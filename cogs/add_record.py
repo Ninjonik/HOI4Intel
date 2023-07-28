@@ -1,4 +1,3 @@
-from datetime import datetime
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -17,7 +16,6 @@ class add_record(commands.Cog):
             if 0 <= rating <= 100:
                 self.cursor, self.connection = config.setup()
                 host = interaction.user
-                current_time = datetime.now()
                 guild = interaction.guild
                 rating_percentage = rating / 100
                 await interaction.response.send_message("Working on it...", ephemeral=True)
