@@ -28,9 +28,9 @@ class announce(commands.Cog):
             if recipient is None:
                 self.cursor.execute("SELECT countries, started FROM events WHERE message_id=%s", (event_id,))
                 data = self.cursor.fetchone()
-                voice_client = interaction.guild.voice_client
-                await presets.playTTS(message_content, voice_client)
                 if data and data["started"] != 2 and data["countries"]:
+                    voice_client = interaction.guild.voice_client
+                    await presets.playTTS(message_content, voice_client)
                     countries = json.loads(data["countries"])
                     for member, country in countries.items():
                         member = interaction.guild.get_member(int(member))
