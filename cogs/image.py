@@ -24,15 +24,12 @@ class image(commands.Cog):
             n=count,
             size="1024x1024"
         )
-        # Create a Discord embed
 
-        # Add the images to the embed
         for image in response.data:
             embed = discord.Embed(title="AI Generated Image")
             embed.add_field(name="Prompt: ", value=prompt)
             embed.add_field(name="Prompted by:", value=interaction.user.mention)
             embed.set_image(url=image['url'])
-            # Send the embed message with the images
             await channel.send(embed=embed)
 
 
