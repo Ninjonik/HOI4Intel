@@ -13,6 +13,7 @@ class ban(commands.Cog):
     @app_commands.command(name="ban", description="Globally bans user.")
     async def add_record(self, interaction: discord.Interaction, player: discord.User, reason: str):
         if check_host(interaction.user.id):
+            self.cursor, self.connection = config.setup()
             self.cursor.execute("SELECT id FROM bans WHERE player_id=%s", (player.id,))
             player_data = self.cursor.fetchone()
             if player_data:
