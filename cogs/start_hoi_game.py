@@ -67,7 +67,7 @@ class StartHOIGame(commands.Cog):
                         except Exception as e:
                             await interaction.channel.send("❌ An error occurred while processing your request.")
                             print(e)
-                self.cursor.execute("UPDATE events SET started=0, updated_at=NOW() WHERE message_id=%s",
+                self.cursor.execute("UPDATE events SET started=1, updated_at=NOW() WHERE message_id=%s",
                                     (event_id,))
                 self.connection.commit()
                 print(event["voice_channel_id"])
