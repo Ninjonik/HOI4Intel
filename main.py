@@ -207,16 +207,18 @@ class Client(commands.Bot):
             print("# Update the user's last message timestamp to the current time")
             # Update the user's last message timestamp to the current time
             user_cooldowns[user_id] = time.time()
-
-            await message.channel.typing()
-            clear_message = message.content.replace(client.user.mention, '').strip()
-            response = openai.ChatCompletion.create(
-                model='gpt-3.5-turbo',
-                messages=[
-                    {'role': 'user', 'content': clear_message},
-                ]
-            )
-            await message.channel.send(response.choices[0].message.content)
+            try:
+                await message.channel.typing()
+                clear_message = message.content.replace(client.user.mention, '').strip()
+                response = openai.ChatCompletion.create(
+                    model='gpt-3.5-turbo',
+                    messages=[
+                        {'role': 'user', 'content': clear_message},
+                    ]
+                )
+                await message.channel.send(response.choices[0].message.content)
+            except Exception:
+                await message.channel.send("no")
 
 
     async def on_guild_join(self, guild):
