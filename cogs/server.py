@@ -1,3 +1,7 @@
+import datetime
+import json
+import time
+
 import config
 import server
 from aiohttp import web
@@ -25,6 +29,40 @@ class ServerCog(commands.Cog):
     @server.add_route(path="/", method="GET", cog="ServerCog")
     async def home(self, request):
         return web.Response(text="working", status=200)
+
+    @server.add_route(path="/get/lobby", method="GET", cog="ServerCog")
+    async def edit_guild(self, request):
+        payload = await request.json()
+        token = payload["token"] if "token" in payload else ''
+
+        if token == config.comms_token:
+            lobby_id = int(payload["lobby_id"])
+            channel = self.bot.get_channel(lobby_id)
+            playersVc = channel.members
+
+            playersObj = []
+
+            for player in playersVc:
+                player_data = {
+                    "user": {
+                        "discord_id": str(player.id),
+                        "discord_name": player.name,
+                        "rating": 1,
+                        "country": player.display_name,
+                        "joined": time.time() # Use timestamp
+                    },
+                    "action": {
+                        "none": "none"
+                    },
+                    "lobby_id": str(lobby_id),
+                    "token": config.comms_token
+                }
+                playersObj.append(player_data)
+
+            response_data = json.dumps(playersObj)
+            return web.Response(text=response_data, content_type='application/json')
+        else:
+            return web.json_response(data={"error": "not authorized"}, status=403)
 
     @server.add_route(path="/edit/guild", method="PATCH", cog="ServerCog")
     async def edit_guild(self, request):
@@ -112,7 +150,6 @@ class ServerCog(commands.Cog):
         else:
             return web.json_response(data={"error": "not authorized"}, status=403)
 
-
     @server.add_route(path="/get/user/{id}", method="GET", cog="ServerCog")
     async def get_user(self, request):
         user_id = int(request.match_info["id"])
@@ -126,7 +163,6 @@ class ServerCog(commands.Cog):
             return web.json_response(data=user_data, status=200)
         else:
             return web.json_response(data={"error": "User not found"}, status=404)
-
 
     @server.add_route(path="/get/guild/channels", method="GET", cog="ServerCog")
     async def get_guild_channels(self, request):
