@@ -39,10 +39,11 @@ class ServerCog(commands.Cog):
             lobby_id = int(payload["lobby_id"])
             channel = self.bot.get_channel(lobby_id)
             playersVc = channel.members
+            nonBotPlayersVc = [player for player in playersVc if not player.bot]
 
             playersObj = []
 
-            for player in playersVc:
+            for player in nonBotPlayersVc:
                 player_data = {
                     "user": {
                         "discord_id": str(player.id),
