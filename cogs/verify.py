@@ -5,6 +5,7 @@ import datetime
 import config
 from presets import _add_player_name
 
+
 class verify(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
@@ -36,7 +37,6 @@ class verify(commands.Cog):
             embed.set_thumbnail(url=member.avatar)
             embed.add_field(name="Link:", value=f"https://hoi.theorganization.eu/steam/{member.id}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
-
 
 
 async def setup(client: commands.Bot) -> None:

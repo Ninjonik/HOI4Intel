@@ -50,7 +50,7 @@ class ServerCog(commands.Cog):
                         "discord_name": player.name,
                         "rating": 1,
                         "country": player.display_name,
-                        "joined": time.time() # Use timestamp
+                        "joined": time.time()
                     },
                     "action": {
                         "none": "none"
