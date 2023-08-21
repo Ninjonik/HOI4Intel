@@ -44,11 +44,12 @@ class ServerCog(commands.Cog):
             playersObj = []
 
             for player in nonBotPlayersVc:
+                rating = await _add_player_name(player.id, player.name, 0.5)
                 player_data = {
                     "user": {
                         "discord_id": str(player.id),
                         "discord_name": player.name,
-                        "rating": 1,
+                        "rating": rating,
                         "country": player.display_name,
                         "joined": time.time()
                     },
