@@ -14,6 +14,7 @@ openai_api_base = ""
 
 # Dashboard Server URL
 ws_url = "http://localhost:8000"
+discord_invite_url = ""
 
 # MySQL credentials
 host = 'localhost'

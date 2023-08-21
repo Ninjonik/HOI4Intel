@@ -243,9 +243,9 @@ class Client(commands.Bot):
                                   "Setup guide: https://hoi.theorganization.eu/wiki/article/9/how-to-setup-the-bot",
                             inline=False)
             embed.set_footer(
-                text="If you have any questions regarding the bot you can always seek help at WWC's Discord by "
-                     "contacting the Staff Team.\n"
-                     "WWC's Discord: https://discord.gg/world-war-community-820918304176340992")
+                text=f"If you have any questions regarding the bot you can always seek help at HOI4Intel's Discord by "
+                     f"contacting the Staff Team.\n"
+                     f"Discord: {config.discord_invite_url}")
             await general.send("You may delete this channel now.", embed=embed)
 
     async def on_voice_state_update(self, member, before, after):

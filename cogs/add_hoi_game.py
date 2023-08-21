@@ -106,7 +106,10 @@ class add_hoi_game(commands.Cog):
             self.cursor.execute(sql, values)
             self.connection.commit()
 
-            await interaction.response.send_message("Event added successfully!",
+            await interaction.response.send_message(f"Event added successfully!\nLobby URL for verified hosts: "
+                                                    f"{config.ws_url}/lobby/{interaction.guild.id}/{lobby_vc.id}\n"
+                                                    f"If you want to apply join our communication server: "
+                                                    f"{config.discord_invite_url}",
                                                     ephemeral=True)
 
 

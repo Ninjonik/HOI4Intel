@@ -143,7 +143,7 @@ async def _add_player_name(player_id, player_name, rating_percentage):
         cursor.execute(
             "INSERT INTO players (discord_id, discord_name, rating, created_at, updated_at) "
             "VALUES (%s, %s, %s, NOW(), NOW()) "
-            "ON DUPLICATE KEY UPDATE discord_name = %s, updated_at = NOW() AND SELECT rating",
+            "ON DUPLICATE KEY UPDATE discord_name = %s, updated_at = NOW()",
             (player_id, player_name, rating_percentage, player_name))
         connection.commit()
         cursor.execute("SELECT rating FROM players WHERE discord_id = %s", (player_id,))
