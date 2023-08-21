@@ -10,6 +10,7 @@ import config
 import presets
 import logging
 import openai
+
 openai.api_key = config.openai_api_key
 openai.api_base = config.openai_api_base
 import time
@@ -53,6 +54,7 @@ global cursor
 global connection
 
 user_cooldowns = {}
+
 
 async def on_start(server_name, server_description, guild_id, guild_count):
     # Establish database connection
@@ -219,7 +221,6 @@ class Client(commands.Bot):
                 await message.channel.send(response.choices[0].message.content)
             except Exception:
                 await message.channel.send("no")
-
 
     async def on_guild_join(self, guild):
         general = await guild.create_text_channel("📢hoi4intel-bot-info")
