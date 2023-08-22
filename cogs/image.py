@@ -19,11 +19,15 @@ class image(commands.Cog):
             return
         channel = interaction.channel
         await interaction.response.send_message("⏳ Generating...", ephemeral=True)
-        response = openai.Image.create(
-            prompt=prompt,
-            n=count,
-            size="1024x1024"
-        )
+        try:
+            response = openai.Image.create(
+                prompt=prompt,
+                n=count,
+                size="1024x1024"
+            )
+        except Exception as e:
+            await interaction.channel.send('❌')
+            return
 
         for image in response.data:
             embed = discord.Embed(title="AI Generated Image")
