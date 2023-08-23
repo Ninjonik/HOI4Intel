@@ -157,13 +157,13 @@ class Client(commands.Bot):
             }
     
             self.cursor.execute(query, values)
-                self.cursor.execute('SELECT log_channel FROM settings WHERE guild_id=%s', (message.guild.id,))
-                log_channel = self.cursor.fetchone()
-                if log_channel and log_channel[0]:
-                    log_channel = log_channel[0]
-                    log_channel = message.guild.get_channel(log_channel)
-                else:
-                    return
+            self.cursor.execute('SELECT log_channel FROM settings WHERE guild_id=%s', (message.guild.id,))
+            log_channel = self.cursor.fetchone()
+            if log_channel and log_channel[0]:
+                log_channel = log_channel[0]
+                log_channel = message.guild.get_channel(log_channel)
+            else:
+                return
             
             try:
                 response = presets.perspective.comments().analyze(body=analyze_request).execute()
