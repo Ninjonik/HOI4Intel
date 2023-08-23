@@ -1,4 +1,4 @@
-@seimport discord
+import discord
 import discord.utils
 from discord.ext import tasks, commands
 from colorama import Fore
