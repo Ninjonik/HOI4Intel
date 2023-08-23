@@ -158,8 +158,8 @@ class Client(commands.Bot):
 
             query = "INSERT INTO wwcbot_filter_logs (guildId, created_at, updated_at, message, authorId, result) " \
                         "VALUES (%s, %s, %s, %s, %s, %s)"
-                values = (
-                    message.guild.id, current_time, current_time, message.content, message.author.id, toxicityValue)
+            values = (
+                message.guild.id, current_time, current_time, message.content, message.author.id, toxicityValue)
             self.cursor.execute(query, values)
             self.cursor.execute('SELECT log_channel FROM settings WHERE guild_id=%s', (message.guild.id,))
             log_channel = self.cursor.fetchone()
