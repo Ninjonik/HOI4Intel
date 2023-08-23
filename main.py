@@ -145,6 +145,80 @@ class Client(commands.Bot):
             db_Info = self.connection.get_server_info()
             print(presets.prefix() + " Connected to MySQL Server version ", db_Info)
 
+    async def check_toxicity(self, message):
+        self.cursor, self.connection = config.setup()
+        toxicityValue = 0
+        if message.author != client.user and message.content:
+            message.content = (message.content[:75] + '..') if len(message.content) > 75 else message.content
+            member = message.author
+            analyze_request = {
+                'comment': {'text': message.content},
+                'requestedAttributes': {'TOXICITY': {}}
+            }
+            try:
+                response = presets.perspective.comments().analyze(body=analyze_request).execute()
+                toxicityValue = (response["attributeScores"]["TOXICITY"]["summaryScore"]["value"])
+                current_time = datetime.datetime.now()
+                query = "INSERT INTO wwcbot_filter_logs (guildId, created_at, updated_at, message, authorId, result) " \
+                        "VALUES (%s, %s, %s, %s, %s, %s)"
+                values = (
+                    message.guild.id, current_time, current_time, message.content, message.author.id, toxicityValue)
+                self.cursor.execute(query, values)
+                if toxicityValue >= 0.60:
+                    await message.delete()
+                    if toxicityValue < 0.75:
+                        punishment = "Original message has been deleted."
+                    elif 0.75 <= toxicityValue < 0.9:
+                        punishment = "Original message has been deleted. You have been timed-outed for 5 minutes."
+                        timeMessage = datetime.datetime.now().astimezone() + datetime.timedelta(minutes=5)
+                        await member.timeout(timeMessage, reason=f"Inappropriate message with value {toxicityValue}")
+                    elif 0.9 <= toxicityValue < 0.95:
+                        punishment = "Original message has been deleted. You have been timed-outed for 15 minutes."
+                        timeMessage = datetime.datetime.now().astimezone() + datetime.timedelta(minutes=15)
+                        await member.timeout(timeMessage, reason=f"Inappropriate message with value {toxicityValue}")
+                    else:
+                        punishment = "Original message has been deleted. You have been kicked from the server. Please" \
+                                     " refrain from such a toxicity if you dont want to face harsher consequences."
+                        await member.kick(reason=f"Inappropriate message with value {toxicityValue}")
+
+                    channel = await member.create_dm()
+                    embed = discord.Embed(title="You have been auto-moderated",
+                                          description="One of your messages has been flagged as inappropriate which has"
+                                                      " resulted in the following punishment(s):",
+                                          color=0xe01b24)
+                    embed.set_author(name="WWCBot")
+                    embed.add_field(name="Message Content:", value=message.content, inline=True)
+                    embed.set_footer(text="If you feel that this punishment is a mistake / inappropriate then"
+                                          " please contact HOI4Intel Staff.")
+                    embed.add_field(name="Punishment:", value=punishment, inline=True)
+                    await channel.send(embed=embed)
+                    for channel in member.guild.text_channels:
+                        if channel.name == 'automod-logs':
+                            embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
+                                            inline=True)
+                            embed.add_field(name="User:", value=member, inline=True)
+                            embed.add_field(name="Punishment:", value=punishment, inline=True)
+                            embed.add_field(name="Toxicity Value:", value=toxicityValue)
+                            embed.set_footer(text="This message was sent to the user. Consider "
+                                                  "taking more actions if needed.")
+                            await channel.send(embed=embed)
+                else:
+                    channel = message.channel
+                    # await channel.send(f"Toxicity value: {toxicityValue}")
+            except Exception as e:
+                embed = discord.Embed(title="Auto-Moderation Error",
+                                      description="HOI4Intel has been unable to moderate this message.",
+                                      color=0xff8000)
+                embed.add_field(name="Error", value=e, inline=True)
+                embed.add_field(name="Message", value=message.content, inline=True)
+                embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"), inline=True)
+                embed.set_author(name="WWCBot")
+                for channel in member.guild.text_channels:
+                    if channel.name == 'automod-logs':
+                        embed.add_field(name="User:", value=member, inline=True)
+                        embed.add_field(name="Value of toxicity:", value=toxicityValue, inline=True)
+                        await channel.send(embed=embed)
+
     async def setup_hook(self):
         for ext in self.cogsList:
             await self.load_extension(ext)
@@ -192,6 +266,7 @@ class Client(commands.Bot):
             """
 
     async def on_message(self, message):
+        await self.check_toxicity(message)
         if client.user.mentioned_in(message):
             user_id = message.author.id
 
@@ -221,6 +296,9 @@ class Client(commands.Bot):
                 await message.channel.send(response.choices[0].message.content)
             except Exception:
                 await message.channel.send("❌")
+
+     async def on_message_edit(self, before, after):
+        await self.check_toxicity(after)
 
     async def on_guild_join(self, guild):
         general = await guild.create_text_channel("📢hoi4intel-bot-info")
