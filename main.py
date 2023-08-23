@@ -155,6 +155,16 @@ class Client(commands.Bot):
                 'comment': {'text': message.content},
                 'requestedAttributes': {'TOXICITY': {}}
             }
+    
+            self.cursor.execute(query, values)
+                self.cursor.execute('SELECT log_channel FROM settings WHERE guild_id=%s', (message.guild.id,))
+                log_channel = self.cursor.fetchone()
+                if log_channel and log_channel[0]:
+                    log_channel = log_channel[0]
+                    log_channel = message.guild.get_channel(log_channel)
+                else:
+                    return
+            
             try:
                 response = presets.perspective.comments().analyze(body=analyze_request).execute()
                 toxicityValue = (response["attributeScores"]["TOXICITY"]["summaryScore"]["value"])
@@ -163,7 +173,7 @@ class Client(commands.Bot):
                         "VALUES (%s, %s, %s, %s, %s, %s)"
                 values = (
                     message.guild.id, current_time, current_time, message.content, message.author.id, toxicityValue)
-                self.cursor.execute(query, values)
+
                 if toxicityValue >= 0.60:
                     await message.delete()
                     if toxicityValue < 0.75:
@@ -186,25 +196,21 @@ class Client(commands.Bot):
                                           description="One of your messages has been flagged as inappropriate which has"
                                                       " resulted in the following punishment(s):",
                                           color=0xe01b24)
-                    embed.set_author(name="WWCBot")
+                    embed.set_author(name="HOI4Intel")
                     embed.add_field(name="Message Content:", value=message.content, inline=True)
                     embed.set_footer(text="If you feel that this punishment is a mistake / inappropriate then"
                                           " please contact HOI4Intel Staff.")
                     embed.add_field(name="Punishment:", value=punishment, inline=True)
                     await channel.send(embed=embed)
-                    for channel in member.guild.text_channels:
-                        if channel.name == 'automod-logs':
-                            embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
-                                            inline=True)
-                            embed.add_field(name="User:", value=member, inline=True)
-                            embed.add_field(name="Punishment:", value=punishment, inline=True)
-                            embed.add_field(name="Toxicity Value:", value=toxicityValue)
-                            embed.set_footer(text="This message was sent to the user. Consider "
-                                                  "taking more actions if needed.")
-                            await channel.send(embed=embed)
-                else:
-                    channel = message.channel
-                    # await channel.send(f"Toxicity value: {toxicityValue}")
+                    embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
+                                    inline=True)
+                    embed.add_field(name="User:", value=member, inline=True)
+                    embed.add_field(name="Punishment:", value=punishment, inline=True)
+                    embed.add_field(name="Toxicity Value:", value=toxicityValue)
+                    embed.set_footer(text="This message was sent to the user. Consider "
+                                          "taking more actions if needed.")
+                    await log_channel.send(embed=embed)
+
             except Exception as e:
                 embed = discord.Embed(title="Auto-Moderation Error",
                                       description="HOI4Intel has been unable to moderate this message.",
@@ -212,12 +218,10 @@ class Client(commands.Bot):
                 embed.add_field(name="Error", value=e, inline=True)
                 embed.add_field(name="Message", value=message.content, inline=True)
                 embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"), inline=True)
-                embed.set_author(name="WWCBot")
-                for channel in member.guild.text_channels:
-                    if channel.name == 'automod-logs':
-                        embed.add_field(name="User:", value=member, inline=True)
-                        embed.add_field(name="Value of toxicity:", value=toxicityValue, inline=True)
-                        await channel.send(embed=embed)
+                embed.set_author(name="HOI4Intel")
+                embed.add_field(name="User:", value=member, inline=True)
+                embed.add_field(name="Value of toxicity:", value=toxicityValue, inline=True)
+                await log_channel.send(embed=embed)
 
     async def setup_hook(self):
         for ext in self.cogsList:
