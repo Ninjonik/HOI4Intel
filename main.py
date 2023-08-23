@@ -157,9 +157,9 @@ class Client(commands.Bot):
             }
 
             query = "INSERT INTO wwcbot_filter_logs (guildId, created_at, updated_at, message, authorId, result) " \
-                        "VALUES (%s, %s, %s, %s, %s, %s)"
+                        "VALUES (%s, NOW(), NOW(), %s, %s, %s)"
             values = (
-                message.guild.id, current_time, current_time, message.content, message.author.id, toxicityValue)
+                message.guild.id, message.content, message.author.id, toxicityValue)
             self.cursor.execute(query, values)
             self.cursor.execute('SELECT log_channel FROM settings WHERE guild_id=%s', (message.guild.id,))
             log_channel = self.cursor.fetchone()
@@ -172,11 +172,10 @@ class Client(commands.Bot):
             try:
                 response = presets.perspective.comments().analyze(body=analyze_request).execute()
                 toxicityValue = (response["attributeScores"]["TOXICITY"]["summaryScore"]["value"])
-                current_time = datetime.datetime.now()
                 query = "INSERT INTO wwcbot_filter_logs (guildId, created_at, updated_at, message, authorId, result) " \
-                        "VALUES (%s, %s, %s, %s, %s, %s)"
+                        "VALUES (%s, NOW(), NOW(), %s, %s, %s)"
                 values = (
-                    message.guild.id, current_time, current_time, message.content, message.author.id, toxicityValue)
+                    message.guild.id, message.content, message.author.id, toxicityValue)
 
                 if toxicityValue >= 0.60:
                     await message.delete()
