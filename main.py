@@ -297,7 +297,7 @@ class Client(commands.Bot):
             except Exception:
                 await message.channel.send("❌")
 
-     async def on_message_edit(self, before, after):
+    async def on_message_edit(self, before, after):
         await self.check_toxicity(after)
 
     async def on_guild_join(self, guild):
