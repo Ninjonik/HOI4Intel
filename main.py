@@ -251,19 +251,19 @@ class Client(commands.Bot):
         self.cursor.execute('SELECT log_channel FROM settings')
         guilds_db = self.cursor.fetchall()
 
-        @self.tree.error
-        async def on_app_command_error(interaction: discord.Interaction,
-                                       error: discord.app_commands.AppCommandError) -> None:
-            print(interaction)
-            print(error)
-            # Output: <discord.interactions.Interaction object at 0x000001EC1F1AD6C0>
-            """
-            if isinstance(error, discord.app_commands.errors.No):
-                await interaction.response.send_message(
-                    f'Command "{interaction.command.name}" is on cooldown, you can use it in '
-                    f'{round(error.retry_after, 2)} seconds.',
-                    ephemeral=True)
-            """
+    @self.tree.error
+    async def on_app_command_error(interaction: discord.Interaction,
+                                   error: discord.app_commands.AppCommandError) -> None:
+        print(interaction)
+        print(error)
+        # Output: <discord.interactions.Interaction object at 0x000001EC1F1AD6C0>
+        """
+        if isinstance(error, discord.app_commands.errors.No):
+            await interaction.response.send_message(
+                f'Command "{interaction.command.name}" is on cooldown, you can use it in '
+                f'{round(error.retry_after, 2)} seconds.',
+                ephemeral=True)
+        """
 
     async def on_message(self, message):
         await self.check_toxicity(message)
