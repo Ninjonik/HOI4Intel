@@ -345,7 +345,7 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
 
         # Country Already Reserved Check
 
-        self.cursor.execute("SELECT country FROM event_reservations WHERE country='%s' AND event_message_id=%s",
+        self.cursor.execute("SELECT country FROM event_reservations WHERE country=%s AND event_message_id=%s",
                            (country, interaction.message.id))
         reserved = self.cursor.fetchone()
 

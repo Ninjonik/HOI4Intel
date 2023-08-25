@@ -59,13 +59,13 @@ user_cooldowns = {}
 async def on_start(server_name, server_description, guild_id, guild_count):
     # Establish database connection
     local_cursor, local_connection = config.setup()
-    local_cursor.execute("SELECT guild_id FROM settings WHERE guild_id='%s'" % guild_id)
+    local_cursor.execute("SELECT guild_id FROM settings WHERE guild_id=%s", (guild_id,))
     settings = local_cursor.fetchall()
     current_time = datetime.datetime.now()
     current_date = datetime.datetime.now().date()
     if settings:
         local_cursor.execute(
-            "SELECT updated_at FROM statistics WHERE guild_id='%s' ORDER BY id DESC LIMIT 1" % guild_id)
+            "SELECT updated_at FROM statistics WHERE guild_id=%s ORDER BY id DESC LIMIT 1", (guild_id,))
         row = local_cursor.fetchall()
         # Extract the date from the datetime object stored in the database
         db_datetime = row[0][0]
@@ -73,11 +73,11 @@ async def on_start(server_name, server_description, guild_id, guild_count):
         print(f" {presets.prefix()} Current date is: {current_date} meanwhile DB date is: {db_date}")
         if current_date != db_date:
             print(f"{presets.prefix()} Date is different, updating statistics for {server_name}")
-            local_cursor.execute("UPDATE settings SET guild_name='%s', guild_desc='%s', updated_at='%s'"
-                                 " WHERE guild_id='%s'", (server_name, server_description,
+            local_cursor.execute("UPDATE settings SET guild_name=%s, guild_desc=%s, updated_at=%s"
+                                 " WHERE guild_id=%s", (server_name, server_description,
                                                            current_time, guild_id))
             local_cursor.execute(
-                "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, '%s', '%s', %s) ", (
+                "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, %s, %s, %s) ", (
                     guild_id, current_time, current_time, guild_count))
             local_connection.commit()
     local_connection.close()
@@ -368,7 +368,7 @@ class Client(commands.Bot):
 
         if after.channel is not None:
             self.cursor.execute("SELECT custom_channel, custom_channel_2 FROM settings "
-                                "WHERE guild_id='%s'" % channel.guild.id)
+                                "WHERE guild_id=%s" % channel.guild.id)
             db_custom_channel = self.cursor.fetchone()
             print(db_custom_channel)
 
