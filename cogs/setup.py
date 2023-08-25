@@ -30,20 +30,20 @@ class setupCommand(commands.Cog):
             if not settings:
                 print(f"{presets.prefix()} Guild was not in database - {guild_name}, adding it")
                 self.cursor.execute("INSERT INTO settings (created_at, updated_at, steam_verification, guild_name, "
-                                    "guild_id, log_channel, verify_role) VALUES (NOW(), NOW(), %s, '%s', %s, %s, %s)" % (steam_verification, guild_name,
-                                                                     guild_id, log_channel.id, verify_role))
+                                    "guild_id, log_channel, verify_role) VALUES (NOW(), NOW(), %s, '%s', %s, %s, %s)",
+                                    (steam_verification, guild_name, guild_id, log_channel.id, verify_role))
                 self.cursor.execute(
                     "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, NOW(), NOW(), %s)", (
-                    guild_id, guild_count))
+                        guild_id, guild_count))
                 self.connection.commit()
             else:
                 self.cursor.execute("UPDATE settings SET updated_at=NOW(), steam_verification=%s, guild_name='%s', "
                                     "log_channel=%s, verify_role=%s WHERE guild_id=%s", (
-                                                                                          steam_verification,
-                                                                                          guild_name,
-                                                                                          log_channel.id,
-                                                                                          verify_role,
-                                                                                          guild_id,))
+                                        steam_verification,
+                                        guild_name,
+                                        log_channel.id,
+                                        verify_role,
+                                        guild_id,))
                 self.connection.commit()
             await interaction.response.send_message("Success!", ephemeral=True)
 
