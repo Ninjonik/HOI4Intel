@@ -20,7 +20,7 @@ class setupann(commands.Cog):
             guild_id = interaction.guild.id
             guild_name = interaction.guild.name
             current_time = datetime.datetime.now()
-            self.cursor.execute("UPDATE settings SET updated_at='%s', ann_role=%s WHERE guild_id=%s" % (current_time,
+            self.cursor.execute("UPDATE settings SET updated_at='%s', ann_role=%s WHERE guild_id=%s", (current_time,
                                                                                                         announcement_role.id,
                                                                                                         guild_id,))
             self.connection.commit()

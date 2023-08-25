@@ -32,7 +32,7 @@ class add_record(commands.Cog):
                     "SELECT SUM(rating) as SUM, COUNT(rating) AS CNT FROM player_records WHERE player_id=%s" % player.id)
                 total = self.cursor.fetchall()
                 total_rating = total[0][0] / total[0][1]
-                self.cursor.execute("UPDATE players SET rating=%s WHERE discord_id=%s" % (total_rating, player.id))
+                self.cursor.execute("UPDATE players SET rating=%s WHERE discord_id=%s", (total_rating, player.id))
                 self.connection.commit()
 
                 await interaction.channel.send(

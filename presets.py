@@ -332,8 +332,8 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
 
         # Already Reserved Check
 
-        self.cursor.execute("SELECT country FROM event_reservations WHERE player_id=%s AND event_message_id=%s"
-                            % (interaction.user.id, interaction.message.id))
+        self.cursor.execute("SELECT country FROM event_reservations WHERE player_id=%s AND event_message_id=%s",
+                            (interaction.user.id, interaction.message.id))
         exists = self.cursor.fetchone()
 
         if exists is not None:
@@ -345,8 +345,8 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
 
         # Country Already Reserved Check
 
-        self.cursor.execute("SELECT country FROM event_reservations WHERE country='%s' AND event_message_id=%s"
-                            % (country, interaction.message.id))
+        self.cursor.execute("SELECT country FROM event_reservations WHERE country='%s' AND event_message_id=%s",
+                           (country, interaction.message.id))
         reserved = self.cursor.fetchone()
 
         if reserved is not None:
@@ -378,7 +378,7 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
         if event_data and event_data[9] == 0:
             self.cursor.execute(
                 "SELECT SUM(rating) as SUM, COUNT(rating) AS CNT FROM player_records WHERE player_id=%s AND"
-                " guild_id=%s" % (interaction.user.id, interaction.guild.id))
+                " guild_id=%s", (interaction.user.id, interaction.guild.id))
             total = self.cursor.fetchall()
             if total[0][0]:
                 player_rating = total[0][0] / total[0][1]

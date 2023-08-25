@@ -18,7 +18,7 @@ class setup_custom_channels(commands.Cog):
             guild_id = interaction.guild.id
             guild_name = interaction.guild.name
             self.cursor.execute(
-                "UPDATE settings SET updated_at=NOW(), custom_channel=%s, custom_channel_2=%s WHERE guild_id=%s" % (
+                "UPDATE settings SET updated_at=NOW(), custom_channel=%s, custom_channel_2=%s WHERE guild_id=%s", (
                     temporary_voice_channel.id,
                     pernament_voice_chanel.id,
                     guild_id,))

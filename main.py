@@ -74,10 +74,10 @@ async def on_start(server_name, server_description, guild_id, guild_count):
         if current_date != db_date:
             print(f"{presets.prefix()} Date is different, updating statistics for {server_name}")
             local_cursor.execute("UPDATE settings SET guild_name='%s', guild_desc='%s', updated_at='%s'"
-                                 " WHERE guild_id='%s'" % (server_name, server_description,
+                                 " WHERE guild_id='%s'", (server_name, server_description,
                                                            current_time, guild_id))
             local_cursor.execute(
-                "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, '%s', '%s', %s) " % (
+                "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, '%s', '%s', %s) ", (
                     guild_id, current_time, current_time, guild_count))
             local_connection.commit()
     local_connection.close()

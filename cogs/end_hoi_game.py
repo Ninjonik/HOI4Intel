@@ -85,7 +85,7 @@ class EndHoiGame(commands.Cog):
                                     total = self.cursor.fetchall()
                                     total_rating = total[0]["SUM"] / total[0]["CNT"]
                                     self.cursor.execute(
-                                        "UPDATE players SET rating=%s WHERE discord_id=%s" % (total_rating, player.id))
+                                        "UPDATE players SET rating=%s WHERE discord_id=%s", (total_rating, player.id))
                                     self.connection.commit()
                                     await interaction.channel.send(f"✅ Successfully updated rating for {player.name}, "
                                                                    f"new rating: {total_rating * 100}%")
