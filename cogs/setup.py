@@ -33,8 +33,8 @@ class setupCommand(commands.Cog):
                                     "guild_id, log_channel, verify_role) VALUES (NOW(), NOW(), %s, '%s', %s, %s, %s)" % (steam_verification, guild_name,
                                                                      guild_id, log_channel.id, verify_role))
                 self.cursor.execute(
-                    "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, NOW(), NOW(), %s), (
-                        guild_id, guild_count))
+                    "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, NOW(), NOW(), %s)", (
+                    guild_id, guild_count))
                 self.connection.commit()
             else:
                 self.cursor.execute("UPDATE settings SET updated_at=NOW(), steam_verification=%s, guild_name='%s', "
