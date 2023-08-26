@@ -24,7 +24,7 @@ class setupCommand(commands.Cog):
             guild_id = interaction.guild.id
             guild_name = interaction.guild.name
             guild_count = interaction.guild.member_count
-            # Establish database connection
+
             self.cursor.execute("SELECT guild_id FROM settings WHERE guild_id=%s" % guild_id)
             settings = self.cursor.fetchall()
             if not settings:
