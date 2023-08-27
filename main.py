@@ -288,6 +288,9 @@ class Client(commands.Bot):
                     print("# Ignore the message as the cooldown hasn't expired yet")
                     return  # Ignore the message as the cooldown hasn't expired yet
 
+            if "@everyone" in message.content or "@here" in message.content:
+                return
+
             print("# Update the user's last message timestamp to the current time")
             # Update the user's last message timestamp to the current time
             user_cooldowns[user_id] = time.time()
