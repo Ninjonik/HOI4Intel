@@ -292,7 +292,6 @@ class Client(commands.Bot):
                 return
 
             print("# Update the user's last message timestamp to the current time")
-            # Update the user's last message timestamp to the current time
             user_cooldowns[user_id] = time.time()
             try:
                 await message.channel.typing()
