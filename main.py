@@ -283,10 +283,10 @@ class Client(commands.Bot):
                 current_time = time.time()
                 print("# Check if the user has a cooldown record")
 
-                # Check if the cooldown period (5 seconds) has passed
+
                 if current_time - last_message_time < 5:
                     print("# Ignore the message as the cooldown hasn't expired yet")
-                    return  # Ignore the message as the cooldown hasn't expired yet
+                    return
 
             if "@everyone" in message.content or "@here" in message.content:
                 return
