@@ -75,7 +75,7 @@ async def on_start(server_name, server_description, guild_id, guild_count):
             print(f"{presets.prefix()} Date is different, updating statistics for {server_name}")
             local_cursor.execute("UPDATE settings SET guild_name=%s, guild_desc=%s, updated_at=%s"
                                  " WHERE guild_id=%s", (server_name, server_description,
-                                                           current_time, guild_id))
+                                                        current_time, guild_id))
             local_cursor.execute(
                 "INSERT INTO statistics (guild_id, created_at, updated_at, count) VALUES (%s, %s, %s, %s) ", (
                     guild_id, current_time, current_time, guild_count))
@@ -157,7 +157,7 @@ class Client(commands.Bot):
             }
 
             query = "INSERT INTO wwcbot_filter_logs (guildId, created_at, updated_at, message, authorId, result) " \
-                        "VALUES (%s, NOW(), NOW(), %s, %s, %s)"
+                    "VALUES (%s, NOW(), NOW(), %s, %s, %s)"
             values = (
                 message.guild.id, message.content, message.author.id, toxicityValue)
             self.cursor.execute(query, values)
@@ -168,7 +168,7 @@ class Client(commands.Bot):
                 log_channel = message.guild.get_channel(log_channel)
             else:
                 return
-            
+
             try:
                 response = presets.perspective.comments().analyze(body=analyze_request).execute()
                 toxicityValue = (response["attributeScores"]["TOXICITY"]["summaryScore"]["value"])
@@ -282,7 +282,6 @@ class Client(commands.Bot):
                 last_message_time = user_cooldowns[user_id]
                 current_time = time.time()
                 print("# Check if the user has a cooldown record")
-
 
                 if current_time - last_message_time < 5:
                     print("# Ignore the message as the cooldown hasn't expired yet")
