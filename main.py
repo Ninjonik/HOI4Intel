@@ -277,7 +277,6 @@ class Client(commands.Bot):
         if client.user.mentioned_in(message):
             user_id = message.author.id
 
-            # Check if the user has a cooldown record
             if user_id in user_cooldowns:
                 last_message_time = user_cooldowns[user_id]
                 current_time = time.time()
