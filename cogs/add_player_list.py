@@ -35,7 +35,6 @@ class add_player_list(commands.Cog):
                     return m.channel == interaction.channel, m.author == interaction.user
                 player_list = {}
                 while True:
-                    # .split(" - ")
 
                     msg = await self.client.wait_for('message', check=check, timeout=60)
                     if msg.content == 'stop' or not msg.content:
@@ -62,7 +61,7 @@ class add_player_list(commands.Cog):
             else:
                 print(event, event_id)
                 await interaction.response.send_message(
-                    "❌ The event with this ID does not exist, or you do not have permission to start this event.",
+                    "❌ The event with this ID does not exist, or you do not have permission to modify this event.",
                     ephemeral=True)
 
 
