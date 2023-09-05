@@ -1,5 +1,3 @@
-import json
-
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -26,10 +24,10 @@ class clear_player_list(commands.Cog):
             event = self.cursor.fetchone()
             if event and event["host_id"] == interaction.user.id:
 
-                self.cursor.execute("DELETE FROM events WHERE message_id=%s", (event_id,))
+                self.cursor.execute("UPDATE events SET countries=NULL WHERE message_id=%s", (event_id,))
 
                 self.connection.commit()
-                await interaction.channel.send("✅ Player List was successfully cleared!")
+                await interaction.response.send_message("✅ Player List was successfully cleared!")
 
             else:
                 print(event, event_id)
