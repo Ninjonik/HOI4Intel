@@ -25,7 +25,6 @@ class add_hoi_game(commands.Cog):
                            global_database: bool = False, rating_required: int = 0, steam_required: bool = False):
         self.cursor, self.connection = config.setup()
         if interaction.user.guild_permissions.administrator:
-            # Convert date_time string to datetime object
             formats = ["%d.%m.%Y %H:%M", "%d-%m-%Y %H:%M", "%d/%m/%Y %H:%M"]
             for fmt in formats:
                 try:
