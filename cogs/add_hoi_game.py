@@ -37,7 +37,6 @@ class add_hoi_game(commands.Cog):
                                                         ephemeral=True)
                 return
 
-            # Convert time_zone string to timezone object
             try:
                 timezone_obj = pytz.timezone(time_zone)
             except pytz.UnknownTimeZoneError:
