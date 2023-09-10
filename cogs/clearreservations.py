@@ -6,7 +6,7 @@ from discord import app_commands
 import config
 
 
-class clear_reservations(commands.Cog):
+class ClearReservations(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
         self.cursor, self.connection = config.setup()
@@ -86,4 +86,4 @@ class clear_reservations(commands.Cog):
 
 
 async def setup(client: commands.Bot) -> None:
-    await client.add_cog(clear_reservations(client))
+    await client.add_cog(ClearReservations(client))
