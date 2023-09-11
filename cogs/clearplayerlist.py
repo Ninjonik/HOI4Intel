@@ -5,7 +5,7 @@ from discord import app_commands
 import config
 
 
-class clear_player_list(commands.Cog):
+class ClearPlayerList(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
         self.cursor, self.connection = config.setup()
@@ -37,4 +37,4 @@ class clear_player_list(commands.Cog):
 
 
 async def setup(client: commands.Bot) -> None:
-    await client.add_cog(clear_player_list(client))
+    await client.add_cog(ClearPlayerList(client))
