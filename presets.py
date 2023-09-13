@@ -588,6 +588,6 @@ class GuideMenu(discord.ui.Select):
         selected_title = self.values[0]
         selected_id = self.article_dict[selected_title]
         slug_title = slugify(selected_title)
-        link = f"https://hoi.theorganization.eu/wiki/article/{selected_id}/{slug_title}"
+        link = f"{config.ws_url}/wiki/article/{selected_id}/{slug_title}"
 
         await interaction.response.send_message(f"Guide for **{selected_title}** at: {link}", ephemeral=True)
