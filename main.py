@@ -176,6 +176,8 @@ class Client(commands.Bot):
                         "VALUES (%s, NOW(), NOW(), %s, %s, %s)"
                 values = (
                     message.guild.id, message.content, message.author.id, toxicityValue)
+                self.cursor.execute(query, values)
+                self.connection.commit()
 
                 if toxicityValue >= 0.60:
                     await message.delete()
