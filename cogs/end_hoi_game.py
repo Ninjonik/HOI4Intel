@@ -64,7 +64,7 @@ class EndHoiGame(commands.Cog):
                                 try:
                                     rating = int(msg.content)
                                 except Exception as e:
-                                    if rating == "-":
+                                    if msg.content == "-":
                                         break
                                     else:
                                         raise ValueError(f"Invalid rating")
@@ -127,7 +127,11 @@ class EndHoiGame(commands.Cog):
                             inline=False,
                         )
                         player_discord = interaction.guild.get_member(int(user_id))
-                        player_discord.edit(nick=player_discord.name)
+
+                        try:
+                            await player_discord.edit(nick=player_discord.name)
+                        except Exception as e:
+                            print(e)
 
                 embed.set_footer(text=f"Event ID:{event['message_id']}")
                 await interaction.guild.get_channel(event["channel_id"]).send(embed=embed)

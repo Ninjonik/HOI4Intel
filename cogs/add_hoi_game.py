@@ -45,7 +45,7 @@ class add_hoi_game(commands.Cog):
                                                         ephemeral=True)
                 return
 
-            await interaction.response.send_message("↺ Creating event...")
+            await interaction.response.send_message("🔄 Creating event...", ephemeral=True)
 
             # Convert datetime_obj to UTC time
             datetime_obj = timezone_obj.localize(datetime_obj)
@@ -106,12 +106,11 @@ class add_hoi_game(commands.Cog):
             self.cursor.execute(sql, values)
             self.connection.commit()
 
-            original_message = interaction.original_response()
-            await original_message.edit(f"Event added successfully!\nLobby URL for verified hosts: "
+            original_message = await interaction.original_response()
+            await original_message.edit(content=f"Event added successfully!\nLobby URL for verified hosts: "
                                                     f"{config.ws_url}/dashboard/lobby/{interaction.guild.id}/{lobby_vc.id}\n"
                                                     f"If you want to apply join our communication server: "
-                                                    f"{config.discord_invite_url}",
-                                                    ephemeral=True)
+                                                    f"{config.discord_invite_url}")
 
 
 async def setup(client: commands.Bot) -> None:
