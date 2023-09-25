@@ -296,7 +296,7 @@ class EntryDialog(discord.ui.View):
                         )
 
                         await interaction.channel.send(content=f"You have solved the verification, "
-                                                               f"{interaction.user.mention}. "
+                                                               f"{interaction.user.name}. "
                                                                f"Now please click on roles you want to get.",
                                                        embed=embed,
                                                        view=UpdateRoles())
@@ -473,7 +473,7 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
         reserved_all = self.cursor.fetchall()
         reserved_list = []
         for player in reserved_all:
-            val = f"{interaction.guild.get_member(player[1]).mention} - {player[0]}"
+            val = f"{interaction.guild.get_member(player[1]).name} - {player[0]}"
             reserved_list.append(val)
         embed.add_field(
             name="Currently Reserved:",
@@ -554,7 +554,7 @@ class ReserveDialog(discord.ui.View):
             reserved_all = self.cursor.fetchall()
             reserved_list = []
             for player in reserved_all:
-                val = f"{interaction.guild.get_member(player[1]).mention} - {player[0]}"
+                val = f"{interaction.guild.get_member(player[1]).name} - {player[0]}"
                 reserved_list.append(val)
             embed.add_field(
                 name="Currently Reserved:",

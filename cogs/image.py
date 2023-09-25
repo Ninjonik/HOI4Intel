@@ -32,7 +32,7 @@ class image(commands.Cog):
         for image in response.data:
             embed = discord.Embed(title="AI Generated Image")
             embed.add_field(name="Prompt: ", value=prompt)
-            embed.add_field(name="Prompted by:", value=interaction.user.mention)
+            embed.add_field(name="Prompted by:", value=interaction.user.name)
             embed.set_image(url=image['url'])
             await channel.send(embed=embed)
 

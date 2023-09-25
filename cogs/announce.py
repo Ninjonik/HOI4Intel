@@ -45,7 +45,7 @@ class announce(commands.Cog):
                             await channel.send(embed=embed)
 
                         except Exception as e:
-                            interaction.channel.send(f"❌ Unable to send DM to user {member.mention}")
+                            interaction.channel.send(f"❌ Unable to send DM to user {member.name}")
                             continue
                 else:
                     await interaction.channel.send(

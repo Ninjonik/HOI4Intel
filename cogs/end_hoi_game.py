@@ -36,7 +36,8 @@ class EndHoiGame(commands.Cog):
                     await interaction.response.send_message("ℹ️ To publish results for the game you are required to "
                                                             "first"
                                                             " give rating to all players defined in your playerlist. "
-                                                            "(/add_player_list command)")
+                                                            "(/add_player_list command)"
+                                                            "\nYou can type - for no rating.")
 
                     for player, country in countries.items():
                         i = 5
@@ -63,7 +64,10 @@ class EndHoiGame(commands.Cog):
                                 try:
                                     rating = int(msg.content)
                                 except Exception as e:
-                                    raise ValueError(f"Invalid rating")
+                                    if rating == "-":
+                                        break
+                                    else:
+                                        raise ValueError(f"Invalid rating")
                                 if not 0 <= rating <= 100:
                                     raise ValueError(f"Invalid rating")
                                 i = 0
@@ -114,13 +118,17 @@ class EndHoiGame(commands.Cog):
                     inline=False,
                 )
                 if player_ratings:
-                    player_info = [f"<@{user_id}> - {rating}%" for user_id, rating in player_ratings.items()]
-                    player_ratings_formatted = "\n".join(player_info)
-                    embed.add_field(
-                        name="Final ratings:",
-                        value=player_ratings_formatted,
-                        inline=False,
-                    )
+                    for user_id, rating in player_ratings.items():
+                        player_info = [f"<@{user_id}> - {rating}%"]
+                        player_ratings_formatted = "\n".join(player_info)
+                        embed.add_field(
+                            name="Final ratings:",
+                            value=player_ratings_formatted,
+                            inline=False,
+                        )
+                        player_discord = interaction.guild.get_member(int(user_id))
+                        player_discord.edit(nick=player_discord.name)
+
                 embed.set_footer(text=f"Event ID:{event['message_id']}")
                 await interaction.guild.get_channel(event["channel_id"]).send(embed=embed)
                 await interaction.guild.voice_client.disconnect()

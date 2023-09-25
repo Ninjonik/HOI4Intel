@@ -70,7 +70,7 @@ async def on_start(server_name, server_description, guild_id, guild_count):
         # Extract the date from the datetime object stored in the database
         db_datetime = row[0][0]
         db_date = db_datetime.date()
-        print(f" {presets.prefix()} Current date is: {current_date} meanwhile DB date is: {db_date}")
+        # print(f" {presets.prefix()} Current date is: {current_date} meanwhile DB date is: {db_date}")
         if current_date != db_date:
             print(f"{presets.prefix()} Date is different, updating statistics for {server_name}")
             local_cursor.execute("UPDATE settings SET guild_name=%s, guild_desc=%s, updated_at=%s"
@@ -86,9 +86,9 @@ async def on_start(server_name, server_description, guild_id, guild_count):
 @tasks.loop(hours=24)
 async def update_guild_data(guilds):
     for guild in guilds:
-        print(f"{presets.prefix()} Initializing guild {guild.name}")
+        # print(f"{presets.prefix()} Initializing guild {guild.name}")
         await on_start(guild.name, guild.description, guild.id, guild.member_count)
-        print(f"{presets.prefix()} Guild {guild.name} initialized!")
+        # print(f"{presets.prefix()} Guild {guild.name} initialized!")
 
 
 @tasks.loop(seconds=60)
@@ -116,13 +116,12 @@ async def statusLoop():
         memberCount += guild.member_count
     await client.change_presence(status=discord.Status.dnd,
                                  activity=discord.Activity(type=discord.ActivityType.listening,
-                                                           name=f"{memberCount} people! 😀", ))
+                                                           name=f"{memberCount} people! 😀"))
     await asyncio.sleep(10)
 
     await client.change_presence(status=discord.Status.online,
                                  activity=discord.Activity(type=discord.ActivityType.competing,
-                                                           name=f"dsc.gg/wwc 🎖️",
-                                                           url="https://discord.gg/dCVNQeywKY"))
+                                                           name=f"Winning in '41 🎖️"))
     await asyncio.sleep(10)
 
 

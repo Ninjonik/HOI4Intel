@@ -19,7 +19,7 @@ class whois(commands.Cog):
         self.cursor, self.connection = config.setup()
 
         roles = [role for role in member.roles]
-        embed = discord.Embed(title="User info", description=f"{member.mention}'s information",
+        embed = discord.Embed(title="User info", description=f"{member.name}'s information",
                               color=discord.Colour.green(), timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=member.avatar)
         embed.add_field(name="ID", value=member.id)
