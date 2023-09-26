@@ -40,7 +40,7 @@ class ServerCog(commands.Cog):
             playersVc = channel.members
             nonBotPlayersVc = [player for player in playersVc if not player.bot]
 
-            playersObj = []
+            playersObj = {}
 
             for player in nonBotPlayersVc:
                 rating = await _add_player_name(player.id, player.name, 0.5)
@@ -58,7 +58,7 @@ class ServerCog(commands.Cog):
                     "lobby_id": str(lobby_id),
                     "token": config.comms_token
                 }
-                playersObj.append(player_data)
+                playersObj[str(player.id)] = player_data
 
             response_data = json.dumps(playersObj)
             return web.Response(text=response_data, content_type='application/json')
@@ -171,7 +171,7 @@ class ServerCog(commands.Cog):
         token = payload.get("token", "")
         if token == config.comms_token:
             guild_id = int(payload["guild_id"])
-            guild = self.bot.get_guild(guild_id)
+            guild = await self.bot.fetch_guild(guild_id)
             if payload["voice"]:
                 channels = sorted(guild.voice_channels, key=lambda c: c.position)
             else:
@@ -191,7 +191,7 @@ class ServerCog(commands.Cog):
         token = payload.get("token", "")
         if token == config.comms_token:
             guild_id = int(payload["guild_id"])
-            guild = self.bot.get_guild(guild_id)
+            guild = await self.bot.fetch_guild(guild_id)
             roles = sorted(guild.roles, key=lambda r: r.position)
             role_data = [
                 {"role_name": role.name, "role_id": role.id}
