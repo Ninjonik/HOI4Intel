@@ -10,7 +10,9 @@ class test(commands.Cog):
 
     @app_commands.command(name="test", description="Runs the current test command!")
     async def test(self, interaction: discord.Interaction):
-        await interaction.response.send_modal(presets.test_modal())
+        guild = await self.client.fetch_guild(820918304176340992)
+        print(guild)
+        await interaction.response.send_message("YES")
 
 
 

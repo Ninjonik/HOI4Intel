@@ -171,17 +171,32 @@ class ServerCog(commands.Cog):
         token = payload.get("token", "")
         if token == config.comms_token:
             guild_id = int(payload["guild_id"])
-            guild = await self.bot.fetch_guild(guild_id)
-            if payload["voice"]:
-                channels = sorted(guild.voice_channels, key=lambda c: c.position)
-            else:
-                channels = sorted(guild.text_channels, key=lambda c: c.position)
-            channel_data = [
-                {"channel_name": channel.name, "channel_id": channel.id}
-                for channel in channels
-            ]
+            try:
+                guild = await self.bot.fetch_guild(guild_id)
+            except Exception as e:
+                return web.json_response(data={"error": "not authorized"}, status=204)
 
-            return web.json_response(data=channel_data, status=200)
+            all_channels = await guild.fetch_channels()
+
+            voice_channels = []
+            text_channels = []
+
+            for channel in all_channels:
+                if payload["voice"]:
+                    if channel.type == discord.ChannelType.voice:
+                        voice_channels.append({"channel_name": channel.name, "channel_id": channel.id})
+                else:
+                    if channel.type == discord.ChannelType.text:
+                        text_channels.append({"channel_name": channel.name, "channel_id": channel.id})
+
+            if payload["voice"]:
+                channels = voice_channels
+            else:
+                channels = text_channels
+
+            channels.reverse()
+
+            return web.json_response(data=channels, status=200)
         else:
             return web.json_response(data={"error": "not authorized"}, status=403)
 
@@ -191,7 +206,10 @@ class ServerCog(commands.Cog):
         token = payload.get("token", "")
         if token == config.comms_token:
             guild_id = int(payload["guild_id"])
-            guild = await self.bot.fetch_guild(guild_id)
+            try:
+                guild = await self.bot.fetch_guild(guild_id)
+            except Exception as e:
+                return web.json_response(data={"error": "not authorized"}, status=204)
             roles = sorted(guild.roles, key=lambda r: r.position)
             role_data = [
                 {"role_name": role.name, "role_id": role.id}
