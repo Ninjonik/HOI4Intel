@@ -84,8 +84,8 @@ class EndHoiGame(commands.Cog):
                                     self.connection.commit()
 
                                     self.cursor.execute(
-                                        "SELECT SUM(rating) as SUM, COUNT(rating) AS CNT FROM player_records WHERE player_id=%s"
-                                        % player.id)
+                                        "SELECT SUM(rating) as SUM, COUNT(rating) AS CNT FROM player_records WHERE "
+                                        "player_id=%s" % player.id)
                                     total = self.cursor.fetchall()
                                     total_rating = total[0]["SUM"] / total[0]["CNT"]
                                     self.cursor.execute(
@@ -93,7 +93,8 @@ class EndHoiGame(commands.Cog):
                                     self.connection.commit()
                                     await interaction.channel.send(f"✅ Successfully updated rating for {player.name}, "
                                                                    f"new rating: {total_rating * 100}%")
-                                    player_ratings[player.id] = rating
+                                    player_ratings[player.id] = {'rating': rating, 'country': country}
+
                                 except Exception as e:
                                     print(e)
 
@@ -118,8 +119,8 @@ class EndHoiGame(commands.Cog):
                     inline=False,
                 )
                 if player_ratings:
-                    for user_id, rating in player_ratings.items():
-                        player_info = [f"<@{user_id}> - {rating}%"]
+                    for user_id, player_rating in player_ratings.items():
+                        player_info = [f"<@{user_id}> playing {player_rating['country']} - {player_rating['rating']}%"]
                         player_ratings_formatted = "\n".join(player_info)
                         embed.add_field(
                             name="Final ratings:",
