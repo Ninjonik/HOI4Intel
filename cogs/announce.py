@@ -30,7 +30,7 @@ class announce(commands.Cog):
                 data = self.cursor.fetchone()
                 if data and data["started"] != 2 and data["countries"]:
                     voice_client = interaction.guild.voice_client
-                    await presets.playTTS(message_content, voice_client)
+                    await presets.playTTS(message_content, voice_client, interaction.guild.id)
                     countries = json.loads(data["countries"])
                     for member, country in countries.items():
                         member = interaction.guild.get_member(int(member))

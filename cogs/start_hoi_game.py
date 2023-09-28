@@ -80,7 +80,7 @@ class StartHOIGame(commands.Cog):
                 event = interaction.guild.get_scheduled_event(event["guild_event_id"])
                 await asyncio.sleep(2)
                 await presets.playTTS(f"Welcome to the HOI4 Game hosted by {interaction.user.name}. Make sure to check out "
-               f"HOI4Intel's wiki if you need any help.", voice_client)
+               f"HOI4Intel's wiki if you need any help.", voice_client, interaction.guild.id)
                 await event.start(reason=f"Event was started by {interaction.user.name}")
 
 

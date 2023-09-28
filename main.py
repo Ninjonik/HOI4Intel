@@ -430,6 +430,61 @@ class Client(commands.Bot):
         response = await presets.send_http_request(url, payload)
         print("Leave request response:", response)
 
+    async def on_member_join(self, member):
+        self.cursor, self.connection = config.setup()
+        self.cursor.execute("SELECT minimal_age FROM settings WHERE guild_id=%s", (member.guild.id,))
+        minimal_age = self.cursor.fetchone()[0]
+
+        current_time_utc = datetime.datetime.now(datetime.timezone.utc)
+        account_age_days = (current_time_utc - member.created_at).days
+
+        if account_age_days < minimal_age:
+            try:
+                embed = discord.Embed(title=f"HOI4Intel Warning",
+                                      url="https://hoi.theorganization.eu/", description=(f"{member.guild.name} is "
+                                                                                          f"protected by HOI4Intel's account "
+                                                                                          f"age check."),
+                                      color=0xff0000)
+                embed.set_thumbnail(url=member.guild.icon)
+                embed.add_field(name="Account not old enough!",
+                                value=f"Hello there,\nthis server requires your account to be at least {minimal_age} "
+                                      f"days old.\nUnfortunately your current account age is only {account_age_days} "
+                                      f"days which makes you not eligible for joining this server.\nMake sure to reach "
+                                      f"out to server admins if you think this is a mistake.",
+                                inline=True)
+                channel = await member.create_dm()
+                await channel.send(embed=embed)
+            except Exception as e:
+                print(e)
+            await member.kick(reason=f"Account not old enough. Account age: {account_age_days} days.")
+
+        self.cursor, self.connection = config.setup()
+        self.cursor.execute("SELECT voice_channel_id, started, title, host_id FROM events "
+                            "WHERE guild_id=%s ORDER BY id DESC LIMIT 1", (member.guild.id,))
+        data = self.cursor.fetchone()
+        channel_id, started, title, host_id = data
+        if started == 1:
+            embed = discord.Embed(
+                title=f"📢 {title} HOI4 Game is currently in here!",
+                description=f"Hosted by: {member.guild.get_member(host_id)}",
+                color=0x00ff00
+            )
+            embed.add_field(
+                name="Lobby VC:",
+                value=member.guild.get_channel(channel_id).mention,
+                inline=False
+            )
+            embed.set_footer(
+                text="🤖 This is an automatic message, please do not reply to it."
+            )
+            try:
+                channel = await member.create_dm()
+                await channel.send(embed=embed)
+            except Exception as e:
+                print(e)
+                channel = member.guild.system_channel
+                await channel.send(member.mention, embed=embed)
+
 
 client = Client()
 client.run(presets.token)
