@@ -123,17 +123,17 @@ class EndHoiGame(commands.Cog):
                     for user_id, player_rating in player_ratings.items():
                         player_info = [f"<@{user_id}> playing {player_rating['country']} - {player_rating['rating']}%"]
                         player_ratings_formatted = "\n".join(player_info)
-                    embed.add_field(
-                        name="Final ratings:",
-                        value=player_ratings_formatted,
-                        inline=False,
-                    )
-                    player_discord = interaction.guild.get_member(int(user_id))
+                        embed.add_field(
+                            name="Final ratings:",
+                            value=player_ratings_formatted,
+                            inline=False,
+                        )
+                        player_discord = interaction.guild.get_member(int(user_id))
 
-                    try:
-                        await player_discord.edit(nick=player_discord.name)
-                    except Exception as e:
-                        print(e)
+                        try:
+                            await player_discord.edit(nick=player_discord.name)
+                        except Exception as e:
+                            print(e)
 
                 embed.set_footer(text=f"Event ID:{event['message_id']}")
                 await interaction.guild.get_channel(event["channel_id"]).send(embed=embed)
