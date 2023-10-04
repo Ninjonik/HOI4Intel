@@ -108,7 +108,7 @@ class add_hoi_game(commands.Cog):
 
             original_message = await interaction.original_response()
             await original_message.edit(content=f"Event added successfully!\nLobby URL for verified hosts: "
-                                                    f"{config.ws_url}/dashboard/lobby/{interaction.guild.id}/{lobby_vc.id}\n"
+                                                    f"{config.ws_url}/dashboard/guild/{interaction.guild.id}/lobby/{lobby_vc.id}\n"
                                                     f"If you want to apply join our communication server: "
                                                     f"{config.discord_invite_url}")
 
