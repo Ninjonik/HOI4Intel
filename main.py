@@ -243,8 +243,8 @@ class Client(commands.Bot):
                 if data["rating_letter"] == "a" or (data["rating_letter"] == "t" and data["predictions"]["adult"] > 10):
                     await message.delete()
                     try:
-                        punishment = "Original message has been deleted. You have been timed-outed for 5 minutes."
-                        timeMessage = datetime.datetime.now().astimezone() + datetime.timedelta(minutes=5)
+                        punishment = "Original message has been deleted. You have been timed-outed for 15 seconds."
+                        timeMessage = datetime.datetime.now().astimezone() + datetime.timedelta(seconds=15)
                         await member.timeout(timeMessage, reason=f"Inappropriate image attachment")
 
                         channel = await member.create_dm()
