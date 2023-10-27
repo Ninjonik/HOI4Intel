@@ -172,12 +172,6 @@ class Client(commands.Bot):
             try:
                 response = presets.perspective.comments().analyze(body=analyze_request).execute()
                 toxicityValue = (response["attributeScores"]["TOXICITY"]["summaryScore"]["value"])
-                query = "INSERT INTO wwcbot_filter_logs (guildId, created_at, updated_at, message, authorId, result) " \
-                        "VALUES (%s, NOW(), NOW(), %s, %s, %s)"
-                values = (
-                    message.guild.id, message.content, message.author.id, toxicityValue)
-                self.cursor.execute(query, values)
-                self.connection.commit()
 
                 if toxicityValue >= 0.60:
                     await message.delete()
@@ -214,6 +208,13 @@ class Client(commands.Bot):
                     embed.set_footer(text="This message was sent to the user. Consider "
                                           "taking more actions if needed.")
                     await log_channel.send(embed=embed)
+
+                    query = "INSERT INTO wwcbot_filter_logs (guildId, created_at, updated_at, message, authorId, result) " \
+                            "VALUES (%s, NOW(), NOW(), %s, %s, %s)"
+                    values = (
+                        message.guild.id, message.content, message.author.id, toxicityValue)
+                    self.cursor.execute(query, values)
+                    self.connection.commit()
 
             except Exception as e:
                 embed = discord.Embed(title="Auto-Moderation Error",
