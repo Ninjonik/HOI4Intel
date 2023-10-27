@@ -262,7 +262,6 @@ class Client(commands.Bot):
                         embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
                                         inline=True)
                         embed.add_field(name="User:", value=member, inline=False)
-                        embed.add_field(name="Image URL:", value=attachment.url)
                         embed.set_footer(text="This message was sent to the user. Consider "
                                               "taking more actions if needed.")
                         await log_channel.send(embed=embed)
