@@ -5,6 +5,9 @@ bot_token = ")T8gBRffdud4)AnY*^rUvjQrtV%FfIgSmpUsW6b+&V+V(VJ4JvWC&U$^D%!n%DNK"
 # GOOGLE API KEY FOR PERSPECTIVE API
 API_KEY = ''
 
+# MODERATE CONTENT API KEY
+moderate_content_api_key = ''
+
 # TOKEN FOR COMMUNICATION BETWEEN DASHBOARD AND BOT
 comms_token = ''
 

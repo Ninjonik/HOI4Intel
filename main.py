@@ -10,6 +10,7 @@ import config
 import presets
 import logging
 import openai
+import requests
 
 openai.api_key = config.openai_api_key
 openai.api_base = config.openai_api_base
@@ -201,15 +202,14 @@ class Client(commands.Bot):
                                                       " resulted in the following punishment(s):",
                                           color=0xe01b24)
                     embed.set_author(name="HOI4Intel")
-                    embed.add_field(name="Message Content:", value=message.content, inline=True)
+                    embed.add_field(name="Message Content:", value=message.content, inline=False)
                     embed.set_footer(text="If you feel that this punishment is a mistake / inappropriate then"
                                           " please contact HOI4Intel Staff.")
-                    embed.add_field(name="Punishment:", value=punishment, inline=True)
+                    embed.add_field(name="Punishment:", value=punishment, inline=False)
                     await channel.send(embed=embed)
                     embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
                                     inline=True)
-                    embed.add_field(name="User:", value=member, inline=True)
-                    embed.add_field(name="Punishment:", value=punishment, inline=True)
+                    embed.add_field(name="User:", value=member, inline=False)
                     embed.add_field(name="Toxicity Value:", value=toxicityValue)
                     embed.set_footer(text="This message was sent to the user. Consider "
                                           "taking more actions if needed.")
@@ -219,13 +219,66 @@ class Client(commands.Bot):
                 embed = discord.Embed(title="Auto-Moderation Error",
                                       description="HOI4Intel has been unable to moderate this message.",
                                       color=0xff8000)
-                embed.add_field(name="Error", value=e, inline=True)
+                embed.add_field(name="Error", value=e, inline=False)
                 embed.add_field(name="Message", value=message.content, inline=True)
                 embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"), inline=True)
                 embed.set_author(name="HOI4Intel")
                 embed.add_field(name="User:", value=member, inline=True)
                 embed.add_field(name="Value of toxicity:", value=toxicityValue, inline=True)
                 await log_channel.send(embed=embed)
+        if message.author != client.user and message.attachments:
+            member = message.author
+            self.cursor.execute('SELECT log_channel FROM settings WHERE guild_id=%s', (message.guild.id,))
+            log_channel = self.cursor.fetchone()
+            if log_channel and log_channel[0]:
+                log_channel = log_channel[0]
+                log_channel = message.guild.get_channel(log_channel)
+            else:
+                return
+            for attachment in message.attachments:
+                url = (f'https://api.moderatecontent.com/moderate/?key={config.moderate_content_api_key}'
+                       f'&url={attachment.url}')
+                resp = requests.get(url=url)
+                data = resp.json()
+                if data["rating_letter"] == "a" or (data["rating_letter"] == "t" and data["predictions"]["adult"] > 10):
+                    await message.delete()
+                    try:
+                        punishment = "Original message has been deleted. You have been timed-outed for 5 minutes."
+                        timeMessage = datetime.datetime.now().astimezone() + datetime.timedelta(minutes=5)
+                        await member.timeout(timeMessage, reason=f"Inappropriate image attachment")
+
+                        channel = await member.create_dm()
+                        embed = discord.Embed(title="You have been auto-moderated",
+                                              description="One of your messages has been flagged as inappropriate which has"
+                                                          " resulted in the following punishment(s):",
+                                              color=0xe01b24)
+                        embed.set_author(name="HOI4Intel")
+                        embed.add_field(name="Image URL:", value=attachment.url, inline=False)
+                        embed.set_footer(text="If you feel that this punishment is a mistake / inappropriate then"
+                                              " please contact HOI4Intel Staff.")
+                        embed.add_field(name="Punishment:", value=punishment, inline=False)
+
+                        await channel.send(embed=embed)
+                        embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
+                                        inline=True)
+                        embed.add_field(name="User:", value=member, inline=False)
+                        embed.add_field(name="Image URL:", value=attachment.url)
+                        embed.set_footer(text="This message was sent to the user. Consider "
+                                              "taking more actions if needed.")
+                        await log_channel.send(embed=embed)
+                        break
+                    except Exception as e:
+                        embed = discord.Embed(title="Auto-Moderation Error",
+                                              description="HOI4Intel has been unable to moderate this image.",
+                                              color=0xff8000)
+                        embed.add_field(name="Error", value=e, inline=False)
+                        embed.add_field(name="Image URL", value=attachment.url, inline=True)
+                        embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
+                                        inline=True)
+                        embed.set_author(name="HOI4Intel")
+                        embed.add_field(name="User:", value=member, inline=True)
+                        await log_channel.send(embed=embed)
+                        break
 
     async def setup_hook(self):
         for ext in self.cogsList:
