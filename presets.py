@@ -409,7 +409,7 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
         if profile_link[0] is None and event_data[8] == 1:
             await interaction.response.send_message(f"You don't have steam verified which is required for this game.\n"
                                                     f"You can fix it here:"
-                                                    f"https://hoi.theorganization.eu/steam/{interaction.user.id}",
+                                                    f"https://hoi.igportals.eu/steam/{interaction.user.id}",
                                                     ephemeral=True)
             return
 

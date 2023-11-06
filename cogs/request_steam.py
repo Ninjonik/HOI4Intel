@@ -27,7 +27,7 @@ class RequestSteam(commands.Cog):
                              f"You were DMed because {interaction.guild.name}'s Host"
                              f" {interaction.user.name} is requesting you to verify your steam account."
                              f"\nYou can do so by going on HOI4Intel's website: "
-                             f"https://hoi.theorganization.eu/steam/{player.id}")
+                             f"https://hoi.igportals.eu/steam/{player.id}")
                 await interaction.response.send_message("✔️ Message sent successfully!")
             except Exception as e:
                 await interaction.response.send_message("❌ Unable to send DM to this user.")

@@ -11,7 +11,7 @@ class help(commands.Cog):
                                                                       f"view **HOI4Intel's Wiki**",
                               color=discord.Colour.green(), timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=self.client.user.avatar)
-        embed.add_field(name="Link:", value=f"https://hoi.theorganization.eu/wiki")
+        embed.add_field(name="Link:", value=f"https://hoi.igportals.eu/wiki")
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
 

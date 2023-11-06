@@ -79,7 +79,7 @@ class whois(commands.Cog):
                                                                      guild_name, date)
             table += "```"
             table += "Complete list of ratings for this player available for hosts at: " \
-                     "https://hoi.theorganization.eu/players"
+                     "https://hoi.igportals.eu/players"
 
             await interaction.response.send_message(table, embed=embed)
 

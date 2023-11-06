@@ -37,6 +37,9 @@ class ServerCog(commands.Cog):
         if token == config.comms_token:
             lobby_id = int(payload["lobby_id"])
             channel = self.bot.get_channel(lobby_id)
+            if not channel:
+                return web.json_response(data={"error": "bot not in lobby"}, status=400)
+
             playersVc = channel.members
             nonBotPlayersVc = [player for player in playersVc if not player.bot]
 

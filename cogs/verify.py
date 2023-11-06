@@ -35,7 +35,7 @@ class verify(commands.Cog):
                                                                           f"start verification process.",
                                   color=discord.Colour.green(), timestamp=datetime.datetime.utcnow())
             embed.set_thumbnail(url=member.avatar)
-            embed.add_field(name="Link:", value=f"https://hoi.theorganization.eu/steam/{member.id}")
+            embed.add_field(name="Link:", value=f"https://hoi.igportals.eu/steam/{member.id}")
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 

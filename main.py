@@ -370,8 +370,8 @@ class Client(commands.Bot):
                                   "creating custom temporary channels and b) creating custom permanent channels.",
                             inline=False)
             embed.add_field(name="Need help with anything?",
-                            value="Check out our wiki: https://hoi.theorganization.eu/wiki\n"
-                                  "Setup guide: https://hoi.theorganization.eu/wiki/article/9/how-to-setup-the-bot",
+                            value="Check out our wiki: https://hoi.igportals.eu/wiki\n"
+                                  "Setup guide: https://hoi.igportals.eu/wiki/article/9/how-to-setup-the-bot",
                             inline=False)
             embed.set_footer(
                 text=f"If you have any questions regarding the bot you can always seek help at HOI4Intel's Discord by "
@@ -494,7 +494,7 @@ class Client(commands.Bot):
         if account_age_days < minimal_age:
             try:
                 embed = discord.Embed(title=f"HOI4Intel Warning",
-                                      url="https://hoi.theorganization.eu/", description=(f"{member.guild.name} is "
+                                      url="https://hoi.igportals.eu/", description=(f"{member.guild.name} is "
                                                                                           f"protected by HOI4Intel's account "
                                                                                           f"age check."),
                                       color=0xff0000)
