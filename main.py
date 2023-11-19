@@ -3,6 +3,7 @@ import discord.utils
 from discord.ext import tasks, commands
 from colorama import Fore
 from datetime import datetime
+from presets import _add_player_name
 import platform
 import asyncio
 import datetime
@@ -217,16 +218,18 @@ class Client(commands.Bot):
                     self.connection.commit()
 
             except Exception as e:
-                embed = discord.Embed(title="Auto-Moderation Error",
-                                      description="HOI4Intel has been unable to moderate this message.",
-                                      color=0xff8000)
-                embed.add_field(name="Error", value=e, inline=False)
-                embed.add_field(name="Message", value=message.content, inline=True)
-                embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"), inline=True)
-                embed.set_author(name="HOI4Intel")
-                embed.add_field(name="User:", value=member, inline=True)
-                embed.add_field(name="Value of toxicity:", value=toxicityValue, inline=True)
-                await log_channel.send(embed=embed)
+                # embed = discord.Embed(title="Auto-Moderation Error",
+                #                       description="HOI4Intel has been unable to moderate this message.",
+                #                       color=0xff8000)
+                # embed.add_field(name="Error", value=e, inline=False)
+                # embed.add_field(name="Message", value=message.content, inline=True)
+                # embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"), inline=True)
+                # embed.set_author(name="HOI4Intel")
+                # embed.add_field(name="User:", value=member, inline=True)
+                # embed.add_field(name="Value of toxicity:", value=toxicityValue, inline=True)
+                # await log_channel.send(embed=embed)
+                pass
+
         if message.author != client.user and message.attachments:
             member = message.author
             self.cursor.execute('SELECT log_channel FROM settings WHERE guild_id=%s', (message.guild.id,))
@@ -394,13 +397,15 @@ class Client(commands.Bot):
 
         if guild.voice_client:
             if guild.voice_client.is_connected() and after.channel:
-                print(f"{member} has joined {channel.name}")
+                # print(f"{member} has joined {channel.name}")
                 await self.send_join_request(member, channel.id)
+                return
 
             # Leaving
             if guild.voice_client.is_connected() and before.channel:
-                print(f"{member} has left {channel.name}")
+                # print(f"{member} has left {channel.name}")
                 await self.send_leave_request(member, channel.id)
+                return
 
         # END OF LOBBY
 
@@ -409,12 +414,12 @@ class Client(commands.Bot):
         if before.channel is not None and before.channel.name.endswith(member.display_name) \
                 and before.channel.name.startswith("TC"):
             await before.channel.delete(reason="Owner left the channel.")
+            return
 
         if after.channel is not None:
             self.cursor.execute("SELECT custom_channel, custom_channel_2 FROM settings "
                                 "WHERE guild_id=%s" % channel.guild.id)
             db_custom_channel = self.cursor.fetchone()
-            print(db_custom_channel)
 
             overwrite = discord.PermissionOverwrite()
             overwrite.manage_messages = True
@@ -447,19 +452,20 @@ class Client(commands.Bot):
                 await custom_channel.set_permissions(member, overwrite=overwrite,
                                                      reason="Owner of Custom Channel.")
                 await member.move_to(custom_channel)
+            return
 
         # END OF CUSTOM CHANNELS
 
     async def send_join_request(self, player, lobby_id):
         url = f"{config.ws_url}/lobby/send"
-        rating = await presets._add_player_name(player.id, player.name, 0.5)
+        rating = await _add_player_name(player.id, player.name, 0.5)
         payload = {
             "user": {
                 "discord_id": f"{player.id}",
                 "discord_name": player.name,
                 "rating": rating,
                 "country": player.display_name,
-                "joined": 1689182629
+                "joined": time.time()
             },
             "action": {
                 "none": "none"
@@ -468,7 +474,6 @@ class Client(commands.Bot):
             "token": config.comms_token
         }
         response = await presets.send_http_request(url, payload)
-        print("Join request response:", response)
 
     async def send_leave_request(self, player, lobby_id):
         url = f"{config.ws_url}/lobby/send"
@@ -481,7 +486,6 @@ class Client(commands.Bot):
             "token": config.comms_token
         }
         response = await presets.send_http_request(url, payload)
-        print("Leave request response:", response)
 
     async def on_member_join(self, member):
         self.cursor, self.connection = config.setup()

@@ -162,6 +162,8 @@ async def _add_player_name(player_id, player_name, rating_percentage):
                 "INSERT INTO player_records (player_id, guild_id, host_id, rating, created_at, updated_at) "
                 "VALUES (%s, %s, %s, %s, NOW(), NOW())",
                 (player_id, 820918304176340992, 1063766598197981215, rating_percentage))  # TODO: Hardcoded for now
+        else:
+            rating = player_db[0]
 
         connection.commit()
         return rating
