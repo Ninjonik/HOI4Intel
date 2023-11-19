@@ -185,19 +185,15 @@ class ServerCog(commands.Cog):
             text_channels = []
 
             for channel in all_channels:
-                if payload["voice"]:
-                    if channel.type == discord.ChannelType.voice:
-                        voice_channels.append({"channel_name": channel.name, "channel_id": channel.id})
-                else:
-                    if channel.type == discord.ChannelType.text:
-                        text_channels.append({"channel_name": channel.name, "channel_id": channel.id})
+                if payload["voice"] and channel.type == discord.ChannelType.voice:
+                    voice_channels.append({"channel_name": channel.name, "channel_id": channel.id})
+                if payload["text"] and channel.type == discord.ChannelType.text:
+                    text_channels.append({"channel_name": channel.name, "channel_id": channel.id})
 
-            if payload["voice"]:
-                channels = voice_channels
-            else:
-                channels = text_channels
+            channels = {"voice": voice_channels, "text": text_channels}
 
-            channels.reverse()
+            channels["voice"].reverse()
+            channels["text"].reverse()
 
             return web.json_response(data=channels, status=200)
         else:
