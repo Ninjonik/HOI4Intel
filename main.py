@@ -230,7 +230,7 @@ class Client(commands.Bot):
                 # await log_channel.send(embed=embed)
                 pass
 
-        if message.author != client.user and message.attachments:
+        if message.author != client.user and message.attachments and not message.author.bot:
             member = message.author
             self.cursor.execute('SELECT log_channel FROM settings WHERE guild_id=%s', (message.guild.id,))
             log_channel = self.cursor.fetchone()
