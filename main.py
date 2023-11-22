@@ -253,7 +253,8 @@ class Client(commands.Bot):
 
                         channel = await member.create_dm()
                         embed = discord.Embed(title="You have been auto-moderated",
-                                              description="One of your messages has been flagged as inappropriate which has"
+                                              description="One of your messages has been flagged as inappropriate "
+                                                          "which has"
                                                           " resulted in the following punishment(s):",
                                               color=0xe01b24)
                         embed.set_author(name="HOI4Intel")
