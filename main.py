@@ -136,7 +136,7 @@ class Client(commands.Bot):
                          "cogs.setup_custom_channels", "cogs.test", "cogs.add_hoi_game", "cogs.add_blog", "cogs.guides",
                          "cogs.start_hoi_game", "cogs.add_player_list", "cogs.end_hoi_game", "cogs.request_steam",
                          "cogs.help", "cogs.ban", "cogs.unban", "cogs.server", "cogs.gamble", "cogs.image",
-                         "cogs.crash", "cogs.clearplayerlist", "cogs.clearreservations"]
+                         "cogs.crash", "cogs.clearplayerlist", "cogs.clearreservations", "cogs.end_wuilting"]
 
     @tasks.loop(seconds=1400)
     async def refreshConnection(self):
@@ -168,7 +168,7 @@ class Client(commands.Bot):
                 log_channel = log_channel[0]
                 log_channel = message.guild.get_channel(log_channel)
             else:
-                return
+                return False
 
             try:
                 response = presets.perspective.comments().analyze(body=analyze_request).execute()
@@ -216,6 +216,7 @@ class Client(commands.Bot):
                         message.guild.id, message.content, message.author.id, toxicityValue)
                     self.cursor.execute(query, values)
                     self.connection.commit()
+                    return True
 
             except Exception as e:
                 # embed = discord.Embed(title="Auto-Moderation Error",
@@ -238,7 +239,7 @@ class Client(commands.Bot):
                 log_channel = log_channel[0]
                 log_channel = message.guild.get_channel(log_channel)
             else:
-                return
+                return False
             for attachment in message.attachments:
                 url = (f'https://api.moderatecontent.com/moderate/?key={config.moderate_content_api_key}'
                        f'&url={attachment.url}')
@@ -270,6 +271,7 @@ class Client(commands.Bot):
                         embed.set_footer(text="This message was sent to the user. Consider "
                                               "taking more actions if needed.")
                         await log_channel.send(embed=embed)
+                        return True
                         break
                     except Exception as e:
                         embed = discord.Embed(title="Auto-Moderation Error",
@@ -283,6 +285,9 @@ class Client(commands.Bot):
                         embed.add_field(name="User:", value=member, inline=True)
                         await log_channel.send(embed=embed)
                         break
+            return False
+
+        return False
 
     async def setup_hook(self):
         for ext in self.cogsList:
@@ -323,7 +328,9 @@ class Client(commands.Bot):
             print(error)
 
     async def on_message(self, message):
-        await self.check_toxicity(message)
+        if await self.check_toxicity(message):
+            return
+
         if client.user.mentioned_in(message):
             user_id = message.author.id
 
@@ -353,6 +360,69 @@ class Client(commands.Bot):
                 await message.channel.send(response.choices[0].message.content)
             except Exception:
                 await message.channel.send("❌")
+
+        # Wuilting
+
+        guild = message.guild
+        author = message.author
+        self.cursor, self.connection = config.setup()
+        self.cursor.execute('SELECT settings.wuilting_channel_id FROM settings WHERE guild_id=%s', (guild.id,))
+        wuilting_channel_id = self.cursor.fetchone()[0]
+        if wuilting_channel_id and message.channel.id == wuilting_channel_id:
+            wuilting_channel = message.guild.get_channel(wuilting_channel_id)
+            channel_history = [message async for message in wuilting_channel.history(limit=6)]
+            if len(channel_history) == 1 and not message.author.bot:
+                embed = discord.Embed(
+                    title="🌟 Welcome to the Wuilting! 🚀",
+                    description="Embark on a linguistic journey with a twist! 📜✨",
+                    color=0x3498db
+                )
+
+                embed.add_field(
+                    name="**How to Play:**",
+                    value="React with your enthusiasm to join this linguistic adventure! 🎉",
+                    inline=False
+                )
+                embed.add_field(
+                    name="**Rules:**",
+                    value="1️⃣ Only your 1. word in a message counts, others are ignored. 🤞\n"
+                          "2️⃣ You can only type if someone else has written before you. 🤔\n"
+                          "3️⃣ After a day, all words will be compiled into a text. 📅\n"
+                          "4️⃣ After a month, witness **the book** as the text transforms! 🔄",
+                    inline=False
+                )
+
+                embed.add_field(
+                    name="**Quick Reminder:**",
+                    value="The last 5 words are what everyone sees! 🕵️‍♂️",
+                    inline=False
+                )
+
+                # Ask for participation
+                embed.add_field(
+                    name="**Are you ready to shape our collective story?**",
+                    value="🌱✨",
+                    inline=False
+                )
+
+                embed.set_thumbnail(url=guild.icon)
+
+                await wuilting_channel.send(embed=embed)
+                await message.delete()
+                return
+            elif len(channel_history) > 5:
+                if not channel_history[5].author.bot:
+                    await channel_history[5].delete()
+            elif channel_history[1].author == message.author:
+                await message.delete()
+                return
+
+            if not message.author.bot:
+                message_text = message.content.split(' ')[0]
+                await _add_player_name(author.id, author.name, 0.5)
+                self.cursor.execute('INSERT INTO wuiltings (player_id, guild_id, message, created_at, updated_at) '
+                                    'VALUES (%s, %s, %s, NOW(), NOW())', (author.id, guild.id, message_text,))
+                self.connection.commit()
 
     async def on_message_edit(self, before, after):
         await self.check_toxicity(after)
@@ -500,8 +570,8 @@ class Client(commands.Bot):
             try:
                 embed = discord.Embed(title=f"HOI4Intel Warning",
                                       url="https://hoi.igportals.eu/", description=(f"{member.guild.name} is "
-                                                                                          f"protected by HOI4Intel's account "
-                                                                                          f"age check."),
+                                                                                    f"protected by HOI4Intel's account "
+                                                                                    f"age check."),
                                       color=0xff0000)
                 embed.set_thumbnail(url=member.guild.icon)
                 embed.add_field(name="Account not old enough!",

@@ -18,7 +18,7 @@ class add_record(commands.Cog):
                 host = interaction.user
                 guild = interaction.guild
                 rating_percentage = rating / 100
-                await interaction.response.send_message("Working on it...", ephemeral=True)
+                await interaction.response.send_message("👷 Working on it...", ephemeral=True)
                 await _add_player_name(host.id, host.name, 0.5)
                 await _add_player_name(player.id, player.name, 0.5)
                 cursor = self.connection.cursor()
