@@ -131,7 +131,7 @@ async def guilds_redis_sync():
         converted_mapping = {}
         for k, v in mapping.items():
             converted_mapping[k] = v if v is not None else ''
-        r.hset(f'guild:{guild["guild_id"]}', mapping=converted_mapping,)
+        r.hset(f'guild:{str(guild["guild_id"])}', mapping=converted_mapping,)
 
 
 @tasks.loop(seconds=30)
@@ -394,7 +394,7 @@ class Client(commands.Bot):
 
         guild = message.guild
         r = config.redis_connect()
-        wuilting_channel_id = r.hget(f'guild:{guild.id}', 'wuilting_channel_id')
+        wuilting_channel_id = r.hget(f'guild:{str(guild.id)}', 'wuilting_channel_id')
         if wuilting_channel_id and message.channel.id == int(wuilting_channel_id):
             wuilting_channel = message.guild.get_channel(int(wuilting_channel_id))
             channel_history = [message async for message in wuilting_channel.history(limit=6)]
@@ -449,7 +449,7 @@ class Client(commands.Bot):
 
             if not message.author.bot:
                 message_text = message.content.split(' ')[0]
-                r.rpush(f"guild:{guild.id}:wuilting", message_text)
+                r.rpush(f"guild:{str(guild.id)}:wuilting", message_text)
 
     async def on_message_edit(self, before, after):
         await self.check_toxicity(after)

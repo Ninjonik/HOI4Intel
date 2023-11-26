@@ -17,7 +17,7 @@ class EndWuilting(commands.Cog):
         if interaction.user.guild_permissions.administrator:
             guild = interaction.guild
             r = config.redis_connect()
-            wuilting_channel_id = r.hget(f'guild:{guild.id}', 'wuilting_channel_id')
+            wuilting_channel_id = r.hget(f'guild:{str(guild.id)}', 'wuilting_channel_id')
 
             if wuilting_channel_id:
 
@@ -26,8 +26,8 @@ class EndWuilting(commands.Cog):
                 wuilting_channel = interaction.guild.get_channel(int(wuilting_channel_id))
 
                 final_text = ""
-                for i in range(r.llen(f'guild:{guild.id}:wuilting')):
-                    final_text += str(r.lpop(f'guild:{guild.id}:wuilting')) + " "
+                for i in range(r.llen(f'guild:{str(guild.id)}:wuilting')):
+                    final_text += str(r.lpop(f'guild:{str(guild.id)}:wuilting')) + " "
 
                 if len(final_text > 1000):
                     fields = (len(final_text) // 1000) + 1
