@@ -328,7 +328,7 @@ class Client(commands.Bot):
         print(presets.prefix() + " Slash commands synced " + Fore.YELLOW + str(len(synced)) + " Commands")
         print(presets.prefix() + " Running the web server....")
         print(presets.prefix() + " Initializing guilds....")
-        guilds_redis_sync()
+        await guilds_redis_sync()
         print(presets.prefix() + " Initializing status....")
         if not statusLoop.is_running():
             statusLoop.start()
