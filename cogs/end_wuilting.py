@@ -29,7 +29,7 @@ class EndWuilting(commands.Cog):
                 for i in range(r.llen(f'guild:{str(guild.id)}:wuilting')):
                     final_text += str(r.lpop(f'guild:{str(guild.id)}:wuilting')) + " "
 
-                if len(final_text > 1000):
+                if len(final_text) > 1000:
                     fields = (len(final_text) // 1000) + 1
 
                 self.cursor.execute('DELETE FROM wuiltings WHERE guild_id=%s', (guild.id,))
