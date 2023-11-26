@@ -398,7 +398,7 @@ class Client(commands.Bot):
         if wuilting_channel_id and message.channel.id == int(wuilting_channel_id):
             wuilting_channel = message.guild.get_channel(int(wuilting_channel_id))
             channel_history = [message async for message in wuilting_channel.history(limit=6)]
-            if len(channel_history) == 1 and not message.author.bot:
+            if len(channel_history) <= 1 and not message.author.bot:
                 embed = discord.Embed(
                     title="🌟 Welcome to the Wuilting! 🚀",
                     description="Embark on a linguistic journey with a twist! 📜✨",
