@@ -108,14 +108,14 @@ async def guildLoop():
 
 async def guilds_redis_sync():
     cursor, connection = config.dictionary_setup()
-    cursor.execute('SELECT * FROM settings ORDER BY updated_at DESC LIMIT %s', (len(client.guilds)))
+    cursor.execute(f'SELECT * FROM settings ORDER BY updated_at DESC LIMIT {len(client.guilds)}')
     guilds = cursor.fetchall()
 
     print(presets.prefix() + " Syncing Redis database....")
 
     for guild in guilds:
         r = config.redis_connect()
-        r.hset(f'guild:{guild["guild_id"]}', mapping={
+        mapping = {
             'guild_id': guild["guild_id"],
             'guild_name': guild["guild_name"],
             'guild_desc': guild["guild_desc"],
@@ -127,7 +127,11 @@ async def guilds_redis_sync():
             'tts': guild["tts"],
             'minimal_age': guild["minimal_age"],
             'steam_verification': guild["steam_verification"],
-        },)
+        }
+        converted_mapping = {}
+        for k, v in mapping.items():
+            converted_mapping[k] = v if v is not None else ''
+        r.hset(f'guild:{guild["guild_id"]}', mapping=converted_mapping,)
 
 
 @tasks.loop(seconds=30)
