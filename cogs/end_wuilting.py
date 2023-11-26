@@ -31,6 +31,8 @@ class EndWuilting(commands.Cog):
 
                 if len(final_text) > 1000:
                     fields = (len(final_text) // 1000) + 1
+                else:
+                    fields = 1
 
                 self.cursor.execute('DELETE FROM wuiltings WHERE guild_id=%s', (guild.id,))
                 self.connection.commit()
