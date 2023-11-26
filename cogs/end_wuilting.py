@@ -16,37 +16,45 @@ class EndWuilting(commands.Cog):
     async def end_wuilting(self, interaction: discord.Interaction):
         if interaction.user.guild_permissions.administrator:
             guild = interaction.guild
-            self.cursor, self.connection = config.dictionary_setup()
-            self.cursor.execute('SELECT wuilting_channel_id FROM settings WHERE guild_id=%s', (guild.id,))
-            wuilting_channel_id = self.cursor.fetchone()["wuilting_channel_id"]
+            r = config.redis_connect()
+            wuilting_channel_id = r.hget(f'guild:{guild.id}', 'wuilting_channel_id')
 
             if wuilting_channel_id:
 
                 await interaction.response.send_message("👷 Working on it...", ephemeral=True)
 
-                wuilting_channel = interaction.guild.get_channel(wuilting_channel_id)
-
-                self.cursor.execute('SELECT message FROM wuiltings WHERE guild_id=%s', (guild.id,))
-                messages = self.cursor.fetchall()
+                wuilting_channel = interaction.guild.get_channel(int(wuilting_channel_id))
 
                 final_text = ""
-                for message in messages:
-                    final_text += message["message"] + " "
+                for i in range(r.llen(f'guild:{guild.id}:wuilting')):
+                    final_text += str(r.lpop(f'guild:{guild.id}:wuilting')) + " "
+
+                if len(final_text > 1000):
+                    fields = (len(final_text) // 1000) + 1
 
                 self.cursor.execute('DELETE FROM wuiltings WHERE guild_id=%s', (guild.id,))
                 self.connection.commit()
-                await wuilting_channel.purge(limit=10)
+                await wuilting_channel.purge(limit=100)
                 embed = discord.Embed(
                     title="🌟 Welcome to the Wuilting! 🚀",
                     description="Embark on a linguistic journey with a twist! 📜✨",
                     color=0x3498db
                 )
 
-                embed.add_field(
-                    name="**Last Wuilting:**",
-                    value=f"{final_text} 🎉",
-                    inline=False
-                )
+                for field in range(fields):
+                    if len(final_text) > 1000:
+                        embed.add_field(
+                            name="**Last Wuilting:**",
+                            value=f"{final_text}",
+                            inline=False
+                        )
+                        final_text = final_text[1000:]
+                    else:
+                        embed.add_field(
+                            name="**Last Wuilting:**",
+                            value=f"{final_text}",
+                            inline=False
+                        )
 
                 embed.add_field(
                     name="**How to Play:**",
@@ -58,8 +66,11 @@ class EndWuilting(commands.Cog):
                     name="**Rules:**",
                     value="1️⃣ Only your 1. word in a message counts, others are ignored. 🤞\n"
                           "2️⃣ You can only type if someone else has written before you. 🤔\n"
-                          "3️⃣ After a day, all words will be compiled into a text. 📅\n"
-                          "4️⃣ After a month, witness **the book** as the text transforms! 🔄",
+                          "3️⃣ If you want to end a sentence, simply put a dot after the last word, e.g., "
+                          "'afternoon.' - same goes for commas, 'afternoon,' - "
+                          "there is no need for spaces as the program adds them after each word. 📅\n"
+                          "5️⃣ After a day, all words will be compiled into a text. 🔄\n"
+                          "6️⃣ After a month, witness **the book** as the text transforms! 🔄",
                     inline=False
                 )
 
@@ -69,7 +80,6 @@ class EndWuilting(commands.Cog):
                     inline=False
                 )
 
-                # Ask for participation
                 embed.add_field(
                     name="**Are you ready to shape our collective story?**",
                     value="🌱✨",

@@ -106,6 +106,30 @@ async def guildLoop():
     local_connection.close()
 
 
+async def guilds_redis_sync():
+    cursor, connection = config.dictionary_setup()
+    cursor.execute('SELECT * FROM settings ORDER BY updated_at DESC LIMIT %s', (len(client.guilds)))
+    guilds = cursor.fetchall()
+
+    print(presets.prefix() + " Syncing Redis database....")
+
+    for guild in guilds:
+        r = config.redis_connect()
+        r.hset(f'guild:{guild["guild_id"]}', mapping={
+            'guild_id': guild["guild_id"],
+            'guild_name': guild["guild_name"],
+            'guild_desc': guild["guild_desc"],
+            'wuilting_channel_id': guild["wuilting_channel_id"],
+            'log_channel': guild["log_channel"],
+            'custom_channel': guild["custom_channel"],
+            'custom_channel_2': guild["custom_channel_2"],
+            'verify_role': guild["verify_role"],
+            'tts': guild["tts"],
+            'minimal_age': guild["minimal_age"],
+            'steam_verification': guild["steam_verification"],
+        },)
+
+
 @tasks.loop(seconds=30)
 async def statusLoop():
     await client.wait_until_ready()
@@ -304,6 +328,7 @@ class Client(commands.Bot):
         print(presets.prefix() + " Slash commands synced " + Fore.YELLOW + str(len(synced)) + " Commands")
         print(presets.prefix() + " Running the web server....")
         print(presets.prefix() + " Initializing guilds....")
+        guilds_redis_sync()
         print(presets.prefix() + " Initializing status....")
         if not statusLoop.is_running():
             statusLoop.start()
@@ -364,12 +389,10 @@ class Client(commands.Bot):
         # Wuilting
 
         guild = message.guild
-        author = message.author
-        self.cursor, self.connection = config.setup()
-        self.cursor.execute('SELECT settings.wuilting_channel_id FROM settings WHERE guild_id=%s', (guild.id,))
-        wuilting_channel_id = self.cursor.fetchone()[0]
-        if wuilting_channel_id and message.channel.id == wuilting_channel_id:
-            wuilting_channel = message.guild.get_channel(wuilting_channel_id)
+        r = config.redis_connect()
+        wuilting_channel_id = r.hget(f'guild:{guild.id}', 'wuilting_channel_id')
+        if wuilting_channel_id and message.channel.id == int(wuilting_channel_id):
+            wuilting_channel = message.guild.get_channel(int(wuilting_channel_id))
             channel_history = [message async for message in wuilting_channel.history(limit=6)]
             if len(channel_history) == 1 and not message.author.bot:
                 embed = discord.Embed(
@@ -383,12 +406,16 @@ class Client(commands.Bot):
                     value="React with your enthusiasm to join this linguistic adventure! 🎉",
                     inline=False
                 )
+
                 embed.add_field(
                     name="**Rules:**",
                     value="1️⃣ Only your 1. word in a message counts, others are ignored. 🤞\n"
                           "2️⃣ You can only type if someone else has written before you. 🤔\n"
-                          "3️⃣ After a day, all words will be compiled into a text. 📅\n"
-                          "4️⃣ After a month, witness **the book** as the text transforms! 🔄",
+                          "3️⃣ If you want to end a sentence, simply put a dot after the last word, e.g., "
+                          "'afternoon.' - same goes for commas, 'afternoon,' - "
+                          "there is no need for spaces as the program adds them after each word. 📅\n"
+                          "5️⃣ After a day, all words will be compiled into a text. 🔄\n"
+                          "6️⃣ After a month, witness **the book** as the text transforms! 🔄",
                     inline=False
                 )
 
@@ -398,7 +425,6 @@ class Client(commands.Bot):
                     inline=False
                 )
 
-                # Ask for participation
                 embed.add_field(
                     name="**Are you ready to shape our collective story?**",
                     value="🌱✨",
@@ -419,10 +445,7 @@ class Client(commands.Bot):
 
             if not message.author.bot:
                 message_text = message.content.split(' ')[0]
-                await _add_player_name(author.id, author.name, 0.5)
-                self.cursor.execute('INSERT INTO wuiltings (player_id, guild_id, message, created_at, updated_at) '
-                                    'VALUES (%s, %s, %s, NOW(), NOW())', (author.id, guild.id, message_text,))
-                self.connection.commit()
+                r.rpush(f"guild:{guild.id}:wuilting", message_text)
 
     async def on_message_edit(self, before, after):
         await self.check_toxicity(after)

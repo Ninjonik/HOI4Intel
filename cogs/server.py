@@ -76,6 +76,14 @@ class ServerCog(commands.Cog):
             guild_id = int(payload["guild_id"])
             guild_name = payload["guild_name"]
             guild_desc = payload["guild_desc"]
+            wuilting_channel_id = payload["wuilting_channel_id"]
+            r = config.redis_connect()
+            r.hset(f'guild:{guild_id}', mapping={
+                'guild_id': guild_id,
+                'guild_name': guild_name,
+                'guild_desc': guild_desc,
+                'wuilting_channel_id': wuilting_channel_id
+            })
             guild = self.bot.get_guild(guild_id)
             try:
                 await guild.edit(name=guild_name, description=guild_desc)
