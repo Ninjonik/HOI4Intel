@@ -17,7 +17,8 @@ class Advent(commands.Cog):
         self.redis = redis_connect()
 
     async def gift_action_1(self, user):
-        await user.add_roles(1179841281229324419, reason="Advent")
+        advent_role = self.guild.get_role(1179841281229324419)
+        await user.add_roles(advent_role.id, reason="Advent")
 
     async def gift_action_2(self, user):
         await user.send("Day 2 Gift: Giving a special role!")
@@ -33,7 +34,6 @@ class Advent(commands.Cog):
     async def advent(self, interaction: discord.Interaction):
         if interaction.guild_id == 820918304176340992:
             self.guild = interaction.guild
-            interaction.guild.get_role()
             today = datetime.datetime.now().day
             gift_data = self.gifts.get(today,
                                        {"action": None, "description": "🎉 Sorry, no gift today. Check back tomorrow!"})
