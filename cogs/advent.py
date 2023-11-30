@@ -10,7 +10,6 @@ class Advent(commands.Cog):
         self.guild = None
         self.client = client
         self.gifts = {
-            30: {"action": self.gift_action_1, "description": "🎁 A festive role"},
             1: {"action": self.gift_action_1, "description": "🎁 A festive role"},
             2: {"action": self.gift_action_2, "description": "🎄 Festive cookies"},
         }
