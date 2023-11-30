@@ -10,15 +10,15 @@ class Advent(commands.Cog):
         self.guild = None
         self.client = client
         self.gifts = {
-            30: {"action": self.gift_action_1, "description": "🎁 A festive role!"},
-            1: {"action": self.gift_action_1, "description": "🎁 A festive role!"},
-            2: {"action": self.gift_action_2, "description": "🎄 Festive cookies!"},
+            30: {"action": self.gift_action_1, "description": "🎁 A festive role"},
+            1: {"action": self.gift_action_1, "description": "🎁 A festive role"},
+            2: {"action": self.gift_action_2, "description": "🎄 Festive cookies"},
         }
         self.redis = redis_connect()
 
     async def gift_action_1(self, user):
         advent_role = self.guild.get_role(1179841281229324419)
-        await user.add_roles(advent_role.id, reason="Advent")
+        await user.add_roles(advent_role, reason="Advent")
 
     async def gift_action_2(self, user):
         await user.send("Day 2 Gift: Giving a special role!")
