@@ -39,18 +39,18 @@ class Advent(commands.Cog):
                                        {"action": None, "description": "🎉 Sorry, no gift today. Check back tomorrow!"})
 
             claimed_users = self.get_claimed_users(today)
-            user_id = str(interaction.author.id)
+            user_id = str(interaction.user.id)
 
             if user_id not in claimed_users:
-                await interaction.response.send_message(f"✨ {interaction.author.mention}, you've claimed today's gift: "
+                await interaction.response.send_message(f"✨ {interaction.user.mention}, you've claimed today's gift: "
                                                         f"{gift_data['description']} !", ephemeral=True)
 
                 if gift_data["action"]:
-                    await gift_data["action"](interaction.author)
+                    await gift_data["action"](interaction.user)
 
                 self.set_claimed_user(today, user_id)
             else:
-                await interaction.response.send_message(f"☃️ {interaction.author.mention}, "
+                await interaction.response.send_message(f"☃️ {interaction.user.mention}, "
                                                         f"you've already claimed today's gift!", ephemeral=True)
         else:
             await interaction.response.send_message(f"⛄ Not supported on your server :(", ephemeral=True)
