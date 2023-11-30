@@ -17,8 +17,7 @@ class Advent(commands.Cog):
         self.redis = redis_connect()
 
     async def gift_action_1(self, user):
-        advent_role = self.guild.get_role(1179841281229324419)
-        await user.add_roles(advent_role, reason="Advent")
+        await user.add_roles(1179841281229324419, reason="Advent")
 
     async def gift_action_2(self, user):
         await user.send("Day 2 Gift: Giving a special role!")
@@ -43,8 +42,8 @@ class Advent(commands.Cog):
             user_id = str(interaction.author.id)
 
             if user_id not in claimed_users:
-                await interaction.response.send_message(f"✨ {interaction.author.mention}, you've claimed today's gift! "
-                                                        f"{gift_data['description']}", ephemeral=True)
+                await interaction.response.send_message(f"✨ {interaction.author.mention}, you've claimed today's gift: "
+                                                        f"{gift_data['description']} !", ephemeral=True)
 
                 if gift_data["action"]:
                     await gift_data["action"](interaction.author)
