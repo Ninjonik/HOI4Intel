@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 import datetime
 from config import redis_connect
+from presets import _add_player_name
 
 
 class Advent(commands.Cog):
@@ -24,6 +25,7 @@ class Advent(commands.Cog):
         await user.send("Day 2 Gift: Giving a special role!")
 
     async def gift_action_3(self, user):
+        await _add_player_name(user.id, user.name, 0.5)
         self.cursor.execute("UPDATE players SET currency = 100 + %s WHERE discord_id=%s", (user.id,))
         self.connection.commit()
 
