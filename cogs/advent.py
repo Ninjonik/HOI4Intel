@@ -12,6 +12,7 @@ class Advent(commands.Cog):
         self.gifts = {
             1: {"action": self.gift_action_1, "description": "🎁 A festive role"},
             2: {"action": self.gift_action_2, "description": "🎄 Festive cookies"},
+            3: {"action": self.gift_action_3, "description": "🎅 Santa Coins"},
         }
         self.redis = redis_connect()
 
@@ -21,6 +22,10 @@ class Advent(commands.Cog):
 
     async def gift_action_2(self, user):
         await user.send("Day 2 Gift: Giving a special role!")
+
+    async def gift_action_3(self, user):
+        self.cursor.execute("UPDATE players SET currency = 100 + %s WHERE discord_id=%s", (user.id,))
+        self.connection.commit()
 
     def get_claimed_users(self, day):
         claimed_users = self.redis.smembers(f"advent:day_{day}")
