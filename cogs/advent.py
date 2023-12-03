@@ -30,7 +30,7 @@ class Advent(commands.Cog):
 
     async def gift_action_3(self, user):
         await _add_player_name(user.id, user.name, 0.5)
-        self.cursor.execute("UPDATE players SET currency = 100 + %s WHERE discord_id=%s", (user.id,))
+        self.cursor.execute("UPDATE players SET currency = 1000 + %s WHERE discord_id=%s", (user.id,))
         self.connection.commit()
 
     def get_claimed_users(self, day):
