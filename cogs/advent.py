@@ -2,6 +2,8 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import datetime
+
+import config
 from config import redis_connect
 from presets import _add_player_name
 
@@ -16,6 +18,7 @@ class Advent(commands.Cog):
             3: {"action": self.gift_action_3, "description": "🎅 Santa Coins"},
             4: {"action": self.gift_action_3, "description": "🐉 Dragon Coins"},
         }
+        self.cursor, self.connection = config.setup()
         self.redis = redis_connect()
 
     async def gift_action_1(self, user):
@@ -40,6 +43,7 @@ class Advent(commands.Cog):
     @app_commands.command(name='advent', description="Claim your daily holiday gift! 🎅🎁")
     async def advent(self, interaction: discord.Interaction):
         if interaction.guild_id == 820918304176340992:
+            self.cursor, self.connection = config.setup()
             self.guild = interaction.guild
             today = datetime.datetime.now().day
             gift_data = self.gifts.get(today,
