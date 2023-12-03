@@ -14,6 +14,7 @@ class Advent(commands.Cog):
             1: {"action": self.gift_action_1, "description": "🎁 A festive role"},
             2: {"action": self.gift_action_2, "description": "🎄 Festive cookies"},
             3: {"action": self.gift_action_3, "description": "🎅 Santa Coins"},
+            4: {"action": self.gift_action_3, "description": "🐉 Dragon Coins"},
         }
         self.redis = redis_connect()
 
