@@ -19,9 +19,13 @@ class Advent(commands.Cog):
             4: {"action": self.gift_action_3, "description": "🐉 Dragon Coins"},
             5: {"action": self.gift_action_1, "description": "📢 Announcement Pass Role"},
             6: {"action": self.gift_action_3, "description": "👑 WWC Gold Reserves"},
+            7: {"action": self.gift_action_nothing, "description": "🤣 Nothing: Come back tomorrow!"},
         }
         self.cursor, self.connection = config.setup()
         self.redis = redis_connect()
+
+    async def gift_action_nothing(self, user):
+        pass
 
     async def gift_action_1(self, user):
         advent_role = self.guild.get_role(1181292693779910718)
