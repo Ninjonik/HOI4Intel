@@ -21,6 +21,7 @@ class Advent(commands.Cog):
             6: {"action": self.gift_action_3, "description": "👑 WWC Gold Reserves"},
             7: {"action": self.gift_action_nothing, "description": "🤣 Nothing: Come back tomorrow!"},
             8: {"action": self.gift_action_1, "description": "🛷 Christmas sleigh"},
+            9: {"action": self.gift_action_1, "description": "🛷 Christmas sleigh"},
         }
         self.cursor, self.connection = config.setup()
         self.redis = redis_connect()
