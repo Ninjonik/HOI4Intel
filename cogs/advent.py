@@ -22,6 +22,7 @@ class Advent(commands.Cog):
             7: {"action": self.gift_action_nothing, "description": "🤣 Nothing: Come back tomorrow!"},
             8: {"action": self.gift_action_1, "description": "🛷 Christmas sleigh"},
             9: {"action": self.gift_action_1, "description": "🛷 Christmas sleigh"},
+            10: {"action": self.gift_action_3, "description": "🎄 Christmas coins"},
         }
         self.cursor, self.connection = config.setup()
         self.redis = redis_connect()
@@ -38,7 +39,7 @@ class Advent(commands.Cog):
 
     async def gift_action_3(self, user):
         await _add_player_name(user.id, user.name, 0.5)
-        self.cursor.execute("UPDATE players SET currency = currency + 10000 WHERE discord_id=%s", (user.id,))
+        self.cursor.execute("UPDATE players SET currency = currency + 4000 WHERE discord_id=%s", (user.id,))
         self.connection.commit()
 
     def get_claimed_users(self, day):
