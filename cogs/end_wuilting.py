@@ -47,7 +47,7 @@ class EndWuilting(commands.Cog):
                     if len(final_text) > 1000:
                         embed.add_field(
                             name="**Last Wuilting:**",
-                            value=f"{final_text}",
+                            value=f"{final_text[:1000]}",
                             inline=False
                         )
                         final_text = final_text[1000:]
