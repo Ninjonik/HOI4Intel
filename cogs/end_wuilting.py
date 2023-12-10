@@ -53,7 +53,7 @@ class EndWuilting(commands.Cog):
                         final_text = final_text[1000:]
                     else:
                         embed.add_field(
-                            name="**Last Wuilting:**",
+                            name="​",
                             value=f"{final_text}",
                             inline=False
                         )
