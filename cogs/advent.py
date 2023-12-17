@@ -29,6 +29,8 @@ class Advent(commands.Cog):
             14: {"action": self.gift_action_2, "description": "🎄 Festive cookies"},
             15: {"action": self.gift_action_3, "description": "🎅 Santa Coins"},
             16: {"action": self.gift_action_3, "description": "🐉 Dragon Coins"},
+            17: {"action": self.gift_action_3, "description": "🐉 Dragon Coins"},
+            18: {"action": self.gift_action_3, "description": "🐉 Dragon Coins"},
         }
         self.cursor, self.connection = config.setup()
         self.redis = redis_connect()
