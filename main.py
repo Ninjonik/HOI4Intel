@@ -272,7 +272,7 @@ class Client(commands.Bot):
                        f'&url={attachment.url}')
                 resp = requests.get(url=url)
                 data = resp.json()
-                if data["rating_letter"] == "a" or data["rating_letter"] == "t" or data["predictions"]["adult"] > 15:
+                if data["rating_letter"] == "a" or data["rating_letter"] == "t" or data["predictions"]["adult"] > 30:
                     await message.delete()
                     try:
                         punishment = "Original message has been deleted. You have been timed-outed for 15 seconds."
