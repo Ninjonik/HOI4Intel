@@ -292,6 +292,8 @@ class Client(commands.Bot):
                         embed.add_field(name="Punishment:", value=punishment, inline=False)
 
                         await channel.send(embed=embed)
+                        embed.add_field(name="Values", value=f"Rating: {data['rating_letter'] },\n"
+                                                             f"Adult predictions: {data['predictions']['adult']}")
                         embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
                                         inline=True)
                         embed.add_field(name="User:", value=member, inline=False)
