@@ -16,7 +16,6 @@ openai.api_key = config.openai_api_key
 openai.api_base = config.openai_api_base
 import time
 
-
 def get_logger(name, filename):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
