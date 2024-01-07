@@ -43,8 +43,9 @@ class EndWuilting(commands.Cog):
                     color=0x3498db
                 )
 
+                i = 0
                 for field in range(fields):
-                    if len(final_text) > 1000:
+                    if i == 0:
                         embed.add_field(
                             name="**Last Wuilting:**",
                             value=f"{final_text[:1000]}",
@@ -57,6 +58,7 @@ class EndWuilting(commands.Cog):
                             value=f"{final_text}",
                             inline=False
                         )
+                    i += 1
 
                 embed.add_field(
                     name="**How to Play:**",
