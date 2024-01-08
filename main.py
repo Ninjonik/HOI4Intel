@@ -200,7 +200,7 @@ class Client(commands.Bot):
                 response = presets.perspective.comments().analyze(body=analyze_request).execute()
                 toxicityValue = (response["attributeScores"]["TOXICITY"]["summaryScore"]["value"])
 
-                if toxicityValue >= 0.70:
+                if toxicityValue >= 0.65:
                     await message.delete()
                     if toxicityValue < 0.75:
                         punishment = "Original message has been deleted."
