@@ -44,7 +44,9 @@ class EndWuilting(commands.Cog):
                 )
 
                 i = 0
+                print("field:", fields)
                 for field in range(fields):
+                    print(len(final_text), field)
                     if i == 0:
                         embed.add_field(
                             name="**Last Wuilting:**",
