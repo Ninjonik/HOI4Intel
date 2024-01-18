@@ -31,8 +31,8 @@ class EndWuilting(commands.Cog):
 
                 r.rpush(f"guild:{str(guild.id)}:wuilting", final_text)
 
-                if len(final_text) > 1000:
-                    fields = (len(final_text) // 1000) + 1
+                if len(final_text) > 950:
+                    fields = (len(final_text) // 950) + 1
                 else:
                     fields = 1
 
@@ -45,21 +45,20 @@ class EndWuilting(commands.Cog):
 
                 i = 0
                 for field in range(fields):
-                    print(i, len(final_text), len(final_text[:1000]), len(final_text[1000:]))
                     if i == 0:
                         embed.add_field(
                             name="**Last Wuilting:**",
-                            value=f"{final_text[:1000]}",
+                            value=f"{final_text[:950]}",
                             inline=False
                         )
-                        final_text = final_text[1000:]
+                        final_text = final_text[950:]
                     else:
                         embed.add_field(
                             name="​",
                             value=f"{final_text}",
                             inline=False
                         )
-                        final_text = final_text[1000:]
+                        final_text = final_text[950:]
                     i += 1
 
                 embed.add_field(
