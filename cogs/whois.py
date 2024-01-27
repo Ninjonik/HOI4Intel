@@ -18,6 +18,9 @@ class whois(commands.Cog):
 
         self.cursor, self.connection = config.setup()
 
+        self.cursor.execute("SELECT * FROM players WHERE discord_id=%s" % member.id)
+        player = self.cursor.fetchone()
+
         roles = [role for role in member.roles]
         embed = discord.Embed(title="User info", description=f"{member.name}'s information",
                               color=discord.Colour.green(), timestamp=datetime.datetime.utcnow())
@@ -25,14 +28,12 @@ class whois(commands.Cog):
         embed.add_field(name="ID", value=member.id)
         embed.add_field(name="Name", value=f'{member.name}')
         embed.add_field(name="Nickname", value=member.display_name)
+        embed.add_field(name="Money", value=player.currency)
         embed.add_field(name="Status", value=member.status)
         embed.add_field(name="Created At", value=member.created_at.strftime("%#d. %B %Y %H:%M:%S UTC "))
         embed.add_field(name="Joined At", value=member.joined_at.strftime("%#d. %B %Y %H:%M:%S UTC "))
         embed.add_field(name=f"Roles [{len(roles)}]", value=" ".join([role.mention for role in roles]), inline=False)
         embed.add_field(name="Main Role", value=member.top_role.mention, inline=False)
-
-        self.cursor.execute("SELECT * FROM players WHERE discord_id=%s" % member.id)
-        player = self.cursor.fetchone()
 
         query = "SELECT SUM(rating) as SUM, COUNT(rating) AS CNT FROM player_records WHERE player_id=%s "
         if host is not None:

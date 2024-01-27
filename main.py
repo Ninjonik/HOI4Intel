@@ -1,3 +1,5 @@
+import random
+
 import discord
 import discord.utils
 from discord.ext import tasks, commands
@@ -359,6 +361,10 @@ class Client(commands.Bot):
     async def on_message(self, message):
         if await self.check_toxicity(message):
             return
+
+        # Add randomly generated money for each message based off length
+        bonus = len(message.content) * random.randint(1, 10)
+        self.cursor.execute("UPDATE players SET currency = currency + %s WHERE discord_id=%s", (bonus, message.author.id,))
 
         if client.user.mentioned_in(message):
             user_id = message.author.id
