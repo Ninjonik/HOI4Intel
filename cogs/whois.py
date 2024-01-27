@@ -25,8 +25,8 @@ class whois(commands.Cog):
         embed = discord.Embed(title="User info", description=f"{member.name}'s information",
                               color=discord.Colour.green(), timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=member.avatar)
-        embed.add_field(name="ID", value=member.id)
-        embed.add_field(name="Name", value=f'{member.name}')
+        embed.add_field(name="ID", value=member.id, inline=False)
+        embed.add_field(name="Name", value=f'{member.name}', inline=False)
         embed.add_field(name="Nickname", value=member.display_name)
         embed.add_field(name="Money", value=player[9])
         embed.add_field(name="Status", value=member.status)
