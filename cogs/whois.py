@@ -30,8 +30,8 @@ class whois(commands.Cog):
         embed.add_field(name="Nickname", value=member.display_name)
         embed.add_field(name="Money", value=player[9])
         embed.add_field(name="Status", value=member.status)
-        embed.add_field(name="Created At", value=member.created_at.strftime("%#d. %B %Y %H:%M:%S UTC "))
-        embed.add_field(name="Joined At", value=member.joined_at.strftime("%#d. %B %Y %H:%M:%S UTC "))
+        embed.add_field(name="Created At", value=member.created_at.strftime("%#d. %B %Y %H:%M:%S UTC "), inline=False)
+        embed.add_field(name="Joined At", value=member.joined_at.strftime("%#d. %B %Y %H:%M:%S UTC "), inline=False)
         embed.add_field(name=f"Roles [{len(roles)}]", value=" ".join([role.mention for role in roles]), inline=False)
         embed.add_field(name="Main Role", value=member.top_role.mention, inline=False)
 
