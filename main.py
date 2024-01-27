@@ -365,6 +365,7 @@ class Client(commands.Bot):
         # Add randomly generated money for each message based off length
         bonus = len(message.content) * random.randint(1, 10)
         self.cursor.execute("UPDATE players SET currency = currency + %s WHERE discord_id=%s", (bonus, message.author.id,))
+        self.connection.commit()
 
         if client.user.mentioned_in(message):
             user_id = message.author.id

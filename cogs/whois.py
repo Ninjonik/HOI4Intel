@@ -28,7 +28,7 @@ class whois(commands.Cog):
         embed.add_field(name="ID", value=member.id)
         embed.add_field(name="Name", value=f'{member.name}')
         embed.add_field(name="Nickname", value=member.display_name)
-        embed.add_field(name="Money", value=player.currency)
+        embed.add_field(name="Money", value=player[9])
         embed.add_field(name="Status", value=member.status)
         embed.add_field(name="Created At", value=member.created_at.strftime("%#d. %B %Y %H:%M:%S UTC "))
         embed.add_field(name="Joined At", value=member.joined_at.strftime("%#d. %B %Y %H:%M:%S UTC "))
