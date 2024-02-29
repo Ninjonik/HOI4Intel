@@ -202,15 +202,15 @@ class Client(commands.Bot):
                 response = presets.perspective.comments().analyze(body=analyze_request).execute()
                 toxicityValue = (response["attributeScores"]["TOXICITY"]["summaryScore"]["value"])
 
-                if toxicityValue >= 0.65:
+                if toxicityValue >= 0.70:
                     await message.delete()
                     if toxicityValue < 0.75:
                         punishment = "Original message has been deleted."
-                    elif 0.75 <= toxicityValue < 0.9:
+                    elif 0.75 <= toxicityValue < 0.85:
                         punishment = "Original message has been deleted. You have been timed-outed for 5 minutes."
                         timeMessage = datetime.datetime.now().astimezone() + datetime.timedelta(minutes=5)
                         await member.timeout(timeMessage, reason=f"Inappropriate message with value {toxicityValue}")
-                    elif 0.9 <= toxicityValue < 0.95:
+                    elif 0.85 <= toxicityValue < 0.90:
                         punishment = "Original message has been deleted. You have been timed-outed for 15 minutes."
                         timeMessage = datetime.datetime.now().astimezone() + datetime.timedelta(minutes=15)
                         await member.timeout(timeMessage, reason=f"Inappropriate message with value {toxicityValue}")
