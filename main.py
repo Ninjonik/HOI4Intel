@@ -93,19 +93,6 @@ async def update_guild_data(guilds):
         # print(f"{presets.prefix()} Guild {guild.name} initialized!")
 
 
-@tasks.loop(seconds=60)
-async def guildLoop():
-    # Establish database connection
-    local_cursor, local_connection = config.setup()
-    guildCount = len(client.guilds)
-    local_cursor.execute("SELECT count(guild_id) as Counter FROM settings")
-    dbCount = local_cursor.fetchone()
-    if guildCount != int(dbCount[0]):
-        print(presets.prefix() + " New guild was detected, restarting loop.")
-        await update_guild_data(client.guilds)
-    local_connection.close()
-
-
 async def guilds_redis_sync():
     cursor, connection = config.dictionary_setup()
     cursor.execute(f'SELECT * FROM settings ORDER BY updated_at DESC LIMIT {len(client.guilds)}')
@@ -338,8 +325,6 @@ class Client(commands.Bot):
         print(presets.prefix() + " Initializing status....")
         if not statusLoop.is_running():
             statusLoop.start()
-        if not guildLoop.is_running():
-            guildLoop.start(),
         if not update_guild_data.is_running():
             update_guild_data.start(self.guilds)
         print(presets.prefix() + " Removing non-deleted Custom Channels.")
@@ -461,9 +446,13 @@ class Client(commands.Bot):
     async def on_message_edit(self, before, after):
         await self.check_toxicity(after)
 
+    async def on_guild_remove(self, guild):
+        pass
+
     async def on_guild_join(self, guild):
         general = await guild.create_text_channel("📢hoi4intel-bot-info")
         await general.edit(position=0)
+
         if general and general.permissions_for(guild.me).send_messages:
             embed = discord.Embed(title="How to setup the bot?",
                                   description="To setup the bot you need to run the following commands",
@@ -486,6 +475,16 @@ class Client(commands.Bot):
                      f"contacting the Staff Team.\n"
                      f"Discord: {config.discord_invite_url}")
             await general.send("You may delete this channel now.", embed=embed)
+
+        try:
+            cursor.execute(
+            "INSERT INTO settings (created_at, updated_at, guild_name, "
+            "guild_id) VALUES (NOW(), NOW(), %s, %s)",
+            "ON DUPLICATE KEY UPDATE guild_name = %s, updated_at = NOW()",
+            ((guild.name, guild.id, guild.name)))
+            connection.commit() 
+        except Exception as e:
+            print(e)
 
     async def on_voice_state_update(self, member, before, after):
         await self.refreshConnection()
