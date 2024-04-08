@@ -18,6 +18,7 @@ openai.api_key = config.openai_api_key
 openai.api_base = config.openai_api_base
 import time
 
+
 def get_logger(name, filename):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
@@ -119,7 +120,7 @@ async def guilds_redis_sync():
         converted_mapping = {}
         for k, v in mapping.items():
             converted_mapping[k] = v if v is not None else ''
-        r.hset(f'guild:{str(guild["guild_id"])}', mapping=converted_mapping,)
+        r.hset(f'guild:{str(guild["guild_id"])}', mapping=converted_mapping, )
 
 
 @tasks.loop(seconds=30)
@@ -285,7 +286,7 @@ class Client(commands.Bot):
                         embed.add_field(name="Punishment:", value=punishment, inline=False)
 
                         await channel.send(embed=embed)
-                        embed.add_field(name="Values", value=f"Rating: {data['rating_letter'] },\n"
+                        embed.add_field(name="Values", value=f"Rating: {data['rating_letter']},\n"
                                                              f"Adult predictions: {data['predictions']['adult']}")
                         embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
                                         inline=True)
@@ -352,10 +353,14 @@ class Client(commands.Bot):
         if await self.check_toxicity(message):
             return
 
-        # Add randomly generated money for each message based off length
-        bonus = len(message.content) * random.randint(1, 10)
-        self.cursor.execute("UPDATE players SET currency = currency + %s WHERE discord_id=%s", (bonus, message.author.id,))
-        self.connection.commit()
+        try:
+            # Add randomly generated money for each message based off length
+            bonus = len(message.content) * random.randint(1, 10)
+            self.cursor.execute("UPDATE players SET currency = currency + %s WHERE discord_id=%s",
+                                (bonus, message.author.id,))
+            self.connection.commit()
+        except Exception as e:
+            print(e)
 
         if client.user.mentioned_in(message):
             user_id = message.author.id
@@ -483,11 +488,11 @@ class Client(commands.Bot):
 
         try:
             cursor.execute(
-            "INSERT INTO settings (created_at, updated_at, guild_name, "
-            "guild_id) VALUES (NOW(), NOW(), %s, %s)",
-            "ON DUPLICATE KEY UPDATE guild_name = %s, updated_at = NOW()",
-            ((guild.name, guild.id, guild.name)))
-            connection.commit() 
+                "INSERT INTO settings (created_at, updated_at, guild_name, "
+                "guild_id) VALUES (NOW(), NOW(), %s, %s)",
+                "ON DUPLICATE KEY UPDATE guild_name = %s, updated_at = NOW()",
+                ((guild.name, guild.id, guild.name)))
+            connection.commit()
         except Exception as e:
             print(e)
 
