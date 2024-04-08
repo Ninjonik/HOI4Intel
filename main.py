@@ -125,6 +125,7 @@ async def guilds_redis_sync():
             'custom_channel_2': guild["custom_channel_2"],
             'verify_role': guild["verify_role"],
             'tts': guild["tts"],
+            'automod': guild["automod"],
             'minimal_age': guild["minimal_age"],
             'steam_verification': guild["steam_verification"],
         }
@@ -177,7 +178,9 @@ class Client(commands.Bot):
     async def check_toxicity(self, message):
         self.cursor, self.connection = config.setup()
         toxicityValue = 0
-        if message.author != client.user and message.content:
+        r = config.redis_connect()
+        automod = r.hget(f'guild:{str(message.guild.id)}', 'automod')
+        if message.author != client.user and message.content and automod:
             message.content = (message.content[:75] + '..') if len(message.content) > 75 else message.content
             member = message.author
             analyze_request = {
