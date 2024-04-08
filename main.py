@@ -165,9 +165,7 @@ class Client(commands.Bot):
     async def check_toxicity(self, message):
         self.cursor, self.connection = config.setup()
         toxicityValue = 0
-        r = config.redis_connect()
-        automod = r.hget(f'guild:{str(message.guild.id)}', 'automod')
-        if message.author != client.user and message.content and automod:
+        if message.author != client.user and message.content:
             message.content = (message.content[:75] + '..') if len(message.content) > 75 else message.content
             member = message.author
             analyze_request = {
@@ -181,6 +179,10 @@ class Client(commands.Bot):
                 message.guild.id, message.content, message.author.id, toxicityValue)
             self.cursor.execute(query, values)
             self.cursor.execute('SELECT log_channel FROM settings WHERE guild_id=%s', (message.guild.id,))
+            r = config.redis_connect()
+            automod = r.hget(f'guild:{str(message.guild.id)}', 'automod')
+            if not automod:
+                return False
             log_channel = self.cursor.fetchone()
             if log_channel and log_channel[0]:
                 log_channel = log_channel[0]
