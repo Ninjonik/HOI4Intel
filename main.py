@@ -181,7 +181,7 @@ class Client(commands.Bot):
             self.cursor.execute('SELECT log_channel FROM settings WHERE guild_id=%s', (message.guild.id,))
             r = config.redis_connect()
             automod = r.hget(f'guild:{str(message.guild.id)}', 'automod')
-            if not automod:
+            if not automod or automod == '0' or automod == 0:
                 return False
             log_channel = self.cursor.fetchone()
             if log_channel and log_channel[0]:
