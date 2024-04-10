@@ -551,7 +551,7 @@ class Client(commands.Bot):
             overwrite.connect = True
             overwrite.speak = True
 
-            if channel.id == db_custom_channel[0]:
+            if db_custom_channel and channel.id == db_custom_channel[0]:
                 custom_channel = await guild.create_voice_channel(f"TC | {member.display_name}",
                                                                   category=channel.category)
                 await custom_channel.set_permissions(member, overwrite=overwrite,

@@ -21,7 +21,7 @@ class add_hoi_game(commands.Cog):
                            rating_required='Set a minimum rating required to reserve a nation.',
                            steam_required='Is steam verification required to reserve a nation?')
     async def add_hoi_game(self, interaction: discord.Interaction, date_time: str, time_zone: str, announcement_channel:
-    discord.TextChannel, title: str, description: str, lobby_vc: discord.VoiceChannel,
+                           discord.TextChannel, title: str, description: str, lobby_vc: discord.VoiceChannel,
                            global_database: bool = False, rating_required: int = 0, steam_required: bool = False):
         self.cursor, self.connection = config.setup()
         if interaction.user.guild_permissions.administrator:
@@ -92,7 +92,8 @@ class add_hoi_game(commands.Cog):
 
             guild_event = await interaction.guild.create_scheduled_event(name=title, start_time=datetime_obj,
                                                                          description=description, channel=lobby_vc,
-                                                                         entity_type=discord.EntityType.voice, privacy_level=discord.PrivacyLevel.guild_only)
+                                                                         entity_type=discord.EntityType.voice,
+                                                                         privacy_level=discord.PrivacyLevel.guild_only)
 
             # Store datetime and timezone in MySQL database
             sql = "INSERT INTO events (guild_id, host_id, channel_id, event_start, rating_required, " \
@@ -108,9 +109,9 @@ class add_hoi_game(commands.Cog):
 
             original_message = await interaction.original_response()
             await original_message.edit(content=f"Event added successfully!\nLobby URL for verified hosts: "
-                                                    f"{config.ws_url}/dashboard/guild/{interaction.guild.id}/lobby/{lobby_vc.id}\n"
-                                                    f"If you want to apply join our communication server: "
-                                                    f"{config.discord_invite_url}")
+                                                f"{config.ws_url}/dashboard/guild/{interaction.guild.id}/lobby/{lobby_vc.id}\n"
+                                                f"If you want to apply join our communication server: "
+                                                f"{config.discord_invite_url}")
 
 
 async def setup(client: commands.Bot) -> None:
