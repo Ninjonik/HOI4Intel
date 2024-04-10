@@ -223,17 +223,6 @@ class UpdateRoles(discord.ui.View):
         msg = await interaction.response.send_message("Your roles have been updated.", ephemeral=True)
 
 
-class test_modal(discord.ui.Modal, title='Questionnaire Response'):
-    name = discord.ui.TextInput(label='Name')
-    answer = discord.ui.TextInput(label='Answer', style=discord.TextStyle.paragraph)
-
-    async def on_submit(self, interaction: discord.Interaction):
-        await interaction.response.send_message(f'Thanks for your response, {self.name}!', ephemeral=True)
-
-    async def on_error(self, interaction: discord.Interaction):
-        await interaction.response.send_message('There was an error while processing the request.')
-
-
 class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
     country = discord.ui.TextInput(label='Country Name')
 
@@ -390,7 +379,7 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
         embed.set_footer(text=f"Event ID:{interaction.message.id}")
         await interaction.message.edit(embed=embed)
 
-    async def on_error(self, interaction: discord.Interaction):
+    async def on_error(self, interaction: discord.Interaction, error):
         await interaction.response.send_message('There was an error while processing the request.', ephemeral=True)
 
 
