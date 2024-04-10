@@ -573,7 +573,7 @@ class Client(commands.Bot):
 
     async def send_join_request(self, player, lobby_id):
         url = f"{config.ws_url}/lobby/send"
-        rating = await _add_player_name(player.id, player.name, 0.5)
+        rating = await presets._add_player_name(player.id, player.name, 0.5)
         payload = {
             "user": {
                 "discord_id": f"{player.id}",
