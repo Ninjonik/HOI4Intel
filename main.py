@@ -395,63 +395,64 @@ class Client(commands.Bot):
         # Wuilting
 
         guild = message.guild
-        r = config.redis_connect()
-        wuilting_channel_id = r.hget(f'guild:{str(guild.id)}', 'wuilting_channel_id')
-        if wuilting_channel_id and message.channel.id == int(wuilting_channel_id):
-            wuilting_channel = message.guild.get_channel(int(wuilting_channel_id))
-            channel_history = [message async for message in wuilting_channel.history(limit=6)]
-            if len(channel_history) <= 1 and not message.author.bot:
-                embed = discord.Embed(
-                    title="🌟 Welcome to the Wuilting! 🚀",
-                    description="Embark on a linguistic journey with a twist! 📜✨",
-                    color=0x3498db
-                )
+        if guild:
+            r = config.redis_connect()
+            wuilting_channel_id = r.hget(f'guild:{str(guild.id)}', 'wuilting_channel_id')
+            if wuilting_channel_id and message.channel.id == int(wuilting_channel_id):
+                wuilting_channel = message.guild.get_channel(int(wuilting_channel_id))
+                channel_history = [message async for message in wuilting_channel.history(limit=6)]
+                if len(channel_history) <= 1 and not message.author.bot:
+                    embed = discord.Embed(
+                        title="🌟 Welcome to the Wuilting! 🚀",
+                        description="Embark on a linguistic journey with a twist! 📜✨",
+                        color=0x3498db
+                    )
 
-                embed.add_field(
-                    name="**How to Play:**",
-                    value="React with your enthusiasm to join this linguistic adventure! 🎉",
-                    inline=False
-                )
+                    embed.add_field(
+                        name="**How to Play:**",
+                        value="React with your enthusiasm to join this linguistic adventure! 🎉",
+                        inline=False
+                    )
 
-                embed.add_field(
-                    name="**Rules:**",
-                    value="1️⃣ Only your 1. word in a message counts, others are ignored. 🤞\n"
-                          "2️⃣ You can only type if someone else has written before you. 🤔\n"
-                          "3️⃣ If you want to end a sentence, simply put a dot after the last word, e.g., "
-                          "'afternoon.' - same goes for commas, 'afternoon,' - "
-                          "there is no need for spaces as the program adds them after each word. 📅\n"
-                          "5️⃣ After a day, all words will be compiled into a text. 🔄\n"
-                          "6️⃣ After a month, witness **the book** as the text transforms! 🔄",
-                    inline=False
-                )
+                    embed.add_field(
+                        name="**Rules:**",
+                        value="1️⃣ Only your 1. word in a message counts, others are ignored. 🤞\n"
+                              "2️⃣ You can only type if someone else has written before you. 🤔\n"
+                              "3️⃣ If you want to end a sentence, simply put a dot after the last word, e.g., "
+                              "'afternoon.' - same goes for commas, 'afternoon,' - "
+                              "there is no need for spaces as the program adds them after each word. 📅\n"
+                              "5️⃣ After a day, all words will be compiled into a text. 🔄\n"
+                              "6️⃣ After a month, witness **the book** as the text transforms! 🔄",
+                        inline=False
+                    )
 
-                embed.add_field(
-                    name="**Quick Reminder:**",
-                    value="The last 5 words are what everyone sees! 🕵️‍♂️",
-                    inline=False
-                )
+                    embed.add_field(
+                        name="**Quick Reminder:**",
+                        value="The last 5 words are what everyone sees! 🕵️‍♂️",
+                        inline=False
+                    )
 
-                embed.add_field(
-                    name="**Are you ready to shape our collective story?**",
-                    value="🌱✨",
-                    inline=False
-                )
+                    embed.add_field(
+                        name="**Are you ready to shape our collective story?**",
+                        value="🌱✨",
+                        inline=False
+                    )
 
-                embed.set_thumbnail(url=guild.icon)
+                    embed.set_thumbnail(url=guild.icon)
 
-                await wuilting_channel.send(embed=embed)
-                await message.delete()
-                return
-            elif len(channel_history) > 5:
-                if not channel_history[5].author.bot:
-                    await channel_history[5].delete()
-            elif channel_history[1].author == message.author:
-                await message.delete()
-                return
+                    await wuilting_channel.send(embed=embed)
+                    await message.delete()
+                    return
+                elif len(channel_history) > 5:
+                    if not channel_history[5].author.bot:
+                        await channel_history[5].delete()
+                elif channel_history[1].author == message.author:
+                    await message.delete()
+                    return
 
-            if not message.author.bot:
-                message_text = message.content.split(' ')[0]
-                r.rpush(f"guild:{str(guild.id)}:wuilting", message_text)
+                if not message.author.bot:
+                    message_text = message.content.split(' ')[0]
+                    r.rpush(f"guild:{str(guild.id)}:wuilting", message_text)
 
     async def on_message_edit(self, before, after):
         await self.check_toxicity(after)
