@@ -289,7 +289,7 @@ class ReserveNation(discord.ui.Modal, title='Reserve a nation!'):
         else:
             player_rating = profile_link[1]
 
-        if player_rating < event_data[7]:
+        if player_rating and event_data and event_data[7] and player_rating < event_data[7]:
             await interaction.response.send_message(f"You don't have enough rating to reserve for this game!",
                                                     ephemeral=True)
             return
