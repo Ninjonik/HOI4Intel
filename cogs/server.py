@@ -109,7 +109,7 @@ class ServerCog(commands.Cog):
                 await player.edit(nick=player_new_name)
                 return web.json_response(data={"success": "success"}, status=200)
             except Exception as e:
-                return web.json_response(data={"error": e})
+                return web.json_response(data={"error": "not enough permissions to change user nickname"}, status=403)
         else:
             return web.json_response(data={"error": "not authorized"}, status=403)
 

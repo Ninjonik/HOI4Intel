@@ -558,7 +558,7 @@ class Client(commands.Bot):
                 await custom_channel.set_permissions(member, overwrite=overwrite,
                                                      reason="Owner of Custom Channel.")
                 await member.move_to(custom_channel)
-            elif channel.id == db_custom_channel[1]:
+            elif db_custom_channel and channel.id == db_custom_channel[1]:
                 for voice_channel in guild.voice_channels:
                     if voice_channel.name.startswith("PC") and voice_channel.name.endswith(member.display_name):
                         await voice_channel.delete()
