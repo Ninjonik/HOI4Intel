@@ -90,6 +90,8 @@ class add_hoi_game(commands.Cog):
             embed.set_footer(text=f"Event ID:{message.id}")
             await message.edit(embed=embed)
 
+            await presets._add_player_name(interaction.user.id, interaction.user.name, 0.5)
+
             guild_event = await interaction.guild.create_scheduled_event(name=title, start_time=datetime_obj,
                                                                          description=description, channel=lobby_vc,
                                                                          entity_type=discord.EntityType.voice,
