@@ -23,7 +23,7 @@ class add_hoi_game(commands.Cog):
                            steam_required='Is steam verification required to reserve a nation?')
     async def add_hoi_game(self, interaction: discord.Interaction, date_time: str, time_zone: str, announcement_channel:
                            discord.TextChannel, title: str, description: str, lobby_vc: discord.VoiceChannel,
-                           reservation: bool = True,
+                           reservation: bool,
                            global_database: bool = False, rating_required: int = 0, steam_required: bool = False):
         self.cursor, self.connection = config.setup()
         if interaction.user.guild_permissions.administrator:
