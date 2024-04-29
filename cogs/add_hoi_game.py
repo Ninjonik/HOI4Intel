@@ -17,11 +17,13 @@ class add_hoi_game(commands.Cog):
                            date_time="Example: Day.Month.Year Hours:Minutes, (UTC)"
                                      'Example: "24.12.2023 23:56"',
                            time_zone='Example: "Europe/Berlin"',
+                           reservation='Are reservations enabled for this game?',
                            announcement_channel='Channel into which announcement about this event will be posted.',
                            rating_required='Set a minimum rating required to reserve a nation.',
                            steam_required='Is steam verification required to reserve a nation?')
     async def add_hoi_game(self, interaction: discord.Interaction, date_time: str, time_zone: str, announcement_channel:
                            discord.TextChannel, title: str, description: str, lobby_vc: discord.VoiceChannel,
+                           reservation: bool = True,
                            global_database: bool = False, rating_required: int = 0, steam_required: bool = False):
         self.cursor, self.connection = config.setup()
         if interaction.user.guild_permissions.administrator:
@@ -60,7 +62,12 @@ class add_hoi_game(commands.Cog):
                 description=description,
                 colour=discord.Colour.green()
             )
-            message = await announcement_channel.send(embed=embed, view=presets.ReserveDialog(self.client))
+
+            if reservation:
+                message = await announcement_channel.send(embed=embed, view=presets.ReserveDialog(self.client))
+            else:
+                message = await announcement_channel.send(embed=embed)
+
             embed = discord.Embed(
                 title=f"**New event: {title}**",
                 description=description,
@@ -72,21 +79,24 @@ class add_hoi_game(commands.Cog):
                 value=f'<t:{int(datetime.datetime.timestamp(datetime_obj))}>',
                 inline=False,
             )
-            embed.add_field(
-                name="Reserve a nation!",
-                value='Click on the "Reserve" button to reserve a nation!',
-                inline=True,
-            )
-            embed.add_field(
-                name="Minimal rating:",
-                value=f'{rating_required}%',
-                inline=True,
-            )
-            embed.add_field(
-                name="Steam verification required:",
-                value=steam_required,
-                inline=True,
-            )
+            if reservation:
+                embed.add_field(
+                    name="Reserve a nation!",
+                    value='Click on the "Reserve" button to reserve a nation!',
+                    inline=True,
+                )
+            if rating_required != 0:
+                embed.add_field(
+                    name="Minimal rating:",
+                    value=f'{rating_required}%',
+                    inline=False,
+                )
+            if steam_required:
+                embed.add_field(
+                    name="Steam verification required:",
+                    value=steam_required,
+                    inline=False,
+                )
             embed.set_footer(text=f"Event ID:{message.id}")
             await message.edit(embed=embed)
 
