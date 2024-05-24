@@ -12,6 +12,7 @@ import presets
 import logging
 import requests
 import time
+from typing import List, Dict
 
 
 def get_logger(name, filename):
@@ -52,6 +53,34 @@ global cursor
 global connection
 
 user_cooldowns = {}
+
+
+async def send_log_embed(guild: discord.Guild, user: discord.Member, title: str,
+                         description: str, fields: List[Dict[str, str]], additional: List[Dict[str, str]],
+                         color: discord.Color = discord.Color.blurple()):
+    if user.id == client.user.id: return
+
+    channel_id = 837333310140579861  # TODO: hardcoded for now
+    channel = client.get_channel(channel_id)
+
+    embed = discord.Embed(title=title, description=description, color=color)
+    embed.set_author(name=user.name, icon_url=user.avatar.url)
+    embed.set_thumbnail(url=guild.icon.url)
+
+    # Add the fields
+    for field in fields:
+        embed.add_field(name=field["title"], value=field["description"], inline=False)
+
+    # Add the additional fields
+    result = "```js\n"
+    result += f"User = {str(user.id)} \n"
+    for field in additional:
+        result += f"{field['title']} = {field['description']} \n"
+    result += "```"
+    embed.add_field(name="Additional information", value=result, inline=False)
+
+    embed.set_footer(text=f"HOI4Intel Logging | {datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S')}")
+    await channel.send(embed=embed)
 
 
 async def on_start(server_name, server_description, guild_id, guild_count):
@@ -419,8 +448,52 @@ class Client(commands.Bot):
                     message_text = message.content.split(' ')[0]
                     r.rpush(f"guild:{str(guild.id)}:wuilting", message_text)
 
-    async def on_message_edit(self, before, after):
+    async def on_message_edit(self, before: discord.Message, after: discord.Message) -> None:
+        await send_log_embed(
+            after.guild,
+            before.author,
+            "Message edited",
+            f"Message has been edited in {after.channel.mention}",
+            [
+                {
+                    "title": "Previous message",
+                    "description": before.content
+                },
+                {
+                    "title": "Current message",
+                    "description": after.content
+                }
+            ],
+            [
+                {
+                    "title": "Message",
+                    "description": str(after.id)
+                }
+            ],
+            discord.Color.blue()
+        )
         await self.check_toxicity(after)
+
+    async def on_message_delete(self, message: discord.Message) -> None:
+        await send_log_embed(
+            message.guild,
+            message.author,
+            "Message removed",
+            f"Message was removed in {message.channel.mention}",
+            [
+                {
+                    "title": "Message Content",
+                    "description": message.content
+                }
+            ],
+            [
+                {
+                    "title": "Message",
+                    "description": str(message.id)
+                }
+            ],
+            discord.Color.red()
+        )
 
     async def on_guild_remove(self, guild):
         pass
@@ -567,7 +640,28 @@ class Client(commands.Bot):
         }
         response = await presets.send_http_request(url, payload)
 
-    async def on_member_join(self, member):
+    async def on_member_join(self, member: discord.Member):
+
+        await send_log_embed(
+            member.guild,
+            member,
+            "Member joined",
+            f"A new user {member.mention} has joined",
+            [
+                {
+                    "title": "Account Age",
+                    "description": f"<t:{int(round(member.created_at.timestamp()))}:F> - "
+                                   f"<t:{int(round(member.created_at.timestamp()))}:R>"
+                },
+                {
+                    "title": "New member count",
+                    "description": member.guild.member_count
+                }
+            ],
+            [],
+            discord.Color.green()
+        )
+
         self.cursor, self.connection = config.setup()
         self.cursor.execute("SELECT minimal_age FROM settings WHERE guild_id=%s", (member.guild.id,))
         minimal_age = self.cursor.fetchone()[0]
@@ -621,6 +715,88 @@ class Client(commands.Bot):
                 print(e)
                 channel = member.guild.system_channel
                 await channel.send(member.mention, embed=embed)
+
+    async def on_member_remove(self, member: discord.Member):
+        await send_log_embed(
+            member.guild,
+            member,
+            "Member left",
+            f"A user {member.mention} left",
+            [
+                {
+                    "title": "Account Age",
+                    "description": f"<t:{int(round(member.created_at.timestamp()))}:F> - "
+                                   f"<t:{int(round(member.created_at.timestamp()))}:R>"
+                },
+                {
+                    "title": "Time in server",
+                    "description": f"<t:{int(round(member.joined_at.timestamp()))}:F> - "
+                                   f"<t:{int(round(member.joined_at.timestamp()))}:R>"
+                },
+                {
+                    "title": "New member count",
+                    "description": member.guild.member_count
+                }
+            ],
+            [],
+            discord.Color.red()
+        )
+
+    async def on_member_ban(self, member: discord.Member):
+        async for entry in member.guild.audit_logs(limit=1, action=discord.AuditLogAction.ban):
+            await send_log_embed(
+                member.guild,
+                member,
+                "Member has been banned",
+                f"User {member.mention} has been banned by {entry.user.mention}",
+                [
+                    {
+                        "title": "Account Age",
+                        "description": f"<t:{int(round(member.created_at.timestamp()))}:F> - "
+                                       f"<t:{int(round(member.created_at.timestamp()))}:R>"
+                    },
+                    {
+                        "title": "Time in server",
+                        "description": f"<t:{int(round(member.joined_at.timestamp()))}:F> - "
+                                       f"<t:{int(round(member.joined_at.timestamp()))}:R>"
+                    },
+                    {
+                        "title": "Reason",
+                        "description": f"{entry.reason}"
+                    },
+                    {
+                        "title": "New member count",
+                        "description": member.guild.member_count
+                    }
+                ],
+                [
+                    {
+                        "title": "Banner",
+                        "description": entry.user.id
+                    }
+                ],
+                discord.Color.dark_red()
+            )
+
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        await send_log_embed(
+            after.guild,
+            after,
+            "Member update",
+            "The member has updated their profile",
+            [
+                {
+                    "title": "Previous nickname",
+                    "description": before.nick
+                },
+                {
+                    "title": "New nickname",
+                    "description": after.nick
+                }
+            ],
+            [],
+            discord.Color.teal()
+        )
 
 
 client = Client()
