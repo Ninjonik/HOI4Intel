@@ -1,5 +1,4 @@
 import random
-
 import discord
 import discord.utils
 from discord.ext import tasks, commands
@@ -11,11 +10,7 @@ import datetime
 import config
 import presets
 import logging
-import openai
 import requests
-
-openai.api_key = config.openai_api_key
-openai.api_base = config.openai_api_base
 import time
 
 
@@ -152,7 +147,7 @@ class Client(commands.Bot):
                          "cogs.clear", "cogs.setup", "cogs.add_record", "cogs.verify", "cogs.announce",
                          "cogs.setup_custom_channels", "cogs.test", "cogs.add_hoi_game", "cogs.add_blog", "cogs.guides",
                          "cogs.start_hoi_game", "cogs.add_player_list", "cogs.end_hoi_game", "cogs.request_steam",
-                         "cogs.help", "cogs.ban", "cogs.unban", "cogs.server", "cogs.gamble", "cogs.image",
+                         "cogs.help", "cogs.ban", "cogs.unban", "cogs.server", "cogs.gamble",
                          "cogs.crash", "cogs.clearplayerlist", "cogs.clearreservations", "cogs.end_wuilting"]
 
     @tasks.loop(seconds=1400)
@@ -361,36 +356,6 @@ class Client(commands.Bot):
             self.connection.commit()
         except Exception as e:
             print(e)
-
-        if client.user.mentioned_in(message):
-            user_id = message.author.id
-
-            if user_id in user_cooldowns:
-                last_message_time = user_cooldowns[user_id]
-                current_time = time.time()
-                print("# Check if the user has a cooldown record")
-
-                if current_time - last_message_time < 5:
-                    print("# Ignore the message as the cooldown hasn't expired yet")
-                    return
-
-            if "@everyone" in message.content or "@here" in message.content:
-                return
-
-            print("# Update the user's last message timestamp to the current time")
-            user_cooldowns[user_id] = time.time()
-            try:
-                await message.channel.typing()
-                clear_message = message.content.replace(client.user.mention, '').strip()
-                response = openai.ChatCompletion.create(
-                    model='gpt-3.5-turbo',
-                    messages=[
-                        {'role': 'user', 'content': clear_message},
-                    ]
-                )
-                await message.channel.send(response.choices[0].message.content)
-            except Exception:
-                await message.channel.send("❌")
 
         # Wuilting
 

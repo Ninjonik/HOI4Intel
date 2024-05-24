@@ -12,10 +12,6 @@ moderate_content_api_key = ''
 # TOKEN FOR COMMUNICATION BETWEEN DASHBOARD AND BOT
 comms_token = ''
 
-# AI Commands
-openai_api_key = ""
-openai_api_base = ""
-
 # Dashboard Server URL
 ws_url = "http://localhost:8000"
 discord_invite_url = ""
