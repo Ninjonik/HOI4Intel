@@ -449,6 +449,7 @@ class Client(commands.Bot):
                     r.rpush(f"guild:{str(guild.id)}:wuilting", message_text)
 
     async def on_message_edit(self, before: discord.Message, after: discord.Message) -> None:
+        if before == "" and after == "": return
         await send_log_embed(
             after.guild,
             before.author,
@@ -784,17 +785,19 @@ class Client(commands.Bot):
             after,
             "Member update",
             "The member has updated their profile",
+            [],
             [
                 {
-                    "title": "Previous nickname",
-                    "description": before.nick
+                    "title": "Previous Profile",
+                    "description": f"Nickname: {before.nick}"
+                                   f"Roles: {', '.join(role.name for role in before.roles)}"
                 },
                 {
-                    "title": "New nickname",
-                    "description": after.nick
+                    "title": "New Profile",
+                    "description": f"Nickname: {after.nick}"
+                                   f"Roles: {', '.join(role.name for role in after.roles)}"
                 }
             ],
-            [],
             discord.Color.teal()
         )
 
