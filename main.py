@@ -449,7 +449,7 @@ class Client(commands.Bot):
                     r.rpush(f"guild:{str(guild.id)}:wuilting", message_text)
 
     async def on_message_edit(self, before: discord.Message, after: discord.Message) -> None:
-        if before == "" and after == "": return
+        if (before.content == "" and after.content == "") or (before.content == after.content): return
         await send_log_embed(
             after.guild,
             before.author,
@@ -780,6 +780,7 @@ class Client(commands.Bot):
             )
 
     async def on_member_update(self, before: discord.Member, after: discord.Member):
+        if before.name == after.name: return
         await send_log_embed(
             after.guild,
             after,
