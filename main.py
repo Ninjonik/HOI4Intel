@@ -64,7 +64,7 @@ async def send_log_embed(guild: discord.Guild, user: discord.Member, title: str,
     channel = client.get_channel(channel_id)
 
     embed = discord.Embed(title=title, description=description, color=color)
-    embed.set_author(name=user.name, icon_url=user.avatar.url)
+    embed.set_author(name=user.name, icon_url=user.avatar)
     embed.set_thumbnail(url=guild.icon.url)
 
     # Add the fields
@@ -507,7 +507,7 @@ class Client(commands.Bot):
             embed = discord.Embed(title="How to setup the bot?",
                                   description="To setup the bot you need to run the following commands",
                                   color=discord.Colour.green(), timestamp=datetime.datetime.utcnow())
-            embed.set_thumbnail(url=client.user.avatar.url)
+            embed.set_thumbnail(url=client.user.avatar)
             embed.add_field(name="1.) /setup",
                             value="Using this command you setup the basic server information so that the bot can "
                                   "function properly.",
