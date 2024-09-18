@@ -190,6 +190,7 @@ class Client(commands.Bot):
     async def check_toxicity(self, message):
         self.cursor, self.connection = config.setup()
         toxicityValue = 0
+        if message.channel.id == 1286049775673806910: return
         if message.author != client.user and message.content:
             message.content = (message.content[:75] + '..') if len(message.content) > 75 else message.content
             member = message.author
