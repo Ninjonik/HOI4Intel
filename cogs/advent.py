@@ -46,11 +46,11 @@ class Advent(commands.Cog):
         pass
 
     async def gift_action_1(self, user):
-        advent_role = self.guild.get_role(1188224042650566696)
-        await user.add_roles(advent_role, reason="Advent")
+        advent_role = self.guild.get_role(1312808537453367347)
+        await user.add_roles(advent_role, reason="Advent 2024")
 
     async def gift_action_2(self, user):
-        await user.send("Day 2 Gift: Giving a special role!")
+        await user.send("Day 2 Gift: Giving a special cookies!")
 
     async def gift_action_3(self, user):
         await _add_player_name(user.id, user.name, 0.5)
