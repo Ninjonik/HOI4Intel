@@ -13,7 +13,8 @@ import logging
 import requests
 import time
 from typing import List, Dict
-
+import openai
+client = openai.OpenAI(api_key=config.openai_key, )
 
 def get_logger(name, filename):
     logger = logging.getLogger(name)
@@ -287,11 +288,21 @@ class Client(commands.Bot):
             else:
                 return False
             for attachment in message.attachments:
-                url = (f'https://api.moderatecontent.com/moderate/?key={config.moderate_content_api_key}'
-                       f'&url={attachment.url}')
-                resp = requests.get(url=url)
-                data = resp.json()
-                if data["rating_letter"] == "a" or data["rating_letter"] == "t" or data["predictions"]["adult"] > 30:
+                response = client.moderations.create(
+                    model="omni-moderation-latest",
+                    input=[
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": attachment.url,
+                            }
+                        },
+                    ],
+                )
+                print("FILTER response:", response)
+                categories = response["results"][0]["categories"]
+                if (categories["sexual"] or categories["sexual/minors"] or categories["self-harm"]
+                        or categories["self-harm/intent"] or categories["self-harm/instructions"]):
                     await message.delete()
                     try:
                         punishment = "Original message has been deleted. You have been timed-outed for 15 seconds."
@@ -311,8 +322,8 @@ class Client(commands.Bot):
                         embed.add_field(name="Punishment:", value=punishment, inline=False)
 
                         await channel.send(embed=embed)
-                        embed.add_field(name="Values", value=f"Rating: {data['rating_letter']},\n"
-                                                             f"Adult predictions: {data['predictions']['adult']}")
+                        # embed.add_field(name="Values", value=f"Rating: {data['rating_letter']},\n"
+                        #                                      f"Adult predictions: {data['predictions']['adult']}")
                         embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
                                         inline=True)
                         embed.add_field(name="User:", value=member, inline=False)
