@@ -10,7 +10,6 @@ import datetime
 import config
 import presets
 import logging
-import requests
 import time
 from typing import List, Dict
 import openai
