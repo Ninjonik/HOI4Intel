@@ -301,8 +301,10 @@ class Client(commands.Bot):
                 )
                 # categories = response["results"][0]["categories"]
                 category_scores = response.results[0].category_scores
-                if (category_scores.sexual > 0.02 or category_scores.sexual_minors > 0.01 or category_scores.self_harm > 0.01
-                        or category_scores.self_harm_intent > 0.01 or category_scores.self_harm_instructions > 0.01):
+                print(category_scores.sexual, category_scores.sexual_minors, category_scores.self_harm,
+                      category_scores.self_harm_intent, category_scores.self_harm_instructions)
+                if (category_scores.sexual > 0.002 or category_scores.sexual_minors > 0.002 or category_scores.self_harm > 0.002
+                        or category_scores.self_harm_intent > 0.002 or category_scores.self_harm_instructions > 0.002):
                     await message.delete()
                     try:
                         punishment = "Original message has been deleted. You have been timed-outed for 15 seconds."
@@ -326,7 +328,7 @@ class Client(commands.Bot):
                         #                                      f"Adult predictions: {data['predictions']['adult']}")
                         embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
                                         inline=True)
-                        embed.add_field(name="Values:" , value=[f"{key}: {value}" for key, value in category_scores])
+                        embed.add_field(name="Values:" , value="".join([f"\n{"**" if value > 0.002 else ""}- {key}: {value}{"**" if value > 0.002 else ""}" for key, value in category_scores]))
                         embed.add_field(name="User:", value=member, inline=False)
                         embed.set_footer(text="This message was sent to the user. Consider "
                                               "taking more actions if needed.")
