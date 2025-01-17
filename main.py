@@ -13,7 +13,7 @@ import logging
 import time
 from typing import List, Dict
 import openai
-client = openai.OpenAI(api_key=config.openai_key, )
+openai_client = openai.OpenAI(api_key=config.openai_key, )
 
 def get_logger(name, filename):
     logger = logging.getLogger(name)
@@ -287,7 +287,8 @@ class Client(commands.Bot):
             else:
                 return False
             for attachment in message.attachments:
-                response = client.moderations.create(
+                print(message.content, attachment.url)
+                response = openai_client.moderations.create(
                     model="omni-moderation-latest",
                     input=[
                         {
@@ -298,10 +299,10 @@ class Client(commands.Bot):
                         },
                     ],
                 )
-                print("FILTER response:", response)
-                categories = response["results"][0]["categories"]
-                if (categories["sexual"] or categories["sexual/minors"] or categories["self-harm"]
-                        or categories["self-harm/intent"] or categories["self-harm/instructions"]):
+                # categories = response["results"][0]["categories"]
+                category_scores = response.results[0].category_scores
+                if (category_scores.sexual > 0.02 or category_scores.sexual_minors > 0.01 or category_scores.self_harm > 0.01
+                        or category_scores.self_harm_intent > 0.01 or category_scores.self_harm_instructions > 0.01):
                     await message.delete()
                     try:
                         punishment = "Original message has been deleted. You have been timed-outed for 15 seconds."
@@ -325,6 +326,7 @@ class Client(commands.Bot):
                         #                                      f"Adult predictions: {data['predictions']['adult']}")
                         embed.add_field(name="Time", value=datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
                                         inline=True)
+                        embed.add_field(name="Values:" , value=[f"{key}: {value}" for key, value in category_scores])
                         embed.add_field(name="User:", value=member, inline=False)
                         embed.set_footer(text="This message was sent to the user. Consider "
                                               "taking more actions if needed.")
