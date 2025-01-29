@@ -301,10 +301,7 @@ class Client(commands.Bot):
                 )
                 # categories = response["results"][0]["categories"]
                 category_scores = response.results[0].category_scores
-                print(category_scores.sexual, category_scores.sexual_minors, category_scores.self_harm,
-                      category_scores.self_harm_intent, category_scores.self_harm_instructions)
-                if (category_scores.sexual > 0.002 or category_scores.sexual_minors > 0.002 or category_scores.self_harm > 0.002
-                        or category_scores.self_harm_intent > 0.002 or category_scores.self_harm_instructions > 0.002):
+                if category_scores.sexual > 0.005 or category_scores.sexual_minors > 0.005:
                     await message.delete()
                     try:
                         punishment = "Original message has been deleted. You have been timed-outed for 15 seconds."
